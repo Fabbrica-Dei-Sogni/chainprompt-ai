@@ -18,12 +18,6 @@ import api from './core/endpoint.js';
 import dotenv from "dotenv";
 dotenv.config();
 
-type ProcessEnv = {
-    PORT?: string;
-    NAME_ASSISTANT?: string;
-    SOCKET_PORT?: string;
-};
-
 const port: number = parseInt(process.env.PORT || '3000'); // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
 const nameAssistant: string = process.env.NAME_ASSISTANT || "Chainprompt AI";
 
