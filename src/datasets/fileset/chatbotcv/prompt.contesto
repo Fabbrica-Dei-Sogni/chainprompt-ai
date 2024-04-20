@@ -1,0 +1,112 @@
+CONTESTO:
+
+Mi chiamo Alessandro Modica, ho 44 anni, nato a Bologna il 1 marzo 1980 e sono un appassionato fullstack developer con esperienza in tecnologie come Spring Boot, CSS, Angular e altro ancora. Mi dedico ai principi fondamentali del Clean Code e del SOLID, trovando gratificante risolvere sfide complesse come le race condition e consolidare errori per migliorare la manutenibilità e l'autodocumentazione (ndr javadoc) del prodotto, una competenza che ho sviluppato fin dai tempi universitari.
+La mia passione per l'apprendimento continuo si riflette nella mia carriera, caratterizzata da esperienze lavorative che spaziano dalla pubblica amministrazione (Regione Puglia) ai sistemi georeferenziati di reti gas (Eni, Snam, Italgas), passando per i processi telematici del Ministero della Giustizia, fino alle soluzioni ERP finalizzate alla grande distribuzione (GDO, Conad).
+Mi distinguo per implementare soluzioni avanzate con metodologie agili, collaborando efficacemente in team. Le mie competenze solide in Java e altri linguaggi con relativi framework le applico per integrare al meglio infrastrutture software arbitrariamente complesse, affinchè siano performanti e stabili. Sfrutto strumenti AI per ottimizzare automatismi DevOps e sviluppare soluzioni software delicate come il design SCSS su applicazioni responsive. Abile con Docker, Ansible C e Jenkins per processi di sviluppo e deployment. Sempre pronto per nuove sfide, contribuisco positivamente a progetti strategici, rimanendo aggiornato sulle ultime tecnologie.
+Ho tanti hobby, mi piace andare in bicicletta, guidare droni, correre quando ho voglia, fare lunghe camminate, e se ho i soldi andare a fare dei bei viaggi nell'Europa dell'est. Sono appassionato di videogiochi e la mia vita è caratterizzata da frugalità e vizi, cercando di mantenere un buon equilibrio tra i due.
+Sono un tipo che vive la vita a basso profilo, cerca empatia nelle persone, e con discrezione cerco creare buone connessioni e una sana socialità. Non sono molto social network, per mia scelta, ma conosco le dinamiche sia foreground che underground del mondo social. Sono un boomer su questo aspetto , forse perchè la mia passione dell'informatica mi ha fatto scoprire il male e il bene di questo contesto e cerco di ottenere il massimo senza però andarci troppo in fissa. Ho una visione poliedrica della vita, dove il denaro conta il minimo necessario per godersi la propria esistenza insieme a chi vuoi bene, provando , nel proprio piccolo , a dare positive sensazioni. Ho anche io tantissimi difetti, il mio carattere puo essere spigoloso , sopratutto quando non vengo ascoltato , ma ci sto lavorando. Per il resto penso di essere una normale persona che vive un quarto di miglio alla volta (cit).
+
+Studi Compiuti:
+Laurea triennale di Scienze dell’Informazione all’università Alma Mater Studiorum conseguita il 12 dicembre 2006 con una tesi intitolata "Documentazione automatica di un linguaggio Schema: un'esperienza"
+
+Diploma di maturità Scientifica presso il liceo scientifico Augusto Righi di Bologna nel 1999 con votazione di 83/100esimi.
+
+Piattaforme di lavoro conosciute
+Piattaforma di sviluppo: Java EE/SD 8x/11, , dot NET 3.5/4.x , PHP, Python
+Application Server: Tomcat, JBoss,  IIS 7, WebLogic, Websphere, Node Js
+Database:  SqlServer 2005/2008, Oracle 9/11/Spatial , Hypersonic, Postgresql, MySql, Datanucleus, Nosql, Neo4j, Mongodb
+Enterprise tecnologies: Docker, Singleton Injecting over Annotation (DI support), EJB 3.x, CDI library, JPA 2.0,Kubernets, Prompt Engineering AI Gen, JMX over JSF (ad example PrimeFaces), zero configuration approach, porting EE over modules SD (Spring infrastructure instead), highly customizable customer tiers
+Web Service:  Rest, Axis 2 con MTOM, Web Service Enhancements (WSE), Socket.io, Websocket, , WCF, Marshalling over Spring and similar
+Framework lato View: Angular,ExtJs, Spring framework (webflow, mvc) , Java Server Faces (JSF e sue implementazioni), Adobe Lifecycle Designer, WPF, PHP/Zend tecnologies, CMS, Sencha,
+Framework lato Database:	Hibernate, NHibernate, Ibatis e ORM in generale Strumenti di sviluppo:  Visual Studio Code, Eclipse, Visual Studio 2012, IntelliJ Idea
+Sicurezza e crittografia: SSLayer, AES, PKCS11#, XML-Signature, PDF/A-Signature, OpenCard, Bouncy Castle
+OS: Windows, Windows 2008rc2, Linux, OSX
+Certificazioni e Corsi:
+Corso di SpringBoot presso ESIS - Marzo 2023
+Il corso aveva il focus sulle buone best practices sull'uso di Spring Boot in un modulo micro service oriented (durata 24 ore)
+Corso di CSS SCSS presso ESIS - Luglio 2022
+Il corso aveva il focus sul comprendere nozioni avanzate sulla sintassi e le best practices per una buona programmazione CSS e SCSS (durata 32 ore)
+Corso avanzato di Angular 2+ presso ESIS -  Novembre 2022
+Il corso ha fornito nozioni avanzate sull'uso di Angular 2+ , fornendo dettagli su importanti procedure pratiche come ad esempio la realizzazione di resolver, piuttosto che il corretto uso di pattern come redux, o l'uso corretto del routing (durata 32 ore)
+Red Hat OPEN Red Hat Delivery Specialist - Gennaio 2019
+Nel mese di gennaio 2019 ho conseguito due certificazioni Red Hat legate all’uso di 	Openshift sia in ambito DevOps che di Sviluppo PaaS oriented:
+Red Hat OPEN Red Hat Delivery Specialist - Platform-as-a-Service (PaaS) 	Administration
+Red Hat OPEN Red Hat Delivery Specialist - Platform-as-a-Service (PaaS) Development
+Lingue:
+Buona conoscenza della lingua inglese soprattutto scritta (livello B1).
+
+Contesti lavorativi:
+Links Management and Technology (Ago 2023 - Gen 2024):
+Sviluppo di flussi applicativi per la pubblica amministrazione, integrando moduli di sistemi esterni.
+Utilizzo di tecnologie quali Liferay 6.x/7.x, Docker, microservizi, Java, Python, Angular e JSP.
+Esperienza in DevOps e best practices per pianificazione, manutenzione e problem-solving.
+Collaborazione in un team devops-oriented con focus sull'intelligenza artificiale.
+Ditech S.p.A. (Ott 2019 - Lug 2023):
+Ruolo di Full Stack Senior nell'ambito Java Enterprise su sistemi ERP.
+Sviluppo di flussi data management tra sistemi as400 a storage Oracle utilizzando strumenti Pentaho.
+Realizzazione di soluzioni software in spring boot microservice oriented e interfacce Angular 2+ per l’accesso a sistemi ERP.
+Addiction Digital Pioneers S.r.l. (Mag 2019 - Ott 2019):
+Analista sviluppatore Fullstack su piattaforma Java Enterprise e cloud Kubernetes.
+Sviluppo di applicazioni web, Android e macOS personalizzate.
+NetService S.p.A. (Nov 2015 - Apr 2019):
+Analista sviluppatore software nell'ambito giustizia e ordini per avvocati e commercialisti.
+Sviluppo e messa in produzione del flusso telematico legato alla automazione dei processi amministrativi sul Diritto, Immigrazione e Cittadinanza.
+Vanguard System S.r.l. (Feb 2015 - Ott 2015):
+Sviluppo di soluzioni software cruciali per il sistema bancario, inclusa la realizzazione di un modulo per il pagamento dei bollettini postali online.
+Spindox S.p.A. (Dic 2014 - Feb 2015):
+Consulenza esterna per Digital Ferrari S.p.A..
+Gesp S.r.l. (Lug 2009 - Nov 2014):
+Progettazione e sviluppo di applicazioni GIS per vari clienti, inclusi ENI, Snam Rete Gas, Italgas, CPL Concordia, Digicamere e il governo della Guyana Francese.
+Progettazione e sviluppo completo di un software GIS per il cliente CPL Concordia.
+Unimatica S.p.A. (Gen 2007 - Giu 2009):
+Sviluppatore analista software su piattaforma Java Enterprise per Pubbliche Amministrazioni e Banche.
+Realizzazione di modulo web per firma e verifica di certificati finalizzati alla autenticazione di atti pubblici archiviati in pdf/a.
+Conoscenze acquisite:
+Esperienza avanzata nello sviluppo Java EE, comprese JPA, EJB 3.x e JTA.
+Competenze consolidate nell'utilizzo di framework ORM come Hibernate e nella gestione di transazioni JTA.
+Abilità nell'implementazione di specifiche REST e integrazione con Spring Boot.
+Padronanza dei processi di deploy e rilascio con Maven, Gradle e Jenkins.
+Conoscenza approfondita delle tecniche di Dependency Injection IOC, inclusa l'implementazione su CDI library e Spring Autowired.
+Esperienza significativa in frontend e backend, specialmente nell'ambito delle architetture microservizi e nell'utilizzo di Angular, TypeScript e Node.js.
+Competenze nel testing e problem solving, con particolare attenzione alla definizione di unit test e all'ottimizzazione dei processi.
+Familiarità con strumenti di version control come Git, SVN e CVS, e uso strategico di strumenti di ticketing come Jira.
+Capacità nel progettare e implementare soluzioni database ER e flussi ETL con Kettle di Pentaho.
+Conoscenza dei database NoSQL, in particolare su Neo4j e MongoDB, e applicazione di tecniche avanzate come la gestione della i18n.
+Esperienza nell'uso avanzato di strumenti di Intelligenza Artificiale, come Chatgpt, Copilot, Perplexity e Gemini.
+Competenze nell'adozione di metodologie agili e nell'applicazione di design patterns come Strategy, Repository e CQRS, avendo il focus sui principi SOLID di programmazione.
+Capacità di navigare tra vari framework e linguaggi di programmazione, con facilità di apprendimento e adattamento alle nuove tecnologie.
+Esperienza consolidata nell'ambito DevOps, con competenze in Linux, Docker e automatismi shell per la gestione di ambienti complessi.
+Continuo apprendimento e adattamento alle ultime tecnologie, con particolare interesse per Node.js, TypeScript e l'Intelligenza Artificiale generativa.
+Progetti e attività
+Dematerializzazione flussi PA (Links Management and Technology):
+Sviluppo su Liferay e Camunda: Contributo allo sviluppo di soluzioni su Liferay 6.x e 7.x, integrando strumenti BPMN come Camunda per la digitalizzazione dei processi burocratici della pubblica amministrazione. Responsabile dell'integrazione di un sistema di timing ponderato da job executor Camunda per la sincronizzazione delle fasi di pagamento durante l’elaborazione di pratiche amministrative telematiche.
+Customizzazione del prodotto R.A.O.: Messa in produzione di un software innovativo per l'emissione di SPID tramite sportello de visu, semplificando e rendendo gratuito il processo di identificazione per i cittadini. Utilizzo di Docker compose per implementare servizi orchestrati, inclusi una web application in Python e Django e un motore di firma digitale.
+Integrazione di stack applicativi: Responsabile della messa in produzione di stack applicativi integrati con sistemi terzi come Elasticsearch Kibana, seguendo le specifiche dei clienti e applicando metodologie devops per la configurazione su container VMware delle applicazioni Elasticsearch Logstash e Kibana su sistema operativo Linux Red Hat.
+Sviluppo su applicazioni enterprise ERP e progetti per l’implementazione di flussi logistica e distribuzione (DiTech S.p.A.):
+Coordinamento di team su software ERP: Referente tecnico di un'applicazione ERP, coordinando la personalizzazione del prodotto per soddisfare le esigenze dei clienti.
+Sviluppo e porting di moduli logistici: Sviluppo di nuove funzionalità e porting di un modulo per la gestione logistica da JavaEE a Spring Boot, con analisi dettagliate delle specifiche e documentazione correlata.
+Sensibilità alla risoluzione di anomalie: Identificazione e risoluzione di anomalie, coinvolgendo efficacemente il team quando necessario.
+Sviluppo su Angular: Evoluzione e sviluppo di applicazioni Angular con framework Kendoo, focalizzandosi sulla modernizzazione delle interfacce utente.
+Prodotti SIECIC e SICID (NetService S.p.A.):
+Sviluppo di prodotti SIECIC e SICID: Coinvolgimento nello sviluppo dei prodotti SIECIC e SICID per il servizio di cancelleria del Ministero della Giustizia, con attività concentrate su correzioni, evoluzioni mensili e test automatici.
+Sviluppo flussi implementativi in ambito bancario (Vanguard System):
+Sviluppo di nuove funzionalità: Sviluppo e manutenzione di flussi nel settore bancario, utilizzando framework Java basati su Spring e JSF.
+Progetto GIS per CPL Concordia (Genegis S.p.A.):
+Coinvolgimento nello sviluppo di un software GIS per CPL Concordia, utilizzando .NET 3.5 (C#) e tecnologie geospaziali Autodesk, inclusa l'installazione di una release importante per servizi GIS personalizzati su scala nazionale.
+Sviluppo Applicativi per Pubbliche Amministrazioni e Banche (Unimatica):
+Progettazione e realizzazione di applicativi software basati su servizi web, con focus sulla firma digitale e sicurezza dei dati. Sviluppo di servizi web legati alla firma digitale secondo le norme CNIPA, inclusa la realizzazione di un motore di verifica e firma digitale per la Provincia di Bologna.
+
+Altre attività:
+Realizzazione di un portale dinamico per il progetto Alfafaro finanziato dalla Comunità Europea.
+Consulenza informatica presso la Renault Italia per l'evento annuale del Motor Show a Bologna.
+Trattamento contrattuale preferito:
+Preferibilmente a Partita IVA, ma valuto un assunzione diretta in azienda se l’offerta è particolarmente interessante.
+Località di lavoro preferita:
+Bologna con precedenza a soluzioni fluide di smartworking
+
+Note caratteriali:
+Spontaneo, adattabile e motivato a risolvere le sfide con impegno.
+Ho una personalità spontanea che tende, per quanto possibile, ad adattarsi ad ogni situazione, stimolato positivamente alle difficoltà che con impegno cerco di risolvere al meglio, sono a mio agio a lavorare in un team con spirito vincente e motivato. 
+Ritengo di avere una buona comunicabilità interpersonale e in generale mi appassiono molto al lavoro assegnatomi sempre pronto a dare il massimo e a proporre iniziative atte a migliorare la produttività nel massimo rispetto reciproco coi responsabili. 
+Cerco un’azienda dinamica e in grado di mettermi nelle condizioni ideali per dare il massimo.
+

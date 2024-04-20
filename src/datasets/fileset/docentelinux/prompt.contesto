@@ -1,0 +1,845 @@
+[INIZIO-DATASET]
+
+Architettura del sistema
+Gli interrupts in Linux
+Gli interrupt sono il mezzo usato dalle periferiche per interrompere la CPU e avere la sua attenzione. 
+Ci sono altri approcci, come il riservare un indirizzo di memoria specifico per quella periferica.
+Per ottenere informazioni sugli interrupt in Linux si parte sempre dal file chiamato /proc/interrupts. 
+Quindi, un semplice comando 
+cat /proc/interrupts 
+fornisce un elenco di informazioni sugli interrupt avvenuti, il che è interessante!
+La tabella degli interrupts proposta fornisce le seguenti informazioni:
+ID dell'interrupt
+Quante volte è stato eseguito l'interrupt sulla specifica CPU (di solito è una CPU0 ma possono esserci più CPU CPU1... ecc...)
+Il tipo dell'interrupt
+Il nome dell'interrupt, ad esempio "timer"
+Ad esempio, l'interrupt chiamato "i8042" rappresenta l'I/O dell'input della tastiera, e ogni tasto inserito genera un interrupt che viene tracciato.
+
+
+
+ioports e DMA in Linux
+Analizzare il file 
+/proc/ioports.
+Lo scopo del ioports è di permettere il trasferimento dati tra il device e la memoria, una volta che il device ha generato l'interrupts. 
+Questi indirizzi sono riservati per ciascun device e assegnati al caricamento. Altrimenti ci sarebbero grossi problemi.
+Il comando 
+cat /proc/dma 
+visualizza la memoria assegnata ai dispositivi. 
+Con la tecnica DMA, il dispositivo può autonomamente trasferire i dati alla memoria a lui assegnata.
+
+
+
+Dispositivi e drivers in Linux
+Differenza tra dispositivi hot plug e cold plug
+I dispositivi cold plug devono essere riconosciuti dal sistema all’avvio.
+I dispositivi hot plug possono essere agganciati e sganciati a runtime.
+Comandi utili
+lspci fornisce l’elenco dei dispositivi PCI collegati.
+lspci -t visualizza l’elenco in formato ad albero.
+ls /dev/sd? permette di fare ricerche con espressioni regolari.
+Gestione dei dispositivi
+Dal kernel 2.6, i device vengono creati dinamicamente.
+La cartella /dev contiene tutti i device.
+Aggiungere una chiavetta USB crea un device e quindi un file nella cartella /dev.
+Sia i dispositivi cold che hot devono essere caricati in un device.
+Visualizzazione e rimozione dei driver
+Il comando lsmod visualizza tutti i driver presenti.
+lsmod | grep pcs visualizza moduli come ad esempio il pc speaker.
+Il comando per rimuovere un modulo (ad esempio pcspkr) è rmmod pcspkr e deve essere eseguito con permessi di amministratore.
+Aggiunta di un modulo
+Per aggiungere un modulo, tramite il comando insmod, è necessario il path assoluto del modulo da caricare.
+Tutti i moduli sono contenuti nella cartella /lib/modules/.
+Questa cartella ha una sottocartella col nome della versione del kernel installata sul computer.
+Per individuare il kernel effettivamente caricato si usa il comando uname -r.
+Ricerca di un modulo
+Si può trovare un modulo sul file system sfruttando il comando find.
+Si sfruttano le espressioni regolari per individuare il file.
+Si usa la sintassi bash $() per concatenare nella cartella di ricerca il nome esatto della versione del kernel.
+Esempio: find /lib/modules/$(uname -r)/ -iname "*pcspkr*.ko*".
+Caricamento di un modulo
+Una volta trovato il modulo, si esegue il comando insmod.
+Esempio: insmod /cartella/pcspkr.ko.
+Rifacendo il comando lsmod | egrep pcspkr si trova il modulo caricato di nuovo.
+Utilizzo dei comandi insmod e rmmod
+Per l’esame è necessario capire come usare insmod e rmmod.
+Il comando modprobe facilita molto queste operazioni di inserimento e rimozione.
+modprobe -r pcspkr rimuove il modulo pcspkr.
+modprobe pcspkr aggiunge il modulo pcspkr.
+Configurazione e personalizzazione di un modulo
+È possibile configurare e personalizzare un modulo di un dispositivo, ad esempio una webcam.
+Si può fare impostando all’interno della cartella /etc/modprobe.d un file di configurazione per il device specifico.
+Ad esempio, droidcam.conf con le opzioni specifiche di quel dispositivo.
+Accesso ai dispositivi e all’hardware del sistema
+Il nostro userspace e le normali applicazioni, senza avere privilegi root, possono accedere ai device e all’hardware del sistema all’interno della cartella /sys in maniera indiretta.
+mount | grep sys mostra che sysfs è montato sulla cartella /sys.
+Questa cartella mostra in modo categorizzato e quindi più ordinato tutti i device hardware caricati da Linux.
+Link simbolici
+Possono essere presenti dei link simbolici usati per montare iso, cdrom, ecc.
+Ad esempio, 
+sda -> ../devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda.
+Accedendo a questi link è possibile vedere varie informazioni, come la dimensione e altre info descritte sui vari file qui presenti.
+Ci sono di solito riferimenti ai loopdevice, ad esempio iso, chiavette usb, ecc.
+Analisi delle informazioni del dispositivo
+All’interno ad esempio del link simbolico sda (/sys/sda), si possono visionare varie informazioni.
+cat ro indica se il dispositivo è in sola lettura o no.
+cat stat visualizza statistiche varie.
+cat size visualizza la dimensione della chiavetta usb ad esempio.
+Si possono vedere le partizioni con ls sdb1, ecc.
+Accesso alle informazioni dei device
+I software che vengono eseguiti in un userspace normale, senza privilegi root, possono accedere alle informazioni dei device attraverso la cartella /sys. Questo è molto importante!
+
+
+
+Spiegazione di D-bus, HAL, udev
+D-bus
+D-bus è un message bus system che trasporta messaggi, inclusi quelli di errore.
+Permette di definire un canale di comunicazione attraverso il quale le applicazioni possono comunicare tra loro.
+Fornisce un demone di sistema per eventi come l’aggiunta o rimozione di hardware, la coda di stampa ecc., e un demone per gli user login session.
+Più applicazioni possono comunicare tramite il D-bus all’interno di una specifica user session login.
+HAL e udev
+D-bus permette di instaurare un canale di comunicazione (system bus) che permette a un’applicazione di comunicare con l’hardware (strato HAL, Hardware Abstraction Layer, che dal 2010 è deprecato).
+Lo strato HAL si collega al D-bus per fornire un database aggiornato in tempo reale sulle periferiche attualmente collegate al computer.
+HAL (o Udev) fornisce una API semplice, portabile e astratta affinché le applicazioni possano facilmente comunicare con l’hardware, indipendentemente dalle caratteristiche intrinseche dell’hardware stesso.
+Permette a qualsiasi applicazione dell’userspace di accedere al discovery dell’hardware e D-bus permette di far comunicare l’applicazione agli strati più in basso dell’architettura in modo trasparente e indipendente.
+D-bus è un bus e collega tutto quanto. Molto lineare.
+
+
+
+BIOS, EFI, Bootloader e runlevel
+Avvio di una sequenza boot con il sistema BIOS
+Il BIOS (16 bit) esegue il POST (Power On Self Test), un test di controllo all’accensione.
+Successivamente carica lo Stage 1 Boot loader dall’MBR (i primi 512 byte del disco designato come boot).
+Dal MBR esegue un codice semplice che carica lo Stage 2 Boot loader.
+Infine avvia il sistema operativo.
+Caricamento dell’initrd
+Oltre al boot, l’avvio di Linux, dopo lo Stage 2, oltre al kernel viene caricato l’initrd (Initial RAM Disk).
+Questo file contiene i moduli kernel caricabili e compilati al di fuori del kernel. Solitamente è compresso e viene caricato in RAM dal boot loader come Grub.
+Il kernel vi accede come se fosse un normale file su un file system.
+In Fedora, il comando dracut crea il file initrd.
+lsinitrd visualizza all’interno dell’initrd che viene caricato.
+Chain loading
+Un bootloader può caricare anche un altro bootloader.
+Installando Ubuntu, Grub è il bootloader predefinito.
+Dopo il POST, viene eseguito lo Stage 1, e nel MBR trova il codice per eseguire Grub che permette quindi di caricare un altro bootloader, dove poter avviare altri sistemi operativi.
+Se nella lista c’è Windows, viene caricato a sua volta un altro bootloader che si incarica di avviare Windows nelle sue logiche.
+Questa tecnica si chiama chain loading, caricamento a catena.
+EFI/UEFI
+Recentemente è stata introdotta una nuova tecnologia chiamata EFI/UEFI.
+EFI è di Intel, abbandonato nel 2005.
+UEFI (Unified Extensible Firmware Interface) è un firmware con una interfaccia e fa molte cose in modo più moderno.
+UEFI può caricare sistemi UEFI ma anche sistemi legacy.
+UEFI è un firmware complesso che richiede una partizione UEFI su un disco per fare il boot.
+A differenza di BIOS, UEFI è una piattaforma vera e propria con un linguaggio di programmazione ad hoc, mentre il BIOS ha solo codice assembly basilare.
+Altri bootloader
+Ci sono altri bootloader come LILO (Linux Loader) e GRUB, che è diventato Grub legacy. Sono bootloader per il BIOS.
+Mentre per UEFI ci sono ELILO (EFI Lilo) e Grub2.0, comunemente chiamato Grub.
+Avvio del processo /sbin/init
+Una volta che il bootloader carica il kernel e l’initrd viene avviato e completato, normalmente avvia il processo /sbin/init.
+Essendo avviato per primo ha come pid 1.
+L’init avvia tutti gli altri processi (importante) e quindi tutto il sistema operativo.
+Con systemd, /sbin/init è un link simbolico a /lib/systemd/systemd.
+Nei systemd si usa il concetto di units e possono essere: .service, .socket, .device, ecc.
+Avvio di un altro processo all’avvio
+Cosa fare se l’avvio fallisce nell’avviare l’init, si può provare ad avviare un altro processo all’avvio ad esempio /bin/sh.
+In questo modo si avvia una shell con privilegi root su cui tentare di riparare il problema.
+Runlevel
+Esiste il concetto di runlevel di esecuzione dei processi, ne esistono 6.
+Ognuno dei quali corrisponde a un livello di avvio.
+Level 0 è spento.
+Level 1 accesso con un solo utente per la manutenzione.
+Level 2 accesso multi utente ma senza supporto di rete.
+Level 3 multiutente con supporto di rete ma sei vincolato al testuale.
+Level 4 non è in uso.
+Level 5 ha il supporto di tutto con la grafica.
+
+
+
+Runlevel e diagnostica al boot
+Procedure per modificare le voci di menu al momento dell’avvio
+Selezionata la riga di avvio in Grub loader, premere e per andare in modalità di modifica.
+Posizionandosi alla fine della riga di avvio dopo gli argomenti, impostare il runlevel con cui quella riga deve avviarsi, ad esempio 1, significa che lo si avvia in modalità single user senza supporto rete.
+Si salva e si riavvia e avvia Linux in rescue mode runlevel 1.
+Essendo un unico utente, è l’utente root.
+In linea generale, impostare l’avvio con runlevel 1 è per sistemare qualcosa che è andato in errore e impedisce un avvio corretto del sistema operativo.
+Runlevel di default
+Per sapere il runlevel di default: grep initdefault /etc/inittab.
+Andando a leggere l’inittab, viene fornito un testo che spiega come non rende effettive le modifiche nel file, in quanto non è più usato da systemd.
+Per questo ci sono dei target con un nome user friendly che sono associati a corrispettivi runlevel e per sapere il default target (runlevel) esiste il comando systemctl get-default.
+Per settare un altro target si usa il comando systemctl set-default NOME.target.
+La maggior parte dei settaggi e cambi di default, come in questo caso, si limitano a cambiare il puntamento di un link simbolico da un file a un altro che rimane lo stesso e quindi trasparente al resto.
+Visualizzazione del runlevel
+Il comando runlevel visualizza il livello, ad esempio 3 se in modalità multi-user.
+Diagnostica al boot
+Un altro caso di diagnostica al boot è cambiare tramite Grub, la riga di avvio del kernel impostando come processo invece di avviare systemd esegue /bin/sh (init=/bin/sh).
+In questa modalità l’accesso è privato di tutte le configurazioni bash di un utente, e il comando whoami permette di sapere chi è l’utente con cui sei loggato, ad esempio root.
+Cambiare il runlevel bypassando il default
+In questa dimostrazione dell’uso di Grub, si aveva cambiato il runlevel a multi-user, runlevel 3.
+Se si vuole cambiare il runlevel bypassando il default, solita procedura con Grub:
+Selezionare la riga di avvio Linux desiderata.
+Premere e per andare in modalità modifica.
+Sulla riga dell’avvio kernel alla fine degli argomenti impostare il valore 5, in questo modo l’avvio avverrà in modalità grafica.
+Registrazione degli eventi ed eventuali errori di boot
+Durante il boot vengono registrati eventi ed eventuali errori di boot nel file /var/log/boot.log.
+Usare less o head o tail per visualizzare in modo comodo il log.
+Questo log viene riscritto da zero ad ogni avvio.
+Visualizzazione dei messaggi e log del kernel
+Per continuare a vedere messaggi e log del kernel durante l’uso del computer c’è il comando dmesg.
+Consultazione dei log di sistema
+Un buon punto di partenza per consultare log di sistema è il file /var/log/messages.
+Possono però cambiare i nomi dei file di log, ad esempio su Ubuntu c’è /var/log/syslog.
+
+
+
+Leggere i log con journalctl
+Journalctl
+Journalctl è l’aggregatore dei log di sistema fornito da systemd.
+Il comando journalctl mostra tutti i log della macchina.
+Con opportune opzioni si può usare in modo efficiente il comando.
+Visualizzazione dei log dell’ultimo boot
+journalctl -b mostra i log dell’ultimo boot e quindi permette di analizzare tutti gli eventi loggati all’ultimo boot.
+L’opzione -r mostra i log al contrario, reverse.
+journalctl -b -r mostra l’avvio di boot ordinando la data al contrario, dal più recente al più vecchio.
+Visualizzazione di tutti i boot
+journalctl --list-boots mostra tutti i boot.
+Visualizzazione di una specifica sequenza di boot
+Avendo la lista dei boot eseguiti, ciascun log è richiamabile da un parametro numerico.
+Quindi se si vuole visualizzare una specifica sequenza di boot si seleziona il suo indice: journalctl -b -1.
+Applicazione di un filtro di log temporale
+Si può applicare un filtro di log temporale, ad esempio tutti i log delle ultime 2 ore o simili: journalctl --since="1 hour ago".
+Il since e until sono parametri che accettano qualsiasi formato data riconosciuto.
+Esempi: journalctl --since="2024-01-08" e journalctl --since="2024-01-08" --until="2024-01-09".
+Filtraggio dei log per tipo o per utente
+Gli utenti si trovano con cat /etc/passwd.
+Si ottengono gli id degli utenti e si può usare per individuare i log degli eventi prodotti da uno specifico utente.
+Per trovare i log di un utente il comando è journalctl _UID=977.
+Ottenimento dei messaggi del kernel
+I messaggi del kernel si ottengono con l’opzione -k: journalctl -k.
+Questo corrisponde al comando dmesg.
+Ottenimento dei log di una specifica unità
+Con l’opzione -u o --unit= si possono ottenere i log di una specifica unità.
+Esempi: journalctl -u rsyslog.service e journalctl -u boot.mount.
+Ottenimento dell’elenco di tutte le unità riconosciute da systemd
+Con il comando systemctl si ottiene l’elenco di tutte le unità riconosciute da systemd, tra cui i service, molto usati e importanti.
+Uso del filtro per regular expression
+Altri usi interessanti con journalctl è il filtro per regular expression.
+Aprendo un file di log con journalctl, con shift+7 appare lo shift dritto, che fornisce il prompt per inserire un criterio di ricerca regexp sul log aperto.
+Seguire il log aperto
+Un’altra interessante opzione è il -f che segue il log aperto, simile al comando tail -f: journalctl -f.
+
+
+
+Cambiare runlevel | System V init
+Una tecnica per cambiare runlevel di avvio è quella tramite grub come spiegata nei video precedenti. 
+Ma precedentemente esisteva un approccio diverso per modificare i runlevel e quindi la fase di inizializzazione di un processo init. Tramite la modifica del file inittab. Queste nozioni sono per lo più di cultura e utili per l’esame.
+Modifiche e approcci di configurazione sul file inittab
+Seguendo l’approccio precedente ai linux moderni (System V Initialisation), si imposta l’init default con sintassi id:runlevels:action:process sul file /etc/inittab. 
+Ad esempio, x:5:respawn:/etc/X11/prefdm -nodaemon. In questo modo si esegue l’id x, con runlevel 5, all’azione del respawn il processo prefdm. 
+Altre azioni riconosciute includono:
+respawn: fai ripartire il processo nel caso dovesse fermarsi, usato per le shell per il monitoraggio delle login ad esempio
+wait: aspetta che il processo è partito
+once: fai partire il processo quando si entra nel runlevel
+ctrlaltcanc: cattura l’evento ctrl alt canc (ndr e far partire un altro processo invece del reboot)
+In alcune distribuzioni, ma recentemente sempre meno, esiste un file chiamato rc-sysinit.conf in /etc/init che è l’equivalente di inittab.
+Cose da sapere: env DEFAULT_RUNLEVEL=2. 
+Consultando il file cat /proc/cmdline fornisce la riga di avvio del kernel con gli argomenti.
+Come modificare il runlevel senza riavviare la macchina
+Il comando runlevel fornisce il runlevel avviato e quello precedente, ad esempio N 2. 
+Per cambiare l’avvio runlevel al volo senza riavviare, si può usare il comando telinit che istruisce init ad avviarsi a uno specifico runlevel, ad esempio telinit 3.
+Questo comando è comodissimo per passare da una modalità a un’altra senza riavviare, ad esempio passare dalla modalità grafica a testuale e viceversa. 
+Dopo aver eseguito degli switch di runlevel con il comando telinit, rieseguendo il comando runlevel si può notare un output che indica che il precedente runlevel era il 3 e poi il 5 e così via.
+Altri comandi per ottenere l’informazione del runlevel corrente includono il comando who, che fornisce le informazioni dell’utente corrente, l’ora di login e in che shell è avviato, mentre il comando who -r fornisce l’informazione del runlevel corrente, dell’ora in cui si è loggato, e il runlevel precedente se ne esiste uno.
+Ciascun runlevel ha degli inizializzatori diversi
+In /etc/init.d si trova l’elenco di comandi e demoni avviati all’init, alcuni sono link simbolici ecc… Ciascun runlevel ha una cartella speciale su /etc/, ad esempio /etc/r0.d, /etc/r1.d, ecc… ls -d rc?.d.
+I prefissi ai vari comandi hanno dei significati:
+S: script di startup
+K: script di killed, uccidere servizi e terminazione
+Il numero che segue indica l’ordine in cui lo script è eseguito.
+Tramite i link simbolici si possono impostare l’avvio degli script a seconda il runlevel. 
+Ci sono dei tool ad esempio sysv-rc-conf che permettono di vedere un elenco in cui per ogni servizio è indicato in che runlevel è impostato. 
+Il comando esegue la rimozione e aggiunta dei link simbolici sulla cartella rc corrispondente a seconda il servizio e runlevel scelto. Un altro comando è chkconfig.
+
+
+
+Comandi shutdown e wall
+Le procedure di cambio runlevel possono permettere un facile switch con i comandi telinit init, ma i processi potrebbero non chiudersi correttamente o quanto meno non ci sono logiche di chiusura corretta dei processi.
+ Le azioni di shutdown e reboot permettono di chiudere correttamente i processi avviati prima di passare al runlevel richiesto. 
+Ad esempio, il comando shutdown -r 15 esegue una chiusura corretta dei processi avvertendo tutti gli utenti che il sistema sta per passare ad un altro runlevel (di solito shutdown). 
+Se qualche processo non viene chiuso correttamente entro un limite di default di 5 secondi shutdown -r 15 -t (secondi), allora viene inviato un segnale di terminazione (ndr 15 è il segnale TERM).
+Parametri interessanti da passare a shutdown
+shutdown -H
+shutdown -P
+shutdown -r
+shutdown -h
+shutdown -k: invia una finta senza però chiudere.
+Se è avviato uno shutdown, con il comando shutdown -c annulla il shutdown impostato. 
+Si può personalizzare il messaggio di shutdown da inviare agli utenti shutdown 15 "questo host verrà riavviato". 
+Se si esegue uno shutdown programmato in largo anticipo, il messaggio non viene inviato subito, ma di default 15 minuti prima lo shutdown vero e proprio.
+Ogni shutdown programmato può quindi essere annullato con l’opzione -c.
+Comando wall
+Un comando molto figo è wall, che permette di inviare un messaggio in broadcast a tutti gli utenti wall "ciao a tutti". 
+Si possono iniettare comandi a variabile lambda style $() per risolvere stringhe output come ad esempio del comando date. 
+Mi raccomando non usare i ! (punti esclamativi) nel messaggio, altrimenti si generano errori strani. 
+Ho trovato un bug sull’evento. 
+È obbligatorio usare i singoli apici come stringa, per impedire l’interpretazione di keyword bash come il !.
+
+
+
+Come funziona upstart
+Differenze tra il sistema di Upstart e quello precedente SystemVinit
+Il sistema “upstart” fu introdotto da Ubuntu nel 2009 e va a sostituire il deprecato sistema SystemVinit. Successivamente, upstart è stato integrato in altre distribuzioni come Fedora 14 quindi Red Hat. Con il sistema upstart, tutti gli script sono stati rimpiazzati con file di configurazione presenti in /etc/init e /etc/init.d. Ad esempio, un canonico servizio di conf per avviarlo è definito con start on filesystem or runlevel [2345] e stop on runlevel [!2345] ([!2345] -> tutti i runlevel diversi da 2345).
+Ubuntu si è allontanato da Upstart
+Ubuntu si è allontanato da Upstart con il rilascio della versione 15.04 (Vivid Vervet) a favore della migrazione su systemd.
+Upstart è una modalità che è stata dismessa ufficialmente
+Upstart è una modalità che è stata dismessa ufficialmente nel marzo 2023, sostituito completamente da systemd. Si fa nozione della sua esistenza e della probabilità che qualche versione Linux possa averla. I file di configurazione descritti alla nota precedente definiscono la modalità di come viene avviato uno servizio seguendo le regole di runlevel e azioni associate. C’è il supporto per il loro avvio e stop anche tramite eventi, oltre che all’ingresso di un certo runlevel. Il comando initctl show-config fa vedere la configurazione degli script con upstart. Ogni singolo servizio elenca chi lo avvia e chi lo ferma se in base di runlevel o eventi ecc…
+
+
+
+Come funziona systemd
+Uso di systemd
+Il concetto è che i demoni comunicano attraverso i socket fornendo un parallelismo secondo cui, per lanciare i servizi il boot system crea i socket all’avvio, e soltanto alla ricezione di specifiche richieste il servizio viene effettivamente avviato (eventi, runlevel corrente, ecc). Lo scopo è di non avviare necessariamente i servizio all’avvio del sistema, ma soltanto dopo esplicita richiesta, rendendo più veloce l’esecuzione complessiva. Un esempio di questa filosofia è la gestione da parte di systemd dell’ autofs, compatibile con gli approcci legacy tipo initfstab, ma è possibile rendere disponibile il mount ma viene eseguito esplicitamente dopo una richiesta per accedervi. L’inizializzazione nativa di systemd è basata sulle unit. Ogni unit ha una estensione .service, .target, ecc…
+Il comando principale per gestire queste unità è systemctl
+systemctl status crond.service indica in che stato è, se è attivo, da quando è attivo, il pid del processo e il cgroup che avvia il processo secondo i specifici argomenti. systemctl stop crond.service rifacendo lo status si può verificare che il servizio è fermo, inattivo, dead, dalla data, e altre info come il pid e il codice di chiusura. Infine alcuni log in fase di uscita. systemctl start crond.service rifacendo lo status ritorna attivo con un pid diverso e i log dell’avvio del demone.
+Strutturazione di un file .service
+Aprendo il file di un servizio, si trova la seguente struttura:
+[Unit]
+Description=""
+After="servizio1.service servizio2.service ..."
+ 
+[Service]
+EnvironmentFile=""
+ExecStart=""
+ExecReload=""
+KillProcess=process
+ 
+[Install]
+WantedBy=runlevel.target
+
+
+In After si elencano i servizi che devono partire dopo il suo avvio. wantedby specifica in che runlevel deve essere l’init. killprocess modalità con cui viene ucciso.
+Systemd oltre che ad avviare i servizi a init e secondo le sintassi dichiarative a configurazione, ha anche altri utilizzi
+Ci sono vari altri comandi che iniziano con systemd-. systemd-analize blame permette di capire quanto ogni servizio ha impiegato in fase di boot, capire chi è stato il più lento. Systemd sostituisce il concetto di “runlevel” con il concetto di “boot target”.
+
+
+
+ACPID
+ACPID è un demone per la gestione degli eventi ACPI. Gli eventi possono includere la chiusura del portatile, pressione tasti speciali, tasti di accensione, disconnessione connessione LAN, plug n play, ecc.
+È importante ricordare che alcuni desktop environment come Gnome, o il Login Manager di systemd, hanno una gestione degli eventi ACPI in modo interno e indipendente. Quindi l’uso del demone acpid con questi ambienti potrebbe generare problemi di conflitti di varia natura.
+Ad esempio, in una distribuzione Debian può capitare che il demone acpid sia installato ma disabilitato. Esiste il file di configurazione /etc/acpi/handler.sh dove è possibile inserire varie regole da eseguire. Ad esempio:
+button/sleep)
+    case "$2" in
+        SLPB) echo -n ecc ecc ;;
+        *) logger "ACPI azione sconosciuta $2" ;;
+    esac
+;;
+
+
+Installazione di Linux e Package Management
+GNU Parted - Alterare la tabella delle partizioni
+Gnu Parted è il tool principale per gestire le partizioni Linux.
+In passato è stato utilizzato fdisk. Supporta le partition table a 32 bit, usando partizioni con MBR, anche se c’è una sperimentazione con partizioni GUID.
+GPT e Parted
+GPT sta per GUID Partition Table, il nuovo modo per creare partizioni. 
+Il tool è parted e usa la stessa sintassi di fdisk. parted supporta sia mbr che gpt. 
+Quando è elencata la lista delle partizioni si può vedere un set di informazioni: il numero partizione, l’inizio e la fine della partizione, la dimensione, il tipo di partizione (primaria, estesa o logica), il tipo di file system e dei flag, come quello di avvio che indica che è una partizione di boot.
+ Ad esempio, il flag 0x83 è il file system di Linux.
+Una partizione estesa che comprende una partizione logica, utilizzato nella partizione mbr di msdos in cui sono supportate fino a 4 partizioni primarie con massimo due tb, ognuna delle quali può essere una partizione estesa e contenere più partizioni logiche, abbattendo il limite delle quattro partizioni. 
+Nel caso in cui è installato un altro disco su /dev/sdb, che però non contiene partizioni, risulta essere un disco non riconosciuto.
+Le stesse informazioni si hanno facendo fdisk -l. In modo simile si hanno informazioni: identificativo del dispositivo "/dev/sda1" ecc, il flag se è di boot rappresentato da un asterisco *, il settore di inizio e di fine della partizione, numero totale dei blocchi, l’id della partizione che ne specifica il tipo ad esempio 83 è una ext4 linux, 5 è esteso ecc, il tipo di partizione se esteso o swap o linux ecc. 
+Se trova un disco che non ha tabella partizione viene indicato l’errore che non è contenuta alcuna tabella di partizione.
+Creare una tabella delle partizioni sul disco
+Per creare una tabella delle partizioni sul disco, usando una tabella standard mbr con parted, l’opzione mklabel imposta la tabella in questo caso di tipo mbr (msdos): parted /dev/sdb/ mklabel msdos.
+Potrebbe visualizzare il messaggio “Potrebbe essere necessario aggiornare /etc/fstab”. /etc/fstab contiene i dischi da montare al boot. 
+Se il disco non ha un utilizzo specifico si può ignorare.
+Si crea una partizione primaria di swap col comando parted /dev/sdb -a cylinder mkpart primary linux-swap 2 102. 
+L’opzione -a cylinder permette di specificare la dimensione in mb della partizione e sarà parted ad allineare i cilindri corrispondenti.
+Una volta creata per verificare che è ok si può visualizzare la tabella partizione creata col comando parted /dev/sdb print, equivalente a parted -l.
+Il comando parted /dev/sdb print free visualizza anche i blocchi in cui c’è spazio libero tra le partizioni. 
+Continuando con la raffinazione della partizione swap creata, si vuole impostare un file system sul disco in cui è stata creata la tabella partizione con una primary swap (numero 1): mkswap /dev/sdb1.
+
+Creare una tabella partizione diversa come una GPT (GUID)
+Si può creare anche una tabella partizione diversa come una GPT (GUID) con il comando parted /dev/sdb mklabel gpt. 
+Se l’operazione viene eseguita su un disco in cui esiste già una tabella di partizione, viene visualizzato un messaggio che avvisa che la creazione di tale nuova tabella partizioni rimuoverà quella precedente con tutti i dati. 
+Rieseguendo il comando parted /dev/sdb print, verrà visualizzata la tabella partizione appena creata (dopo aver distrutto quella precedente) indicandola di tipo gpt con zero partizioni. 
+La tabella partizione GUID è a 64 bit, supporta fino a 128 partizioni primarie con massimo 8 zettabyte ciascuno. Un PC BIOS non può fare il boot su una partizione gpt, ma solo tramite UEFI. 
+Tuttavia, è possibile usarlo come disco secondario avendo il BIOS come boot loader.
+Creare una partizione in modalità interattiva
+Digitando solo parted senza argomenti, il tool si avvia con la sua console di comando selezionando in automatico il primo disco che trova. 
+Per selezionare un disco specifico, all’interno della console di parted inviare il comando select /dev/sdb. 
+Si possono inviare direttamente i comandi di parted nella CLI. 
+Si può quindi creare una partizione in modalità interattiva senza alcun parametro, facendosi guidare dai suggerimenti che propone parted con il comando mkpart senza parametri. 
+Chiede quale tipo di partizione, suggerendo le opzioni possibili (primary, extended). 
+Chiede il tipo di file system, suggerendo quale usare ad esempio ext2 (doppio tab le visualizza tutte). 
+Notare che è stato usato il comando mkpart e non mkpartfs (che crea anche il file system), in ogni caso il wizard chiede il tipo di file system il quale non viene creato, ma viene solo predisposto l’id del filesystem in modo che possa essere creato il file system vero e proprio avendo già l’identificativo corretto.
+Creare il file system e montarlo
+Il wizard continua indicando l’inizio e la fine. Completato il wizard si è creata la partizione desiderata nel disco desiderato. 
+Eseguendo print si ottengono le informazioni della partizione creata sulla tabella gpt. Visualizzando anche con fdisk -l si ottengono le informazioni attese. 
+Attualmente sulla partizione non esiste alcun file system. Quindi se si tenta di montarlo con mount /dev/sdb1 /media, darà errore in quanto non è stato trovato alcun file system. 
+Per creare il file system digitare mkfs.ext4 /dev/sdb1. Il suffisso dopo il . rappresenta un comando ad hoc per ciascun file system. 
+Una volta creato il file system è possibile ora montarlo col comando precedente. 
+Si può quindi accedere al file system e creare file, cancellare file ecc. 
+Il comando umount /media smonta il file system, quindi nonostante ci siano dati, non è possibile accederci in quanto è stato smontato.
+
+
+
+PARTED: Recupero partition table
+Approfondimento sull’uso di parted per recuperare partizioni linux o partition table rimosse per errore
+Se si rimuove casualmente una partizione per errore, come si recupera? Quando si cancella una partizione non significa cancellare i dati che rimangono, ma non esiste più la struttura delle partizioni per poterci accedere. 
+Se si prova a ricreare la stessa partizione con stesso inizio e fine (capire se ciò è cruciale per ripristinare i dati, perché se non si ricorda l’inizio e fine di una partizione specifica potrebbe essere un problema), si potrebbe notare che nonostante sia stato impostato il file system di default “ext2” venga poi proposto al print la partizione ricreata ma con il file system originale “ext4”. 
+Se monto la partizione ci accedo e trovo tutti i dati.
+Se invece si perde la tabella delle partizioni
+Per simulare la perdita della tabella delle partizioni, si può scrivere dd if=/dev/zero of=/dev/sdb bs=512 count=1. 
+Se si tenta di accedere alla partizione con parted /dev/sdb, non si trova nulla e se si esegue un print, viene mostrato il messaggio “Errore: /dev/sdb: etichetta del disco non riconosciuta”. 
+Non c’è alcuna tabella di partizione, può capitare per mancata corrente improvvisa ad esempio.
+Stessa procedura, si crea la tabella da zero con il comando mklabel da parted. 
+Si imposta la stessa tabella di partizione originale, nel caso dell’esempio msdos. 
+Potrebbe essere visualizzato il messaggio che la tabella è stata scritta, ma che il kernel non ha recepito la modifica perché forse già in uso, in queste situazioni si può ignorare il messaggio e proseguire normalmente. 
+Facendo print si verifica che la tabella di partizione è stata ripristinata.
+Si ricrea la partizione in cui ci sono i dati, si nota che il file system è ripristinato con quello originale, si monta, e si riottengono i dati.
+
+
+
+
+Swap, Swapfile e Swappiness
+Funzione della partizione di swap
+La partizione di swap serve per sostituire la RAM come supporto memoria per evitare che il sistema vada in overmemory. Per altri sistemi operativi può risiedere anche in un solo file, come Windows.
+Con il comando getconf PAGESIZE si ottiene l’informazione della pagina minima di swap ad esempio 4kb. Ossia 4kb alla volta viene scritto sullo swap. Il comando swapon -s visualizza le partizioni swap attualmente in uso.
+Visualizzazione delle partizioni swap
+La videata di swapon mostra il nome della partizione e dove è montato, il tipo di partizione, la dimensione, quanto è usata e la priorità. La priorità serve per dare precedenza a partizioni di swap se sono più di una.
+Quanta swap assegnare in fase di installazione del SO dipende da quanta RAM si ha. 1.5/2 volte la dimensione della RAM, se la RAM è oltre i 16GB può non essere obbligatoria questa regola, anzi si può anche pensare di settarne un quantitativo più basso.
+Il comando swapon visualizza il file /proc/swaps come molti altri comandi Linux che si basano su informazioni lette da opportuni file virtuali o meno.
+Creazione di una nuova partizione di swap
+Procedura per creare una nuova partizione di swap: si userà fdisk. fdisk /dev/sdb con m si richiama la guida. Comando n per creare la partizione. Tipo partizione p. Numero partizione si lascia predefinito 1. Primo settore lo si lascia predefinito (2048). Con l’ultimo settore si specifica la dimensione della partizione e si può usare la sintassi additiva ad esempio +100M (aggiungi 100 MB).
+L’ID di una partizione swap non è 83 come mostrato a video, ma è 82 e bisogna modificarla con l’opzione t e si indica l’ID 82 (premendo L si può avere la lista di tutti gli ID delle partizioni riconosciute). Fatto questo con l’opzione w si scrive effettivamente la partizione ed è così creata e pronta all’uso.
+Creazione del file system di swap
+Con fdisk -l /dev/sdb si può accedere alla partizione creata e si nota che non è necessario definire la label, perché fdisk supporta solo e soltanto partizioni DOS. È una partizione vuota senza file system, quindi bisogna creare il file system di swap con il comando mkswap /dev/sdb1 con l’opzione -L si poteva specificare l’etichetta al file system.
+Una volta che la partizione swap è creata e con il suo filesystem, per attivarla e renderla disponibile al sistema operativo si esegue il comando swapon /dev/sdb1 e con il comando free -m si può verificare che la swap nuova è stata caricata. Per disattivare la partizione swap si esegue il comando swapoff /dev/sdb1.
+Con il comando swapon -s si elencano le partizioni swap inclusa quella nuova creata.
+Priorità delle partizioni swap
+Con il comando swapon /dev/sdb1 -p 5 si dà la priorità 5, e più è alto il numero più ha priorità. Le modifiche eseguite con il comando swapon swapoff non sono permanenti, ma valgono fino al prossimo riavvio.
+Rendere permanenti le modifiche
+Per rendere permanenti le modifiche si modifica il file /etc/fstab. È importante definire la partizione che si vuole aggiungere con il suo UUID. Per recuperare l’UUID della partizione che si vuole aggiungere permanentemente su fstab si usa il comando blkid /dev/sdb1 che ritorna l’UUID della partizione e il suo tipo, nel nostro caso swap.
+Per aggiungere la riga nel file fstab in modo interessante, si può usare vim e con il comando : r ! blkid /dev/sdb1 aggiunge esattamente il valore del comando sul file fstab tramite vim, molto molto interessante.
+Configurazione di fstab
+La riga significativa da inserire su fstab è la seguente: UUID="uuid della partizione presa dal comando blkid" swap swap sw,pri=5 0 0.
+Gestione della Swap
+Con free -m si ottiene la situazione attuale. swapoff -a rimuove la swap da tutti i dispositivi e porta i dati in RAM e disattiva la swap. Con il comando swapon -a monta tutte le partizioni di swap previste e con free -m si verifica che la partizione di swap è di nuovo disponibile, altrimenti darebbe vuoto.
+Swapping su un file
+È possibile fare swapping su un file. dd if=/dev/zero of=/tmp/swapfile bs=10M count=10 genera un file di zeri grande 100mb. Con il comando mkswap /tmp/swapfile si crea l’UUID del disco di swap sul file. Si carica questo swapfile con swapon /tmp/swapfile. Potrebbe avvisare che il file è insicuro e che deve impostare i permessi 600. Gli swap su file sono supportati su alcuni file system non tutti, come il btrfs.
+Controllo della Swappiness
+È possibile controllare a quale soglia la swap comincia a entrare in azione prima che la RAM si satura. Il file swappiness /proc/sys/vm/swappiness mostra il valore di soglia in cui entra in azione va da 0 a 100. Più è alto più è aggressiva, più è basso meno frequentemente è utilizzata. Con il valore 0 la swap entra in azione solo se la RAM si riempe completamente, mentre con 100 si ha una swap aggressiva che costringe alla memoria RAM di svuotarsi più frequentemente.
+Impostazione permanente della Swappiness
+Il valore della swappiness per renderlo permanente si interviene sul file /etc/sysctl.conf di solito è vuoto e si imposta la variabile vm.swappiness=80.
+
+
+
+
+Progettare il partizionamento dei dischi
+Tecniche di progettazione di partizione
+Per visualizzare le partizioni montate e avere dettagli si usa il comando df -hHT. Esiste uno standard nel montare le partizioni, FHS. FHS è lo standard di utilizzo che rappresenta l’albero delle cartelle su Linux con ognuno la sua specifica funzione. È importante notare che la partizione di boot è sempre separata e non montata su un file system LVM, in quanto le informazioni del boot, come il bootloader o le informazioni dell’MBR piuttosto che dell’UEFI devono risiedere in una partizione accessibile prima che il sistema operativo venga effettivamente caricato. Per questo la partizione boot è sempre separata e con una partizione non LVM (Logical Volume Manager).
+L’autocompletamento con il tab e doppio tab funziona con qualsiasi comando anche ls. initramfs initrd il kernel di Linux e le varie versioni installate di cui una è in uso. Informazioni fondamentali per l’avvio del sistema e devono essere sempre accessibili. Un’altra partizione è sr0 che di solito è un CD-ROM con il suo tipo di file system ISO con spazio libero sempre al 100% in quanto in sola lettura.
+Gestione delle partizioni
+Altre cartelle che dovrebbero essere montate in partizioni separate: la cartella home e var seguendo i best practice dell’FHS. La cartella home contiene le cartelle degli utenti. E ciascuna cartella utente sono visualizzate le cartelle standard e quelle gestite dall’utente. Il comando du -sh /home/amodica visualizza la dimensione della cartella selezionata. du -h /home/amodica visualizza la dimensione di tutte le cartelle all’interno di quella selezionata.
+Nella cartella home finiscono tutti i dati degli utenti. Ciascun utente può riempire tutto lo spazio riempendo il disco e bloccando il sistema operativo, e questo non va bene. Buona pratica quindi è montare la cartella /home su una partizione dedicata in modo da limitare problemi di spazio in quella partizione, assicurandosi che il sistema continui a funzionare.
+Progettazione di partizioni ad hoc
+Teniamo conto di avere un disco nuovo libero: /dev/sdb non partizionato. fdisk /dev/sdb si crea la partizione con le opzioni fdisk primaria si imposta ad esempio un ultimo settore con +4G poi un’altra partizione primaria usando lo spazio rimanente. E poi si scrivono con w. Può succedere che venga visualizzato il messaggio “La tabella delle partizioni è stata alterata” e poi il messaggio “Sincronizzazione dei dischi in corso” se poi ci sono errori come resources busy significa che la tabella letta in memoria è diversa da quella appena creata, e magari anche in uso generando errori. Per risolvere questi problemi bisogna comunicare al sistema che è cambiata con il comando partprobe /dev/sdb.
+
+
+Creazione dei file system
+Si provvede quindi a creare i file system con il comando mkfs -t ext4 /dev/sdb1. È possibile anche usare i comandi mkfs seguito con un punto dal tipo di partizione desiderato ad esempio mkfs.ext4 /dev/sdb1. Stesso discorso per la seconda partizione su /dev/sdb2. Se si riesegue il df -ht non si vedono differenze, in quanto non sono stati montati.
+Il concetto di montaggio significa definire la cartella del sistema a cui fa riferimento il contenuto di una partizione opportunamente preparata con il file system scelto. E seguendo le regole FHS, queste due partizioni andranno a definire gli spazi per la cartella /home e /var. La cartella che viene usata per montare una partizione si chiama “punto di mount”.
+Montaggio delle partizioni
+Quindi avendo definito le due partizioni con i loro file system fdisk /dev/sdb, si vuole quindi montare la partizione sdb1 sulla cartella /home, mentre la partizione sdb2 sulla cartella /var.
+Attualmente la cartella /home è già usata e non è vuota ci sono dei dati. È quindi necessario montare la partizione su un’altra cartella /mnt, successivamente si copiano i dati dalla cartella /home attuale a quella cui è stato montata la partizione sdb1.
+Se si volesse subito montare la partizione sulla cartella /home i dati coprirebbero lo spazio della partizione montata, rendendoli di fatto inaccessibili. È necessario fare un lavoro di “travaso” dati prima di montare la partizione alla cartella /home.
+Copia dei dati e montaggio finale
+La cartella /mnt è pensata per montare temporaneamente dei file system come in questo caso. Si monta, si copiano i dati e poi si monta la nuova partizione su /home.
+Un comando utile per copiare è rsync con le opzioni -arv dove a è archivio cioè non cambia i permessi dei file che si stanno copiando (importante), r ricorsivo, v verboso. rsync -arv. Se si riesegue il comando controlla ciò che è stato copiato prima. Il comando rsync infatti è un comando di “sincronizzazione” dati, cioè analizza ed eventualmente copia nuovi dati se presenti nella folder sorgente.
+Si cancella la cartella /home tramite rm -fr /home. È possibile quindi smontare da /mnt la partizione e montarla sulla cartella desiderata /home. Ricordarsi che la partizione montata è valida fino al prossimo riavvio, in quanto il mount con questa modalità non è permanente. È necessario modificare il file /etc/fstab inserendo l’UUID e i campi necessari impostandolo alla posizione 3 nella lista. UUID="dsadsa" /home ext4 defaults 0 3.
+Liberazione dello spazio e considerazioni finali
+In questo modo si è liberato spazio dalla cartella radice / e si è dedicato spazio alla cartella /home in una partizione dedicata, così da impedire problemi di spazio esaurito all’intero sistema. È buona norma predisporre già queste partizioni in fase di installazione del sistema, onde evitare di eseguire questa procedura in un secondo momento. La stessa identica procedura può essere eseguita per dedicare la partizione sdb2 alla cartella /var. Il comando mount -a esegue il mount di tutte le partizioni definite su /etc/fstab.
+
+
+
+
+Cos’è e come funziona LVM
+Definizione di LVM
+Il Logical Volume Manager (LVM) è il modo con cui è gestito su Linux il modo di partizionare i dischi fisici attraverso un sistema di astrazione dal livello fisico. A prescindere dalla configurazione fisica e hardware, questa è nascosta alle applicazioni.
+Il Physical Volume è un intero disco fisico. Il Volume Group è un insieme di dischi fisici. I Logical Volumes rappresentano le partizioni logiche dei dischi viste dalle applicazioni in modo trasparente.
+Gestione flessibile della memoria
+La gestione flessibile della memoria permette di aumentare o ridurre la memoria di una partizione. È possibile aggiungere un nuovo disco fisico a un Volume Group e assegnare la memoria necessaria alle varie partizioni. Tutto questo può essere fatto completamente a caldo, senza riavviare la macchina. È possibile quindi spostare dei dati da un device a un altro, aggiungere il nuovo device, definire le dimensioni delle partizioni e ricopiare i file sulla partizione modificata.
+Striping e Snapshot
+Lo striping è un altro grande supporto previsto dal Logical Volume Manager, che permette una copiatura dei dati in modo simile a quanto avviene nel RAID 0 quando sono presenti due o più dischi. I dati sono quindi scritti su più dischi, raddoppiando la velocità in scrittura e lettura.
+Inoltre, esiste il supporto dello snapshot a caldo dei volumi. Si può fare un check dell’integrità dei dati attraverso gli snapshot, permettendo il recupero di dati, il backup e definire disaster recovery efficienti.
+
+
+
+
+LVM: Aggiungere e Rimuovere Dischi
+Operazioni Basilari con LVM
+Con il comando lvm si accede a una console dedicata interattiva. Con help si possono vedere tanti comandi. Facendo df -h si vede una situazione iniziale di partizioni. L’obiettivo è fornire un ampliamento di memoria alla radice / di Linux attraverso la configurazione opportuna di un nuovo disco fisico montato sul computer.
+I comandi di interazione di un Physical Volume hanno prefisso pv, quindi con doppio tab si vede l’intero elenco. pvscan analizza i dischi fisici montati. I comandi con prefisso vg sono tutti legati a come configurare un Volume Group aggregando vari dispositivi fisici. vgscan esegue un’analisi di tutti i Volume Group presenti, ad esempio se ne trova uno chiamato “cl”. I comandi con prefisso lv sono tutti legati alla gestione dei Logical Volume. lvscan analizza tutti i Logical Volume.
+Creazione di una Nuova Partizione di Tipo LVM
+Con il comando noto fdisk si analizzano tutti i dischi presenti, tra cui quello nuovo installato /dev/sdb. Si esegue e si crea la partizione unica fdisk /dev/sdb. È buona idea definire una unica partizione sull’intero disco se lo si vuole usare interamente, agendo a livello di partizione piuttosto che di volume fisico.
+Si crea quindi con l’opzione n (nuova partizione), p (primary), primo settore predefinito, ultimo settore predefinito (intero disco) e l’etichetta “8e” che indica una partizione di tipo Linux LVM e si scrive la partizione con w. Facendo il comando fdisk -l /dev/sfb mostrerà in elenco la nuova partizione creata.
+Fatto ciò si è creato una partizione di tipo LVM. Ora è necessario attraverso i comandi di Physical Volume, creare un disco fisico col comando pvcreate /dev/sdb1. Con il comando pvscan si può vedere il nuovo Physical Volume creato, che non appartiene a nessun Volume Group.
+Estensione del Volume Group
+Avendo già un Volume Group chiamato cl, si vuole estendere il Volume Group esistente con il nuovo Physical Volume creato /dev/sdb1 col comando vgextend cl /dev/sdb1. Una volta esteso il Volume Group col comando vgdisplay si può vedere che ora il Volume Group ha una dimensione uguale alla somma dei due dischi fisici.
+Facendo il comando lvscan si vedono i Logical Volume preesistenti ma con la dimensione originale, si vuole ora estendere la dimensione del Logical Volume interessato, ossia quello di root. Per fare questo si usa il comando dove /dev/cl/root è il Logical Volume di root lvextend /dev/cl/root -L +8G. Fatto questo col comando lvscan si possono vedere le nuove dimensioni effettive (tutto a caldo senza riavvio).
+Rimozione di un Disco
+Prendiamo l’esempio per cui il disco /dev/sdb1 lo devo rimuovere. Si deve prima muovere i dati della partizione su /dev/sdb1 col comando pvmove /dev/sdb1. Si deve prima eseguire un resize del Logical Volume (quello in cui è stato aggiunto spazio del disco sdb1 ai passaggi precedenti) lvresize /dev/cl/root -L -8G. Ci sarà un avvertimento che notifica il rischio di perdere dati se si riduce la partizione.
+Fatto questo si può eseguire il comando pvmove /dev/sdb1. Avendo ridimensionato il Logical Volume, avendo mosso i dati fisici di /dev/sdb1 si può rimuovere dal Volume Group la partizione sdb1 col comando lvreduce cl /dev/sdb1. È ora possibile rimuovere il Physical Volume sdb1 col comando pvremove /dev/sdb1. E rieseguendo i vari comandi pvscan, lvscan, vgscan si può verificare che si è ritornati alla situazione iniziale.
+
+
+
+
+ La Partizione EFI (ESP)
+Analisi delle Partizioni
+Andando ad analizzare le partizioni con il comando parted -l e poi con mount | grep boot, si scopre la partizione di boot in /boot/efi.
+La Cartella EFI
+In questa partizione c’è la cartella EFI. Questo è lo standard. Ci saranno altre cartelle e possono esserci cartelle dedicate per avviare altri sistemi operativi come Windows.
+I Bootloader
+In queste cartelle sono presenti i bootloader per avviare il sistema operativo. Con il comando file /boot/EFI/BOOT/grubx64.efi si possono vedere le caratteristiche del file bootloader in questione.
+Il Bootloader Predefinito
+Esiste il bootloader predefinito sulla cartella /boot/EFI/BOOT.
+
+
+
+
+GRUB Legacy
+Installazione di GRUB
+Una volta installato GRUB con grub-install, è buona norma fare un backup del Master Boot Record (MBR) prima di installare grub-install con il comando dd if=/dev/sda of=/home/amodica/Scrivania/sda.superblock count=1 bs=512. Fare riferimento alla versione Linux corrente, perché le informazioni potrebbero essere diverse su distro Linux recenti.
+Ad esempio, su una Ubuntu 8.10 (molto obsoleta), l’installazione di GRUB1 è salvata su un file chiamato /boot/grub/device.map. Ma ad esempio su una Ubuntu 22.x è stato salvato da un’altra parte.
+Si può fare reboot e verificare le varie voci di boot all’avvio, dove poterle modificare con l’opzione e e poi rieseguire il reboot, ecc. Col comando vi /boot/grub/menu.lst.
+File menu.lst
+In una versione Linux obsoleta come Ubuntu 8.10 si ha nella folder /boot/grub il file menu.lst. In questo file sono elencate le righe di menu viste sul menu GRUB all’avvio con le varie impostazioni per ciascuna regola di avvio.
+Impostazioni Generali
+Si hanno impostazioni generali:
+default 0 --> indica la linea 0, altrimenti quella a piacimento cambiandone il numero
+timeout 10 --> indica che aspetta 10 secondi prima di avviare il boot della riga selezionata
+hiddenmenu --> indica che il menu è nascosto e non viene visualizzato, se commentato il menu viene sempre visualizzato.
+Le altre opzioni rappresentano le varie opzioni di avvio definite nel seguente modo:
+title -> specifica il nome della voce di avvio della riga
+uuid --> l’UUID identificativo della partizione su cui è presente il file GRUB di avvio.
+kernel --> il file del kernel che si vuole avviare, può essere in un’altra partizione e l’UUID potrebbe essere diverso da quello specificato nella riga precedente in cui c’è GRUB. Ci sono poi vari argomenti del kernel come ad esempio il runlevel, il quiet o lo splash (visualizza le scritte di log di avvio se commentato)
+initrd --> il file ISO in cui ci sono le informazioni dei driver per eseguire il boot
+Creazione di una Nuova Entry
+Si può quindi creare una nuova entry in base alle impostazioni descritte nel modo seguente:
+title Ubuntu personalizzato
+uuid "uuid del disco su cui si trova grub"
+kernel il path del kernel desiderato con diverse proprietà a seconda le esigenze
+initrd il path della iso dei driver necessari per il boot
+Impostando il default alla nuova riga, l’avvio verrà eseguito in automatico con la nuova entry. Un’alternativa per indicare il disco in cui è presente GRUB, al posto di UUID si può usare la seguente sintassi root (hd0,0).
+
+Parametri di Boot del Kernel
+Una volta eseguito il boot, è possibile vedere quali parametri di boot sono stati passati al kernel eseguendo un cat opportuno con cat /proc/cmdline. L’opzione ro significa che il kernel è avviato in sola lettura, non significa che avvia il sistema operativo in sola lettura, ma fsck può eseguire i vari controlli sul file system quando non è montato.
+L’opzione showopts permette di vedere le opzioni del kernel successive a questo argomento, lasciando nascosti gli altri come ad esempio l’UUID, ro ecc., rendendoli inibiti alla modifica da una sessione grafica di GRUB e tenere modificabili quelli voluti ad esempio:
+
+
+kernel /boot/vmlinuz-xxx-generic root=UUID="uuid partizione in cui c'è il kernel" ro showopts 3
+
+Si imposta un entry per avviare il kernel con il runlevel 3 di cui è modificabile l’argomento dopo showopts in una sessione grafica di GRUB (in una testuale è ancora modificabile).
+Operazioni di Ripristino
+È possibile eseguire delle operazioni di ripristino qualora si sia salvato una serie di entry di avvio completamente sbagliati, rendendo impossibile l’avvio del boot. Si può premere c e si accede a una minimale console di comandi con layout americano.
+Con il comando help si possono vedere i vari comandi disponibili ad esempio:
+root (hd0,0) specifica da dove si vuole fare il boot
+setup (hd0,0) per installare GRUB su hd0 e la prima partizione
+setup (hd0) installa GRUB sul primo disco a prescindere della partizione e quindi lo installa sul MBR del disco, operazione che si fa di solito quando non è installato alcun bootloader (caso strano ma può succedere).
+Si impostano le stesse opzioni che si impostano nel file di configurazione kernel ecc… ecc… initrd ecc… ecc… I path inseriti fanno riferimento alla partizione indicata a inizio root, ricordarsi sempre di indicare la root in cui c’è il kernel (UUID corretto), altrimenti all’avvio da errore.
+kernel /boot/vmlinuz-XXXgeneric root=/dev/sda1
+
+
+
+Come Funziona GRUB 2
+Introduzione a GRUB 2
+La versione nuova di GRUB 2 parte dalla versione 1.99. Dalla versione Ubuntu 14.04, il file /boot/grub2/device.map non è scritto di default e per impostarlo si deve eseguire il comando sudo grub-mkdevicemap.
+Conteggio dei Dischi e delle Partizioni in GRUB 2
+Anche GRUB 2, come GRUB Legacy, conta i dischi partendo da zero (hd0, ecc…). Mentre con GRUB 2 le partizioni le conta a partire da 1. Inoltre, con GRUB 2 è possibile definire i dischi non solo con la sintassi (hd0,1), ma anche denominazioni descrittive come (hd0,gpt1|msdos1|ecc) per evidenziare la tipologia di partizione, in quanto GRUB 2 supporta nativamente UEFI e le partizioni GPT.
+Il File grub.cfg
+Il file /boot/grub/grub.cfg non è da modificare in quanto è generato automaticamente da grub2-mkconfig usando i template presenti in /etc/grub.d e i setting da /etc/default/grub. Questo file risulta essere uno script bash proprio per la natura dinamica di GRUB 2.
+Nella sezione dei menuentry si possono vedere le varie impostazioni di avvio di ciascuna voce di menu. Ad esempio, set root='hd0,gpt3', ma anche le righe per indicare il kernel linux /boot/linuz-xx-generic root=/dev/sdba ecc... e per indicare l’initrd per l’inizializzazione dei driver necessari per l’avvio initrd /boot/initrd.img-xxx-generic.
+Analizzando il file si può capire che le entry dei menu sono generate dinamicamente a partire dai template citati prima e se si vogliono modificare si deve andare a modificare il setting opportuno. Quando viene aggiunto un nuovo disco, creata una partizione, oppure spostata ecc… il comando grub2-mkconfig genera le entry del menu a partire dai file template e i file di setting.
+Modificare le Impostazioni di GRUB 2
+Il comando grub-mkconfig -o /boot/grub2/grub.cfg rigenera lo script e lo scrive in grub.cfg. Se ad esempio si vuole cambiare il tempo di attesa in 10 secondi prima che avviene il boot si va a modificare il file /etc/default/grub, modificare il valore alla chiave GRUB_DEFAULT=10, rieseguire il comando grub-mkconfig -o /boot/grub/grub.cfg e al riavvio il tempo di riavvio sarà di 10 secondi.
+Il file grub.cfg può essere modificato, ma essendo un file autogenerato, quando si eseguono delle modifiche e si rigenera si perdono le modifiche fatte direttamente sul file. Basta sapere cosa si sta facendo. Si può quindi anche cambiare il nome del title della menuentry.
+
+
+
+
+Menu di GRUB Nascosto
+Default di Ubuntu 18.10
+Da Ubuntu 18.10 in poi, di default il menu di GRUB è stato nascosto all’avvio di Linux.
+File di Configurazione di GRUB
+Andando sul file /etc/default/grub, l’opzione GRUB_DEFAULT indica quale è la linea del menu predefinita da selezionare sul menu. L’opzione particolare "saved" indica l’ultima che è stata selezionata.
+Rendere il Menu di GRUB Visibile
+Per rendere il menu di GRUB visibile, si possono modificare le seguenti opzioni:
+GRUB_TIMEOUT_STYLE=menu
+GRUB_TIMEOUT=5 (secondi)
+Modificando queste opzioni, è necessario rigenerare il menu di GRUB2 con il comando update-grub.
+Riavvio e Modifica delle Opzioni del Menu
+Riavviando, si può vedere il menu di GRUB con il timeout impostato. Usando le opzioni classiche con "e", si possono cambiare le opzioni del menu entry.
+
+
+
+
+Librerie Condivise (Shared Libraries)
+Introduzione alle Librerie Condivise
+Come su Windows (librerie DLL), quando si installano dei programmi su Linux potrebbe essere necessario installare librerie condivise usate da più applicazioni. Spesso, le librerie condivise sono necessarie affinché le applicazioni che le richiedono possano funzionare correttamente. Le librerie condivise in Linux sono chiamate “Dinamically Linked Executable” (Eseguibili Dinamici). Esistono anche eseguibili che hanno tutte le librerie necessarie al funzionamento al proprio interno e vengono chiamate “Statically Linked Executable”.
+Esempio di Eseguibili Dinamici e Statici
+Ad esempio, ci sono eseguibili come ln che ha sia una versione che ha linkati dinamicamente le librerie e un’altra versione che ha tutte le librerie compilate al suo interno, in modo tale che possa essere sempre disponibile. Ad esempio, il comando /bin/ln è un eseguibile linkato dinamicamente alle librerie, mentre /sbin/sln è invece lo stesso eseguibile che però è compilato con tutte le librerie necessarie al suo interno. Queste differenze le si possono notare semplicemente analizzando le dimensioni dei due comandi con ls /bin/ln /sbin/lsn.
+Utilizzo del Comando ldd
+Il comando ldd è utile per capire quali librerie sono usate dal comando che si vuole analizzare. Ad esempio, ldd /bin/ln fornisce l’elenco delle librerie usate dal comando selezionato indicando il percorso completo. Significa che un comando deve funzionare se esistono le librerie elencate, un comando che è compilato con le librerie al suo interno risulta essere un eseguibile non dinamico.
+Analisi delle Librerie
+Se si vanno ad analizzare le librerie trovate col comando ldd, si può scoprire che alcune librerie sono a loro volta dei link dinamici altri invece delle librerie standalone e l’esito del comando può essere nel primo caso elenca a sua volta le librerie a cui fa riferimento, mentre per il secondo caso risulta “statically linked”. Inoltre, se la libreria è a sua volta linkata ad una libreria statica che sia a 64bit o 32bit, quando avvengono degli aggiornamenti, non è necessario un riallineamento delle librerie a tutti gli eseguibili, in quanto l’aggiornamento avviene sulla libreria vera e propria che essendo linkata associata allo stesso link, rendendolo trasparente all’eseguibile che la utilizza.
+Come Gli Eseguibili Sanno Quali Librerie Hanno Bisogno
+Di default, la cartella lib, lib64 e userlib sono incluse nella ricerca (sono incluse nel file .conf in cui sono incluse le folder su cui cercare le librerie). Esiste un file chiamato /etc/ld.so.conf in cui è possibile specificare riga per riga dove cercare altre librerie. Di solito esiste la dichiarazione include /etc/ld.so.conf.d/*.conf che si riferisce alla folder in cui a sua volta ci sono file di configurazione specifici per settare le folder in cui trovare specifiche librerie, seguendo lo standard delle configurazioni Linux. Ad esempio, /etc/ld.so.conf.d/libc.conf contiene la folder /user/local/lib.
+
+Aggiornamento della Cache delle Librerie
+Altri software, a seconda se hanno bisogno di librerie, vengono creati i file di conf in questa cartella per includere le folder su cui cercare la libreria. Una volta aggiunte le folder in questi file di .conf si usa il comando ldconfig per aggiornare la cache delle folder su cui cercare le librerie da parte dei software che le richiedono.
+Inoltre, se si aggiunge l’opzione -p con ldconfig -p, si possono vedere le librerie riconosciute dal sistema. Dove viene visualizzato il nome della libreria e il percorso a cui fa riferimento. Ad esempio, libGLU.so.1 (libc6,x86-64) => /lib/x86_64-linux-gnu/libGLU.so.1.
+Uso di una Variabile di Ambiente per Rendere Disponibili le Librerie
+Un altro modo per rendere disponibili le librerie ai software installati è l’uso di una variabile di ambiente. Ad esempio, si prende una libreria usata da ls con ldd /bin/ls, viene visualizzata ad esempio la libreria libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007faca8164000).
+Si può simulare l’inserimento di una nuova libreria usata da ls. Si prende la libreria in questione e la si copia con un nome diverso e la si posiziona su un’altra cartella, ad esempio lib2. Questa libreria copiata potrebbe essere una libreria custom su cui ci si sta lavorando per uno sviluppo, e si vuole far puntare a ls questa libreria piuttosto che l’altra.
+Si usa la variabile di ambiente e con un opportuno export come export LD_LIBRARY_PATH=/lib2, rieseguendo ldd /bin/ls si vedrà che la libreria a cui punta l’eseguibile ls è su lib2. In pratica, questa variabile di ambiente ha la precedenza su tutti i .conf e le folder qui definite sono le prime a essere cercate. Questo è molto utile per testing e operazioni di sviluppo.
+
+
+
+
+dpkg: Installare e Gestire Pacchetti .deb
+Introduzione ai Pacchetti .deb
+Le logiche di installazione e gestione dei pacchetti Debian (.deb) sono usate da distribuzioni derivate da Debian, come anche Ubuntu. I pacchetti sono studiati per girare su architettura 32 o 64 bit, e bisogna sapere che architettura è la macchina su cui installare il pacchetto. Lo si scopre col comando uname -a.
+Installazione e Informazioni sui Pacchetti .deb
+I pacchetti Debian .deb si installano con il comando dbkg -i pacchetto.deb. Per avere informazioni si usa il comando dbkg --info pacchetto.deb.
+Visualizzazione dei File Contenuti nel Pacchetto .deb
+Con il comando dbkg --listfile pacchetto.deb o dbkp -L pacchetto.deb si possono visualizzare tutti i file contenuti nel pacchetto .deb.
+Analisi Inversa dei File Linux
+È possibile fare l’analisi inversa, con il comando dpkg -S "file linux". Questo permette di fare un’analisi all’indietro e, se quel file su Linux appartiene a un pacchetto, te lo indicherà. Questo è molto comodo.
+Riconfigurazione dei Pacchetti
+È possibile riconfigurare i pacchetti col comando dpkg-reconfigure pacchetto.deb. Ad esempio, per il datetime zone si usa dpkg-reconfigure tzdata.
+Disinstallazione dei Pacchetti
+È possibile disinstallare un pacchetto col comando dpkg -r pacchetto. La rimozione standard non rimuove i file di configurazione standard. Per eliminarli e disinstallare tutto si usa il comando dpkg --purge pacchetto.
+
+
+
+
+apt-get e aptitude
+Usi Peculiari di apt-get
+apt-cache permette di eseguire query sui pacchetti. Ad esempio, apt-cache search pdf ritorna una lista di pacchetti che hanno un titolo o descrizione con la stringa pdf. apt-cache showpkg visualizza i dettagli del pacchetto e le sue dipendenze. Questi comandi sono molto utili per fare diagnostica sulle dipendenze di pacchetti o applicazioni che hanno anomalie di vario tipo.
+Gestione dei Repository
+I repository si possono gestire sul file /etc/apt/sources.list. apt-get update scarica da questi repository in cache e aggiorna la lista dei pacchetti. apt-get upgrade aggiorna i pacchetti fornendo di default la conferma, assicurando che il sistema sia aggiornato alle ultime versioni dei pacchetti.
+Installazione di Nuovi Pacchetti
+Per installare nuovi pacchetti si usa il comando apt-get install virtualbox. Si può fare una simulazione con apt-get -s install virtualbox. Si possono scaricare i pacchetti e installare diversamente con apt-get install -d virtualbox, che esegue solo il download. Per installare i pacchetti si esegue il comando 
+dpkg -i ls/var/cache/apt/archives/virtualbox-pacchetto.deb.
+Correzione dell’Errore di Installazione
+Per correggere l’errore di installazione precedente è necessario eseguire apt-get -f install. Questo comando ripristina gli errori e completa l’installazione, nel nostro caso con i pacchetti presenti in cache.
+Pulizia della Cache
+I pacchetti salvati nella cache, nel tempo possono aumentare lo spazio su disco. Il comando apt-get clean rimuove tutti i pacchetti in cache.
+Rimozione di Pacchetti
+Per rimuovere un pacchetto si usa il comando apt-get remove virtualbox. Alcuni pacchetti potrebbero non essere disinstallati, quindi per una installazione pulita si può usare il comando apt-get autoremove virtualbox. Importante notare che quando si rimuovono pacchetti, i file di configurazione in etc rimangono di default. Per poter rimuovere tutto anche le configurazioni si usa l’opzione --purge.
+
+Aptitude è un gestore di pacchetti più completo e più complesso.
+Cerca pacchetti
+Per cercare pacchetti, si può utilizzare il comando:
+aptitude search virtualbox
+Aptitude è una suite più completa nel fornire, ad esempio, elenchi e statistiche.
+Comandi simili
+I comandi di aptitude sono molto simili a quelli di altri gestori di pacchetti. Eseguendo solo aptitude, si avvia una console grafica con mouse per poter gestire i pacchetti in modalità grafica.
+Aggiorna i pacchetti
+Premendo u si aggiornano i pacchetti.
+
+
+
+
+apt
+apt è un tool che vuole fornire una semplificazione nella gestione dei pacchetti rispetto a apt-get e aptitude.
+Linea di comando CLI ad autocompletamento
+Con una linea di comando CLI ad autocompletamento, apt permette di fornire gli strumenti di aggiornamento, installazione, rimozione e analisi dei pacchetti con pochi e efficaci comandi.
+Compatibilità con diverse distribuzioni Linux
+La cosa da tenere in mente è che per un certificato Linux, si deve essere in grado di muoversi sia su distribuzioni Linux che hanno i comandi apt deprecati come apt-get, sia quelli nuovi, come apt.
+Altri gestori di pacchetti
+Stesso discorso per gli altri gestori di pacchetti di altre distribuzioni come rpm, yum, dnf, ecc…
+
+
+
+
+Guida e yum e rpm
+Distribuzioni Red Hat Oriented
+Su distribuzioni Red Hat oriented, utilizzano i pacchetti rpm. rpm è il gestore di pacchetti offline, mentre yum è il gestore di pacchetti tramite repository online.
+Gestione dei pacchetti rpm
+Scaricato un pacchetto rpm, il comando rpm permette di gestirlo considerando che si è in una situazione offline.
+rpm -qpi nome-pacchetto
+
+Visualizza le informazioni del pacchetto da installare.
+rpm -qpl nome-pacchetto
+
+Visualizza l’elenco dei file del pacchetto.
+rpm -ih nome-pacchetto
+
+Installa il pacchetto e, se non ci sono dipendenze installate, l’installazione può fallire e per risolverlo viene in aiuto yum che può installare le dipendenze mancanti.
+rpm -qa
+
+Elenca tutti i pacchetti installati sul sistema.
+rpm -qi nome-pacchetto
+
+Fornisce informazioni sul pacchetto.
+rpm -ql nome-pacchetto
+
+Visualizza le informazioni sul pacchetto.
+rpm come package manager offline
+rpm è un package manager offline che non si appoggia a repository, pertanto quando si cerca di installare pacchetti che richiedono dipendenze non presenti sul sistema, non è in grado di scaricarli e fornisce errori di dipendenze fallite.
+rpm come archivio di file
+rpm è un archivio di file.
+rpm2cpio pacchetto > output.cpio
+
+rpm2cpio è una utility che passando il nome del pacchetto di scompattarlo come output l’archivio cpio.
+cpio -i --make-directories < output.cpio
+
+L’archivio viene letto con cpio.
+yum e dnf come package manager
+Il package manager simile a dpkg o apt per Red Hat è yum, ma a sua volta yum è stato sostituito da un altro package manager chiamato dnf. Sostanzialmente yum e dnf sono identici e fanno lo stesso mestiere di apt su Debian o Ubuntu.
+yum -help
+
+Fornisce una lista di comandi.
+yum search nmap
+
+Cerca pacchetti.
+yum provides nmap
+
+Quali pacchetti contengono nmap.
+yum info pacchetto
+
+Query online sul repository di Fedora riguardo il pacchetto.
+yum update
+
+Oltre che aggiornare il repository aggiorna i pacchetti come fosse un upgrade.
+yum list nmap
+
+Visualizza pacchetti con nmap.
+yum install nmap
+
+Installa il pacchetto.
+yum provides /etc/yum.conf
+
+yum remove nmap
+
+Rimuove un pacchetto.
+yum grouplist
+
+Fornisce gruppi di pacchetti da installare contemporaneamente, ad esempio il gruppo server web installa tutti i servizi legati al server web ecc ecc.
+yum groupinstall "Server web"
+
+Installa un gruppo di pacchetti.
+
+
+
+
+DNF e zypper
+DNF come package manager
+Il package manager DNF sostituisce yum sulle distribuzioni Red Hat. I comandi sono praticamente uguali a yum.
+Zypper come downloader
+Inoltre, il yum downloader è stato sostituito con zypper. Zypper è un comando molto potente che può fare molte cose. In particolare, è molto utile per scaricare pacchetti.
+Ricerca di un pacchetto
+Dopo che si esegue la ricerca di un pacchetto con il comando:
+zypper search ssh
+
+La ricerca mostra poi i risultati in un formato tabellare molto dettagliato.
+Download di un pacchetto
+Tra i pacchetti trovati si può scaricarne uno, ad esempio autossh, con il comando:
+zypper download
+
+Il pacchetto viene scaricato nella folder .cache/.
+
+
+
+
+Virtualizzazione vs Containerizzazione
+Hypervisor e Demone di Containerizzazione
+L’hypervisor è un’interfaccia per la virtualizzazione di una o più macchine virtuali e permette di far avviare più macchine virtuali. Nella containerizzazione, invece di un’interfaccia di hypervisor che astrae il sistema operativo all’applicazione, si ha un demone di containerizzazione il quale non virtualizza il sistema operativo per ciascun container, ma ogni container ha al suo interno il necessario come librerie e le varie dipendenze necessarie per avviare correttamente l’intera applicazione. Tutto ciò che non è relativo all’applicazione viene interfacciato sul demone di containerizzazione e il tutto gestito dal kernel del sistema operativo.
+Esempi di Virtualizzazione e Containerizzazione
+Alcuni esempi di virtualizzazione includono VMware, VirtualBox e Hyper-V. Esempi di containerizzazione includono LXC, LXD, CGManager, Docker e Windows Server Containers.
+Risorse e Performance
+Un sistema virtualizzato richiede molte più risorse, ad esempio a livello di uso CPU le performance sono limitate e il più delle volte ottimizzate da sistemi che ne mitigano il limite di utilizzo della CPU. In ogni caso, non si raggiunge mai una performance nativa qualora l’applicazione venisse eseguita direttamente sull’host. Invece, con la containerizzazione, ciascun container ha accesso alle risorse dell’unico sistema operativo dell’host, senza avere uno strato a lui dedicato del sistema operativo come avviene con la virtualizzazione.
+Supporto Hardware
+La virtualizzazione necessita di un adeguato supporto hardware attraverso delle estensioni per la virtualizzazione presenti sul processore. Queste estensioni, se ci sono, sono ok, se non ci sono è necessario cambiare CPU affinché abbia tali estensioni come CPU VT X o AMD Vi.
+Soft Virtualizzazione
+La containerizzazione invece prevede una soft virtualizzazione, in cui ha lo scopo di isolare lo scope dell’applicazione all’interno del container in un contesto separato, durante l’avvio sul sistema operativo host.
+Tempi di Avvio
+I tempi di avvio di una macchina virtuale sono tipici di un avvio di una macchina reale in cui avviene l’avvio completo di un sistema operativo, mentre per un sistema containerizzato l’avvio è praticamente immediato nell’ordine dei millisecondi o secondi in quanto di fatto viene lanciata un’applicazione tramite dei wrapper e altre cose intorno.
+Memoria di Storage e RAM
+Per quanto riguarda la memoria di storage, nel caso di sistemi virtualizzati ha la necessità di occupare tot memoria su disco per avviare il sistema operativo al suo interno, più l’applicazione, mentre un sistema containerizzato la dimensione è strettamente limitata alla grandezza dell’applicazione in quanto lo stack del sistema operativo è fornito dall’host.
+Per la memoria RAM, in una macchina virtuale è necessario assegnare un certo quantitativo di memoria RAM indipendentemente che siano a carico di lavoro oppure scarichi senza carico. Mentre una containerizzazione è possibile allocare su richiesta la memoria RAM a seconda delle esigenze, quindi senza un’allocazione fissa di memoria solo per il fatto che sia avviato.
+Sicurezza
+Dal punto di vista della sicurezza, un sistema virtualizzato risulta essere più sicuro in quanto si ha un isolamento completo delle risorse utilizzate e del sistema operativo avviato rispetto all’host. Mentre per un container, l’avvio è rappresentato da un processo di sistema dell’host su cui è avviato il container, e quindi la sicurezza dipende dall’host.
+
+
+
+ IaaS, PaaS, SaaS e concetti
+SaaS - Software As A Service
+I servizi SaaS sono esposti al cliente finale. Un esempio di una piattaforma SaaS è la suite delle app di Google, o i social network come Meta che erogano applicazioni come servizio pronte da usare sulla loro piattaforma.
+PaaS - Platform As A Service
+I servizi PaaS sono esposti agli sviluppatori per realizzare applicazioni. Alcuni esempi di PaaS sono service provider che erogano piattaforme come PHP, Java, e altri framework, in cui il cliente finale può concentrarsi sullo sviluppo del software senza doversi preoccupare della piattaforma necessaria in quanto gestita dal service provider.
+IaaS - Infrastructure As A Service
+I servizi IaaS sono erogati per far funzionare le applicazioni. Il sistema IaaS permette di delegare a un service provider la gestione della virtualizzazione del sistema operativo, l’infrastruttura di rete e storage senza che sia necessario conoscere i dettagli hardware per far funzionare le applicazioni. Un classico esempio è una VPS (Virtual Private Server) in cui è presente una macchina Linux e il necessario hardware affinché l’utilizzatore possa concentrarsi dal sistema operativo in su senza entrare nel merito dei dettagli hardware. Un esempio di IaaS può essere Aruba o Rackspace in cui forniscono delle VPS o delle infrastrutture permettendo al cliente di personalizzare e gestire il tutto dal sistema operativo in su.
+Infrastruttura Autogestita
+La differenza importante è data da una generica Infrastruttura Autogestita classica, in cui tutto lo stack dell’infrastruttura deve essere gestita e mantenuta in autonomia, con relativi costi. Una infrastruttura autogestita delega interamente all’utilizzatore la gestione di tutto lo stack hardware e software per l’erogazione di servizi: macchine fisiche, sistemi operativi, storage e dischi da configurare cambiare estendere, virtualizzazione dei servizi dove necessario, manutenzione del sistema operativo e tutte le logiche di sviluppo e deploy.
+
+IaaS - Infrastructure As A Service
+Il focus del capitolo è conoscere la terminologia di base della IaaS, e di tutte quelle fasi che sono gestite dal service provider e che sono al cliente trasparenti: come la gestione dei server fisici e virtuali, quindi la virtualizzazione dei server, quindi la gestione della ridondanza, del failover e load balancing, ma anche calcolo distribuito e altro. Tali operazioni sono vendute dal service provider sotto forma di servizio Cloud Computing Instance che in maniera trasparente gestisce queste e altre attività a basso livello.
+Un esempio tipico è la situazione in cui un servizio è erogato sul web ed è usufruito da migliaia se non milioni di clients. Il servizio è avviato su due o più server (molti server) e, per fornire un bilanciamento delle richieste dei clients ai server, viene configurato un load balancer che in maniera del tutto trasparente provvede a fornire la richiesta ad un server piuttosto che un altro per bilanciare e risolvere failover di malfunzionamenti.
+Un altro esempio è l’esigenza di eseguire calcoli distribuiti, in cui tale applicazione ha la necessità di eseguire questi calcoli su un cluster di computer e fornire la potenza necessaria all’applicazione, in modo del tutto trasparente e gestito dal service provider.
+Questo approccio nell’erogare questi tipi di servizi permette di avere la predisposizione alla scalabilità, potendo quindi partire con un nucleo piccolo di utenza per poi andare a soddisfarne molti senza perdere in performance, applicando una nuova istanza all’applicazione, e viceversa.
+Il vantaggio quindi è la possibilità di scalare o diminuire la potenza a seconda di quello che si ha bisogno senza spreco di risorse.
+Block Storage
+Stesso discorso vale per lo storage, esistono dei block storage acquistabili, che in un qualche modo sono montati come unità disco di qualsiasi tipo e senza preoccuparci del disco, l’obiettivo è ottenere lo spazio e di gestire tale spazio a seconda le esigenze con pochi click, delegando al service provider le operazioni di configurazione a basso livello. Questo offre flessibilità, ridondanza, e la possibilità di creare snapshots.
+Cloud Networking
+Un altro aspetto della IaaS è la gestione trasparente delle logiche di networking. Se un’applicazione, erogata su uno o più server in load balancing, necessita di più banda per erogare correttamente il proprio servizio (ad esempio video streaming), è possibile con pochi click e delegando al service provider, configurare il networking secondo le proprie esigenze allargandone la potenza nella infrastruttura, pagando solo quello che c’è bisogno. È quindi possibile disegnare e configurare la propria rete in modo del tutto trasparente e via software.
+
+
+
+
+Clonazione di macchine virtuali e accorgimenti
+Tecniche efficaci per clonare virtual machine
+Ci sono alcune informazioni peculiari di una virtual machine che devono essere adattate prima di eseguire il clone:
+MAC Address: Il primo di questi è il MAC address della scheda di rete, essendo virtuali dipende dalle logiche di virtualizzazione.
+UUID della partizione Linux: Un altro elemento da considerare prima di un cloning è l’UUID della partizione Linux della macchina virtuale. Ogni clone avrà un UUID identico e, non sarebbe neanche un problema clonare con UUID uguali, ma per fini di backup, ma anche solo di tracciabilità e corretta gestione delle macchine clonate è opportuno modificare l’UUID in modo che rimanga univoco.
+Per cambiare l’UUID delle partizioni si può utilizzare il tool tune2fs.
+Cambiare l’hostname
+Un altro elemento da cambiare è l’hostname. In modo da univocare il nome della macchina tra le varie clonate, perché se fossero collegate in rete con lo stesso hostname possono insorgere diversi problemi. Si può visualizzare l’hostname attuale con il comando:
+cat /etc/hostname
+
+Definire le varie chiavi SSH
+Un altro accorgimento da fare prima di una clonazione è definire le varie chiavi SSH, in modo che siano dedicate per ciascuna macchina e non anch’esse clonate e quindi rese identiche. In generale, una chiave SSH deve essere per sua natura univoca per ciascun host. Per rigenerare le chiavi SSH della macchina host clonata si può usare il comando:
+sudo ssh-keygen -A
+
+UUID del D-Bus
+Un altro ID che deve essere univoco per ciascuna macchina è lo UUID del D-Bus usato per l’interprocess communication a livello kernel. È utilizzato per permettere allo user space di comunicazione con il kernel space e viceversa. Per rigenerare questo UUID si può fare con il comando:
+dbus-uuidgen --ensure
+
+Dove ensure si assicura che l’UUID esista davvero alla locazione:
+cat /var/lib/dbus/machine-id
+
+Installazione di software di supporto
+Un altro accorgimento da fare su una macchina virtuale clonata è l’installazione di software di supporto come le guest additions di VirtualBox che integrano una serie di servizi per integrare al meglio la macchina virtuale con il sistema di virtualizzazione, ad esempio comunicare i dati con copia e incolla, drag and drop, accelerazione grafica minimale ecc.
+Clonazione con altri strumenti di virtualizzazione
+Analogamente si può fare lo stesso procedimento utilizzando altri strumenti di virtualizzazione come VMware. Da VirtualBox si può selezionare da tasto destro l’opzione clone dove con clone completo si clona totalmente la macchina. Permette di cambiare al volo il MAC address. Come istantanea indicare lo stato corrente della macchina.
+Si possono quindi esportare queste macchine clonate in un file .ova che è simile a un file di archivio. Dopo l’esportazione si ha un archivio completo della macchina pronta per essere importata da altri utilizzatori.
+
+Cloud-init
+Cloud-init è uno strumento per personalizzare delle istanze di cloud. È uno strumento di Canonical, quindi open source.
+Quando si crea una nuova istanza cloud è possibile clonare più macchine virtuali andando ad automatizzare l’univocità della macchina clonata, definendo le impostazioni presenti sulla macchina e un modo per applicarle, caricarle e renderle disponibili a essere usate.
+Configurazione di univocità
+Per definire l’univocità di una macchina, si possono definire l’hostname, nuove chiavi SSH, definire il locale, e le basi di mount.
+Esiste un tutorial che spiega in modo basilare l’uso di cloud-init. Spiega come è possibile configurare l’inizializzazione di una macchina virtuale. Questo file di configurazione, che può contenere anche altri script specifici, viene fatto eseguire da cloud-init sul server appena installato (appena clonato), eseguendo tutte le direttive indicate nel file di configurazione.
+L’idea quindi di cloud-init è mettere a fattor comune una configurazione di univocità di una macchina virtuale e clonarle in modo univoco usando cloud-init.
+Definizione via software
+Il concetto è: “definire via software le caratteristiche di una macchina, la quale una volta installata, risulta essere univoca rispetto a tutte le altre, nonostante siano state clonate da una stessa macchina”.
+
+[FINE-DATASET]
+
+
+
+
+
+
+
+
+
