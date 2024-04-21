@@ -1,4 +1,8 @@
-// Implementazione delle rotte endpoint principali.
+/**
+ * La classe rappresenta l'insieme di endpoint per interrogare i server llm basandosi sul protocollo a basso livello http.
+ * Eventuali implementazioni che richiedono l'accesso a livello sottostante di qualsiasi framework, o per test preliminari usare questa classe.
+ * 
+ */
 // In modo speculare, le stesse chiamate sono definite nel protocollo socket.io.
 import express from "express";
 import * as requestIp from 'request-ip';

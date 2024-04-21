@@ -1,10 +1,12 @@
 
-// Implementazione delle rotte endpoint principali.
+/**
+ * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
+ */
 // In modo speculare, le stesse chiamate sono definite nel protocollo socket.io.
 import express from "express";
 const router = express.Router();
 import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM } from '../services/langchainservice.js';
-import { writeObjectToFile, contextFolder, ContextChat } from '../services/commonservices.js';
+import { writeObjectToFile, contextFolder } from '../services/commonservices.js';
 import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import * as requestIp from 'request-ip';
 import fs from 'fs';
