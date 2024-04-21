@@ -1,6 +1,8 @@
+/**
+ * Interfaccia per configurare i vari modelli llm supportati e usati dall'applicazione chainprompt.
+ * I parametri potrebbero aumentare a seconda l'evoluzione applicativa.
+ */
 export interface ConfigChainPrompt {
-    systemprompt?: string,
-    question?: string,
     temperature?: number,
     modelname?: string,
     maxTokens?: number,

@@ -4,9 +4,6 @@ dotenv.config();
 
 // Define constants
 const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
-
-
-
 // Define file names and fixed URI
 const uriFisso = process.env.PATH_FILESET || 'datasets/fileset'; // Modify with your fixed URI
 const contextFolder = process.env.PATH_FILESET || 'datasets/fileset';

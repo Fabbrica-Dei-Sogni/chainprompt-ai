@@ -1,5 +1,10 @@
 import express from 'express';
 
+/**
+ * Vengono esposti al server tutte le rotte applicative.
+ * In futuro potrebbero essere interfacciati da strumenti tipici di un API gateway
+ */
+
 const router: express.Router = express.Router();
 import route from './routes/routes.js'
 // Importa le rotte definite in un altro file

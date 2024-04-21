@@ -4,6 +4,9 @@ import { LLMChain } from "langchain/chains";
 import dotenv from "dotenv";
 dotenv.config();
 
+/**
+ * Implementazione tutorial di un wrapper che prende in input un prompt che ritorna codice sorgente come output
+ */
 export interface GenerateFunctionWithLanguage {
     language: string;
     task: string;

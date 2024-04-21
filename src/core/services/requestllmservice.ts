@@ -4,6 +4,11 @@ import axios from 'axios';
 import dotenv from "dotenv";
 dotenv.config();
 
+/**
+ * Il servizio raccoglie i metodi per interrogare gli llm con classiche chiamate request e response http tramite la libreria axios
+ * Questi endpoint rappresentano l'accesso piu a basso livello ai vari modelli llm
+ */
+
 const urilocalai = process.env.URI_LOCALAI || 'http://eleanor:1234/v1/chat/completions'; // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
 const local_model_name = process.env.LOCAL_MODEL_NAME || "gpt-4-turbo";
 const openai = new OpenAI({

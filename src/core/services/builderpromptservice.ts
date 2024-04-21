@@ -1,6 +1,19 @@
 import { readFileAndConcat } from './readerpromptservice.js';
 import { uriFisso, contextFolder } from './commonservices.js';
 
+/**
+ * Il servizio ha lo scopo di costruire i prompt in base a logiche applicative di composizione del prompt, seguendo i framework piu usati.
+ * Per ora ci sono prompt formati da :
+ * ruolo
+ * obiettivo
+ * azione
+ * contesto
+ * 
+ * I metodi deprecati rappresentano le prime implementazioni di generazione prompt senza l'ausilio di automatismi
+ * 
+ * Eventuali nuovi tipi di prompt potrebbero evolvere parallelamente a soluzioni custom applicative oppure tramite l'ausilio della libreria Langchain
+ */
+
 // Define context enumeration
 /**
  * @deprecated

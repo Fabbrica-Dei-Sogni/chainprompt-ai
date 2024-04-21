@@ -4,6 +4,10 @@ import chatbot from "../apis/chatbot.js"
 import chainbot from "../apis/chainbot.js"
 const router = express.Router();
 
+/**
+ * Tutte le apis supportate dall'applicazione vengono importate in questo aggregatore di rotte applicative
+ */
+
 // Utilizza le rotte definite nel modulo "chatbot"
 router.use(chatbot);
 router.use(chainbot);

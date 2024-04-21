@@ -11,6 +11,7 @@ import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import * as requestIp from 'request-ip';
 import fs from 'fs';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
+import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 
 const conversations: Record<string, any> = {};
 const contexts = fs.readdirSync(contextFolder);
@@ -61,10 +62,14 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
     const { systemprompt, question, temperature, modelname, maxTokens, numCtx, keyconversation } = buildAndTrackPromptRest(req, systemPrompt, contextchat);
 
     let config: ConfigChainPrompt = {
-        systemprompt, question, temperature: temperature, modelname, maxTokens, numCtx
+        temperature: temperature, modelname, maxTokens, numCtx
     }
 
-    const assistantResponse = await callbackRequestLLM(config);
+    let prompt: ChainPromptBaseTemplate = {
+        systemprompt, question
+    }
+
+    const assistantResponse = await callbackRequestLLM(config, prompt);
     conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
     await writeObjectToFile(conversations, contextchat);
 
