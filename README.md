@@ -1,3 +1,113 @@
+# Chatbot collegato a un server LLM
+
+Questo progetto è un'applicazione Express.js che implementa una chatbot collegata a un server LLM (Large Language Model). 
+La chatbot utilizza l'API di OpenAI per generare risposte ai messaggi degli utenti, oppure un server locale come ollama e llmstudio.
+
+L'endpoint tipico di ollama è il seguente
+
+`http://%HOSTNAME%:11434/api/chat`
+
+mentre per il server llmstudio è il seguente
+
+`http://%HOSTNAME%:1234/v1/chat/completions'`
+
+La chiave API KEY è necessaria nel caso in cui si accede ad un LLM di terze parti a pagamento come openai
+
+## Configurazione
+
+Assicurati di configurare correttamente le seguenti variabili d'ambiente:
+
+```dotenv
+PORT=5000
+OPENAI_API_KEY='api key server ai'
+SOCKET_PORT=6000
+URI_LOCALAI='http://%HOSTNAME%:1234/v1/chat/completions'
+#URI_LOCALAI='http://%HOSTNAME%:11434/api/chat'
+LOCAL_MODEL_NAME='openchat'
+NAME_ASSISTANT="Assistente Kppa"
+PATH_FILESET='datasets/fileset'
+```
+
+Le porte qui definite sono interne al network docker, per modificare la porta esposta all'host e quindi alla rete esterna, è necessario modificare la configurazione sul docker compose/local.yml
+Le porte di default esposte all'host sono le seguenti:
+
+porta `5500` per gli endpoint rest
+porta `6000` per collegarsi tramite socket.io
+la porta `9339` è usata come accesso in debug remoto.
+
+Il nome del modello LOCAL_MODEL_NAME incide solo e soltanto se la chatbot è collegata ad un server ollama, in questa configurazione se ne imposta il nome di default.
+
+`NAME_ASSISTANT ` fornisce un nome alla chatbot, per ora visualizzata solo ai log di avvio
+`PATH_FILESET` fornisce la folder usata per salvare sul proprio host le varie conversazioni che la chatbot esegue.
+
+Per ora ci sono due tipi di chatbot, oltre a quella standard:
+
+1. Assistente ai recruiter per una simulazione di un colloquio di lavoro, in base a un dataset testuale di un curriculum o simili.
+
+2. Un docente linux che fornisce una preparazione all'esame LPIC-1 .
+
+La temperature di default della chatbot è di `0.1` (per ora non è stata parametrizzata a configurazione)
+
+## Usage 
+
+Esempio di request riconosciuti dagli endpoint della chatbot:
+
+```
+{
+    "question": "Come ti chiami? e cosa ti piace fare?",
+    "modelname": "openchat",
+    "temperature": 0.1
+}
+```
+
+`question` 
+Questo campo contiene la domanda che desideri porre all'assistente virtuale. Puoi scrivere qualsiasi domanda desideri ottenere una risposta da parte dell'assistente.
+
+`modelname`
+ Qui specifica il nome del modello che desideri utilizzare per generare la risposta alla tua domanda. Nel nostro caso, il valore "openchat" indica che vogliamo utilizzare un modello specifico chiamato "openchat". A seconda del sistema utilizzato, potrebbero essere disponibili diversi modelli, ognuno con caratteristiche e comportamenti diversi. Il nome del modello è valido quando la chatbot è collegata a un server ollama, altrimenti è ininfluente.
+
+`temperature`
+Questo campo rappresenta la temperatura della risposta generata dal modello. La temperatura controlla la casualità delle risposte generate. Un valore più basso produce risposte più conservative e simili alla media, mentre un valore più alto produce risposte più creative e originali. Il valore tipico per questo parametro è compreso tra 0 e 1, con 0.1 che produce risposte molto conservative e 1 che produce risposte molto creative.
+
+
+# Installazione
+
+1. Assicurati di avere Node.js installato sul tuo sistema.
+2. Clona questo repository sul tuo computer.
+3. Esegui `npm install` per installare le dipendenze del progetto.
+4. Imposta le variabili d'ambiente nel file `.env` o nel tuo ambiente di sviluppo.
+
+# Utilizzo
+
+1. Avvia il server eseguendo il comando `npm start`.
+2. Accedi all'applicazione tramite il tuo browser o utilizzando un client REST come Postman.
+3. Invia messaggi alla chatbot e osserva le risposte generate dal server LLM.
+
+# Containerizzazione Docker
+
+Per effettuare la build dell'immagine Docker, esegui il comando dalla base del progetto:
+
+`docker compose -f compose/local.yml build`
+
+Per avviarlo in foreground, utile per il monitoraggio in sviluppo eseguire il comando
+
+`docker compose -f compose/local.yml up`
+
+
+Altrimenti usare i comandi `create` per creare il container e `start` per avviare docker normalmente.
+
+Per analizzare i log in real-time eseguire il comando `logs -f`
+
+Per accedere nel container docker eseguire il comando
+
+`docker exec -it chatbot-kppa-local bash`
+
+# Contributi
+Siamo aperti ai contributi! Se desideri contribuire a questo progetto, ti preghiamo di aprire una nuova issue o inviare una pull request.
+
+
+# Come è nato il progetto ChainPrompt
+
 Il progetto è nato dalla consultazione di questo link
 https://javascript.plainenglish.io/embarking-on-the-ai-adventure-introduction-to-langchain-and-node-js-7393b6364f3a
 
