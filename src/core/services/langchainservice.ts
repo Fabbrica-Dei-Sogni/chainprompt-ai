@@ -38,7 +38,7 @@ const getAnswerLocalLLM = async (systemprompt: string, question: string, tempera
             temperature,
             modelName,
         }),
-        prompt: PromptTemplate.fromTemplate(systemprompt + " " + question),
+        prompt: PromptTemplate.fromTemplate(" SYSTEM:" + systemprompt + " USER:" + question),
     });
     const answer = await llmChain.invoke({ topic: question }, { metadata: {} });
     console.log("Risposta generata:", answer);
@@ -56,7 +56,7 @@ const getAnswerOllamaLLM = async (systemprompt: string, question: string, temper
             keepAlive: "24h",
             logitsAll: true,
         }),
-        prompt: PromptTemplate.fromTemplate(systemprompt + " " + question),
+        prompt: PromptTemplate.fromTemplate(" SYSTEM:" + systemprompt + " USER:" + question),
     });
     const answer = await llmChain.invoke({ topic: question });
     console.log("Risposta generata:", answer);
