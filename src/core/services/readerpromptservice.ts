@@ -1,4 +1,4 @@
-import fs, { promises as fsPromises } from 'fs';
+import { promises as fsPromises } from 'fs';
 
 /**
  * Reads the content of the source file.

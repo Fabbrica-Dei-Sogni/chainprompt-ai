@@ -15,7 +15,7 @@ const conversations: Record<string, any> = {};
 const contexts = fs.readdirSync(contextFolder);
 
 // Funzione per gestire la richiesta del prompt per un determinato contesto
-const handleROACRequest = async (req: any, res: any, next: any) => {
+const handleRequest = async (req: any, res: any, next: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
@@ -28,7 +28,7 @@ const handleROACRequest = async (req: any, res: any, next: any) => {
 };
 
 // Funzione per gestire la richiesta del prompt per un determinato contesto
-const handleROACLocalRequest = async (req: any, res: any, next: any) => {
+const handleLocalRequest = async (req: any, res: any, next: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
@@ -94,12 +94,12 @@ function buildAndTrackPromptRest(req: any, systemPrompt: string, context: string
 
 // Genera le route dinamicamente per ogni contesto disponibile
 contexts.forEach(context => {
-    router.post(`/localai/prompt/${context}`, handleROACLocalRequest);
+    router.post(`/classic/localai/prompt/${context}`, handleLocalRequest);
 });
 
 // Genera le route dinamicamente per ogni contesto disponibile
 contexts.forEach(context => {
-    router.post(`/prompt/${context}`, handleROACRequest);
+    router.post(`/classic/cloud/prompt/${context}`, handleRequest);
 });
 
 console.log(`Api delle chatbot dinamiche caricati con successo!`);

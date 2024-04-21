@@ -8,51 +8,40 @@ import { writeObjectToFile, contextFolder, ContextChat } from '../services/commo
 import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import * as requestIp from 'request-ip';
 import fs from 'fs';
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 
 const conversations: Record<string, any> = {};
 const contexts = fs.readdirSync(contextFolder);
 
 // Funzione per gestire la richiesta del prompt per un determinato contesto
 const handleLocalRequest = async (req: any, res: any, next: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const context = originalUriTokens[originalUriTokens.length - 1];
-        const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
-        let answer = await getAndSendPromptLocalLLM(req, res, systemPrompt, context); // Invia il prompt al client
-        res.json({ answer }); // Invia la risposta al client
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
+
+    await wrapperServerLLM(req, res, getAndSendPromptLocalLLM);
 };
 
 const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const context = originalUriTokens[originalUriTokens.length - 1];
-        const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
-        let answer = await getAndSendPromptCloudLLM(req, res, systemPrompt, context); // Invia il prompt al client
-        res.json({ answer }); // Invia la risposta al client
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
+
+    await wrapperServerLLM(req, res, getAndSendPromptCloudLLM);
 };
 
 const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
+
+    await wrapperServerLLM(req, res, getAndSendPromptbyOllamaLLM);
+};
+
+const wrapperServerLLM = async (req: any, res: any, wrapperSendAndPromptLLM: any) => {
+
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
         const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
-        let answer = await getAndSendPromptbyOllamaLLM(req, res, systemPrompt, context); // Invia il prompt al client
+        let answer = await wrapperSendAndPromptLLM(req, res, systemPrompt, context); // Invia il prompt al client
         res.json({ answer }); // Invia la risposta al client
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
         res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
-};
-
-
+}
 
 async function getAndSendPromptCloudLLM(req: any, res: any, systemPrompt: string, contextchat: string) {
     return await callBackgetAndSendPromptbyLocalRest(req, res, systemPrompt, contextchat, getAnswerLLM);
@@ -67,8 +56,13 @@ async function getAndSendPromptbyOllamaLLM(req: any, res: any, systemPrompt: str
 }
 
 async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
-    const { systemprompt, question, temperature, modelname, keyconversation } = buildAndTrackPromptRest(req, systemPrompt, contextchat);
-    const assistantResponse = await callbackRequestLLM(systemprompt, question, temperature || 0.1, modelname);
+    const { systemprompt, question, temperature, modelname, maxTokens, numCtx, keyconversation } = buildAndTrackPromptRest(req, systemPrompt, contextchat);
+
+    let config: ConfigChainPrompt = {
+        systemprompt, question, temperature: temperature, modelname, maxTokens, numCtx
+    }
+
+    const assistantResponse = await callbackRequestLLM(config);
     conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
     await writeObjectToFile(conversations, contextchat);
 
@@ -80,9 +74,11 @@ function buildAndTrackPromptRest(req: any, systemPrompt: string, context: string
 
     const question = '\n' + req.body.question;
     const modelname = req.body.modelname;
-    const temperature = req.body.temperature;
+    const temperature = req.body.temperature || 0.1;
     const ipAddress = requestIp.getClientIp(req);
     const keyconversation = ipAddress + "_" + context;
+    const maxTokens = req.body.maxTokens || 8032;
+    const numCtx = req.body.numCtx || 8032;
 
     // Crea una nuova conversazione per questo indirizzo IP
     if (!conversations[keyconversation]) {
@@ -96,7 +92,7 @@ function buildAndTrackPromptRest(req: any, systemPrompt: string, context: string
     console.log("Domanda ricevuta:", question);
     const systemprompt = conversations[keyconversation].conversationContext;
 
-    return { systemprompt, question, temperature, modelname, keyconversation };
+    return { systemprompt, question, temperature, modelname, maxTokens, numCtx, keyconversation };
 }
 
 // Genera le route dinamicamente per ogni contesto disponibile

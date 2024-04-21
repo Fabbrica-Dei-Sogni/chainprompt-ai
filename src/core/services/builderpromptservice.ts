@@ -3,7 +3,7 @@ import { uriFisso, contextFolder, ContextChat } from './commonservices.js';
 
 /**
  * Retrieves the recruiter prompt with the system prompt.
- *
+ * @deprecated
  * This method should be called at the beginning of a conversation.
  * It can be global for the first request (fair mode)
  * Or personalized for the interlocutor user (recruiter mode)
@@ -17,6 +17,7 @@ const getPromptRecruiter = async (question?: any): Promise<string> => {
 };
 
 /**
+ * @deprecated 
  * Retrieves the docente linux prompt with the system prompt.
  *
  * @returns {Promise<string>} A Promise that resolves with the docente linux prompt as a string.
@@ -27,6 +28,7 @@ const getPromptDocenteLinux = async (): Promise<string> => {
 };
 
 /**
+ * @deprecated
  * Retrieves the prompt for the specified context with the system prompt.
  *
  * @param {ContextChat} contesto The context for which to retrieve the prompt.
@@ -40,10 +42,10 @@ const getPromptContext = async (contesto: ContextChat, systemPrompt: string[]): 
 /**
  * Retrieves the framework prompts for the specified context.
  *
- * @param {ContextChat} contesto The context for which to retrieve the prompts.
+ * @param {string} contesto The context for which to retrieve the prompts.
  * @returns {Promise<string>} A Promise that resolves with the framework prompts as a string.
  */
-const getFrameworkPrompts = async (contesto: ContextChat): Promise<string> => {
+const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };

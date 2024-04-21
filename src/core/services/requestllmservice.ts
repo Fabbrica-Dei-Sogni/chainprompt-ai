@@ -6,9 +6,6 @@ dotenv.config();
 
 const urilocalai = process.env.URI_LOCALAI || 'http://eleanor:1234/v1/chat/completions'; // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
 const local_model_name = process.env.LOCAL_MODEL_NAME || "gpt-4-turbo";
-// Dizionario che mappa gli indirizzi IP alle conversazioni
-const conversations: Record<string, any> = {};
-//const openai = new OpenAI(process.env.OPENAI_API_KEY);
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
