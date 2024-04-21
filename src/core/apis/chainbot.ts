@@ -69,7 +69,7 @@ async function getAndSendPromptbyOllamaLLM(req: any, res: any, systemPrompt: str
 async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
     const { systemprompt, question, temperature, modelname, keyconversation } = buildAndTrackPromptRest(req, systemPrompt, contextchat);
     const assistantResponse = await callbackRequestLLM(systemprompt, question, temperature || 0.1, modelname);
-    conversations[keyconversation].conversationContext += `\nAI: ${assistantResponse}\n`;
+    conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
     await writeObjectToFile(conversations, contextchat);
 
     return assistantResponse;
@@ -88,10 +88,10 @@ function buildAndTrackPromptRest(req: any, systemPrompt: string, context: string
     if (!conversations[keyconversation]) {
         conversations[keyconversation] = {
             startTime: new Date(),
-            conversationContext: systemPrompt,
+            conversationContext: "\nSystem: " + systemPrompt,
         };
     }
-    conversations[keyconversation].conversationContext += `\nHuman: ${question}\n`;
+    conversations[keyconversation].conversationContext += `\n\nHuman: ${question}\n`;
     console.log("Indirizzo ip: ", ipAddress);
     console.log("Domanda ricevuta:", question);
     const systemprompt = conversations[keyconversation].conversationContext;

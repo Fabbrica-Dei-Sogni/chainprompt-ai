@@ -3,6 +3,7 @@ import { OpenAI } from "@langchain/openai";
 import { Ollama } from "@langchain/community/llms/ollama";
 import { LLMChain } from "langchain/chains";
 import dotenv from "dotenv";
+import { NONAME } from "dns";
 dotenv.config();
 
 const urilocalai = process.env.URI_LANGCHAIN_LLMSTUDIO || 'http://eleanor:1234/v1'; // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
@@ -18,7 +19,7 @@ const getAnswerLLM = async (systemprompt: string, question: string, temperature:
     const llmChain = new LLMChain({
 
         llm: new OpenAI({ apiKey: process.env.OPENAI_API_KEY, temperature, modelName }),
-        prompt: PromptTemplate.fromTemplate(systemprompt + " " + question),
+        prompt: PromptTemplate.fromTemplate(" SYSTEM:" + systemprompt + " USER:" + question),
     });
     const answer = await llmChain.invoke({ topic: question });
     console.log("Risposta generata:", answer);
@@ -33,11 +34,13 @@ const getAnswerLocalLLM = async (systemprompt: string, question: string, tempera
             configuration: {
                 baseURL: urilocalai,
             },
-            temperature, modelName,
+            maxTokens: 8032,
+            temperature,
+            modelName,
         }),
         prompt: PromptTemplate.fromTemplate(systemprompt + " " + question),
     });
-    const answer = await llmChain.invoke({ topic: question });
+    const answer = await llmChain.invoke({ topic: question }, { metadata: {} });
     console.log("Risposta generata:", answer);
     return answer;
 }
@@ -51,6 +54,7 @@ const getAnswerOllamaLLM = async (systemprompt: string, question: string, temper
             model: modelName,
             numCtx: 8032,
             keepAlive: "24h",
+            logitsAll: true,
         }),
         prompt: PromptTemplate.fromTemplate(systemprompt + " " + question),
     });
