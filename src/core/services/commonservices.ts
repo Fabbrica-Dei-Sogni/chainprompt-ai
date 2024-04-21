@@ -5,15 +5,7 @@ dotenv.config();
 // Define constants
 const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
 
-// Define context enumeration
-/**
- * @deprecated
- */
-enum ContextChat {
-    CHAT_GENERICA = 'chatgenerica',
-    CHAT_BOT_CV = 'chatbotcv',
-    DOCENTE_LINUX = 'docentelinux',
-}
+
 
 // Define file names and fixed URI
 const uriFisso = process.env.PATH_FILESET || 'datasets/fileset'; // Modify with your fixed URI
@@ -55,6 +47,5 @@ export {
     writeObjectToFile,
     uriFisso,
     contextFolder,
-    ContextChat,
     SYSTEMPROMPT_DFL,
 };

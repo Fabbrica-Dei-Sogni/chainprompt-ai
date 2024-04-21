@@ -1,5 +1,15 @@
 import { readFileAndConcat } from './readerpromptservice.js';
-import { uriFisso, contextFolder, ContextChat } from './commonservices.js';
+import { uriFisso, contextFolder } from './commonservices.js';
+
+// Define context enumeration
+/**
+ * @deprecated
+ */
+enum ContextChat {
+    CHAT_GENERICA = 'chatgenerica',
+    CHAT_BOT_CV = 'chatbotcv',
+    DOCENTE_LINUX = 'docentelinux',
+}
 
 /**
  * Retrieves the recruiter prompt with the system prompt.
