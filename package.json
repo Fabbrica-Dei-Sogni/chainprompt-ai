@@ -1,7 +1,7 @@
 {
   "name": "chainprompt-ai",
   "version": "1.0.0",
-  "description": "Il progetto è nato dalla consultazione di questo link https://javascript.plainenglish.io/embarking-on-the-ai-adventure-introduction-to-langchain-and-node-js-7393b6364f3a",
+  "description": "Un applicazione server scritta in typescript con express e langchain per realizzare interessanti applicazioni prompt oriented.",
   "main": "server.js",
   "type": "module",
   "publishConfig": {
