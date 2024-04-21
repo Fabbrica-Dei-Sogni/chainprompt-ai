@@ -10,7 +10,6 @@ services:
     ports:
       - "5500:5000"
       - "6000:6000"      
-      - "9339:9229"
     env_file:
       - ./.env.collaudo
     networks:
