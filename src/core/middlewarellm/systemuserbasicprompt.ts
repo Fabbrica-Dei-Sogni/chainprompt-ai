@@ -6,7 +6,7 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { Ollama } from "langchain/llms/ollama";
 dotenv.config();
 
-export const callCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
+export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
 
     const completePrompt = new PromptTemplate({
         template: "SYSTEM:\n{systemprompt}\n\nUSER: {question}",
@@ -31,7 +31,7 @@ export const callCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainP
 
 };
 
-export const callLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
+export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
 
     const completePrompt = new PromptTemplate({
         template: "SYSTEM:\n{systemprompt}\n\nUSER: {question}",
@@ -59,7 +59,7 @@ export const callLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainP
 
 };
 
-export const callOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
+export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt) => {
 
     const completePrompt = new PromptTemplate({
         template: "SYSTEM:\n{systemprompt}\n\nUSER: {question}",
