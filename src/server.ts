@@ -5,6 +5,19 @@ import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
+import { setGlobalDispatcher, Agent } from 'undici';
+import dotenv from "dotenv";
+import api from './core/endpoint.js';
+dotenv.config();
+
+//XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
+//l'obiettivo e' impostare a livello globale un agente che istruisce qualsiasi fetch under the wood l'ecosistema langchain a non terminare mai la richiesta per una mancata ricezione di un header
+//per lunghe richieste a un llm come ollama, puo accadere che venga generato l'errore UND_ERR_HEADERS_TIMEOUT
+//per evitare questo errore , si imposta un Agente con il parametro headersTimeout a 0 , consentendo un'attesa anche molto lunga di una richiesta llm 
+const agent = new Agent({
+    headersTimeout: Number(process.env.HEADER_TIMEOUT_UNDICI!) // Imposta il timeout delle intestazioni a infinito
+});
+setGlobalDispatcher(agent);
 
 //https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
 //approccio per recuperare la directory corrente per caricare i certificati
@@ -12,11 +25,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app: express.Application = express();
-import api from './core/endpoint.js';
 //const socket = require('./core/sockets/coresocket');
 
-import dotenv from "dotenv";
-dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000'); // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
 const nameAssistant: string = process.env.NAME_ASSISTANT || "Chainprompt AI";
