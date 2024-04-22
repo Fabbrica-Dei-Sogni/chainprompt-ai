@@ -3,8 +3,8 @@
  * I parametri potrebbero aumentare a seconda l'evoluzione applicativa.
  */
 export interface ConfigChainPrompt {
-    temperature?: number,
-    modelname?: string,
-    maxTokens?: number,
-    numCtx?: number
+    temperature?: number;
+    modelname?: string;
+    maxTokens?: number;
+    numCtx?: number;
 }

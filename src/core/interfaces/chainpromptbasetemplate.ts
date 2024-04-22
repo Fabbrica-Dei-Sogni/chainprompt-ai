@@ -5,6 +5,6 @@
  * 
  */
 export interface ChainPromptBaseTemplate {
-    systemprompt?: string,
-    question?: string,
+    systemprompt?: string;
+    question?: string;
 }

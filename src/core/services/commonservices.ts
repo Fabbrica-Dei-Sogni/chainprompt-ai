@@ -4,6 +4,7 @@ dotenv.config();
 
 // Define constants
 const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
+const ENDPOINT_CHATGENERICA = 'chatgenerica'
 // Define file names and fixed URI
 const uriFisso = process.env.PATH_FILESET || 'datasets/fileset'; // Modify with your fixed URI
 const contextFolder = process.env.PATH_FILESET || 'datasets/fileset';
@@ -45,4 +46,5 @@ export {
     uriFisso,
     contextFolder,
     SYSTEMPROMPT_DFL,
+    ENDPOINT_CHATGENERICA,
 };

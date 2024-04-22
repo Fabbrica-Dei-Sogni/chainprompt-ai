@@ -5,12 +5,13 @@
 import express from "express";
 const router = express.Router();
 import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM } from '../services/langchainservice.js';
-import { writeObjectToFile, contextFolder } from '../services/commonservices.js';
+import { writeObjectToFile, contextFolder, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
 import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import * as requestIp from 'request-ip';
 import fs from 'fs';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
+import { DataRequest } from "../interfaces/datarequest.js";
 
 const conversations: Record<string, any> = {};
 const contexts = fs.readdirSync(contextFolder);
@@ -38,7 +39,9 @@ const wrapperServerLLM = async (req: any, res: any, wrapperSendAndPromptLLM: any
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
-        const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
+
+        //se e' il contesto generico si imposta il prompt di default
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         let answer = await wrapperSendAndPromptLLM(req, res, systemPrompt, context); // Invia il prompt al client
         res.json({ answer }); // Invia la risposta al client
     } catch (err) {
@@ -76,7 +79,9 @@ async function getAndSendPromptbyOllamaLLM(req: any, res: any, systemPrompt: str
  * @returns 
  */
 async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
-    const { question, temperature, modelname, maxTokens, numCtx, keyconversation } = buildAndTrackPromptRest(req, contextchat);
+
+    //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
+    const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = extractDataFromRequest(req, contextchat);
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
@@ -128,7 +133,7 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
  * @param context 
  * @returns 
  */
-function buildAndTrackPromptRest(req: any, context: string) {
+function extractDataFromRequest(req: any, context: string): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     const question = '\n' + req.body.question;
@@ -164,5 +169,10 @@ contexts.forEach(context => {
 contexts.forEach(context => {
     router.post(`/langchain/ollama/prompt/${context}`, handleLocalOllamaRequest);
 });
+
+//Endpoint di default per avviare una chat generica con un prompt di sistema di default
+router.post(`/langchain/localai/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRequest);
+router.post(`/langchain/cloud/prompt/${ENDPOINT_CHATGENERICA}`, handleCloudLLMRequest);
+router.post(`/langchain/ollama/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalOllamaRequest);
 
 export default router;

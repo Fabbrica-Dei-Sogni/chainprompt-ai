@@ -8,7 +8,7 @@ import express from "express";
 import * as requestIp from 'request-ip';
 const router = express.Router();
 
-import { writeObjectToFile, contextFolder } from '../services/commonservices.js';
+import { writeObjectToFile, contextFolder, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
 import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import { requestLLM, requestLocalLLM } from '../services/requestllmservice.js';
 
@@ -23,7 +23,7 @@ const handleRequest = async (req: any, res: any, next: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
-        const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         await getAndSendPromptbyRest(req, res, systemPrompt, context); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
@@ -36,7 +36,7 @@ const handleLocalRequest = async (req: any, res: any, next: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const context = originalUriTokens[originalUriTokens.length - 1];
-        const systemPrompt = await getFrameworkPrompts(context); // Ottieni il prompt di sistema per il contesto
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         await getAndSendPromptbyLocalRest(req, res, systemPrompt, context); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
@@ -105,6 +105,9 @@ contexts.forEach(context => {
 contexts.forEach(context => {
     router.post(`/classic/cloud/prompt/${context}`, handleRequest);
 });
+
+router.post(`/classic/localai/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRequest);
+router.post(`/classic/cloud/prompt/${ENDPOINT_CHATGENERICA}`, handleRequest);
 
 console.log(`Api delle chatbot dinamiche caricati con successo!`);
 
