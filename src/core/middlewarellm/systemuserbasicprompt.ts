@@ -3,7 +3,7 @@ import { OpenAI } from "@langchain/openai";
 import { LLMChain } from "langchain/chains";
 import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { Ollama } from "langchain/llms/ollama";
+import { Ollama } from "@langchain/community/llms/ollama";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 dotenv.config();
 
@@ -92,6 +92,7 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
             logitsAll: true,
         }),
         prompt: completePrompt,
+
     });
     const answer = await llmChain.invoke({
         systemprompt: prompt.systemprompt,
