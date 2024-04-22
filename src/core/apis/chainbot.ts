@@ -85,28 +85,13 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    if (!conversations[keyconversation]) {
-        conversations[keyconversation] = {
-            startTime: new Date(),
-            conversationContext: "\nSystem: " + systemPrompt,
-        };
-    }
-    conversations[keyconversation].conversationContext += `\n\nHuman: ${question}\n`;
-    const systemprompt = conversations[keyconversation].conversationContext;
+    const systemprompt = setQuestionHistoryConversation(keyconversation, systemPrompt, question);
 
     //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
-    let config: ConfigChainPrompt = {
-        temperature: temperature, modelname, maxTokens, numCtx
-    }
-    let prompt: ChainPromptBaseTemplate = {
-        systemprompt, question
-    }
-
-    //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
-    const assistantResponse = await callbackRequestLLM(config, prompt);
+    const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
+    setAnswerHistoryConversation(keyconversation, assistantResponse);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, contextchat);
@@ -119,6 +104,34 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return assistantResponse;
+}
+
+async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
+    let config: ConfigChainPrompt = {
+        temperature: temperature, modelname, maxTokens, numCtx
+    };
+    let prompt: ChainPromptBaseTemplate = {
+        systemprompt, question
+    };
+    //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
+    const assistantResponse = await callbackRequestLLM(config, prompt);
+    return assistantResponse;
+}
+
+function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any) {
+    conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
+}
+
+function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string, question: string | undefined) {
+    if (!conversations[keyconversation]) {
+        conversations[keyconversation] = {
+            startTime: new Date(),
+            conversationContext: "\nSystem: " + systemPrompt,
+        };
+    }
+    conversations[keyconversation].conversationContext += `\n\nHuman: ${question}\n`;
+    const systemprompt = conversations[keyconversation].conversationContext;
+    return systemprompt;
 }
 
 /**
