@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
+import socket from './core/apis/chainsocket.js'
 dotenv.config();
 
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
@@ -52,7 +53,7 @@ console.log(`HTTPS server created!`);
 
 server.listen(port, () => console.log(`${nameAssistant} avviato sulla porta:${port}`));
 
-/*const socketport: number = parseInt(process.env.SOCKET_PORT || '6000');
+const socketport: number = parseInt(process.env.SOCKET_PORT || '6000');
 socket.listen(socketport, () => {
     console.log(`${nameAssistant} su Socket.IO in ascolto sulla porta ${socketport}`);
-});*/
+});
