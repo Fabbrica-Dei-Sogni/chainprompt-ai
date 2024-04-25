@@ -73,4 +73,17 @@ const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };
 
-export { getPromptRecruiter, getPromptDocenteLinux, getFrameworkPrompts };
+/**
+ * Builder del prompt studiato per essere inviato ad una richiesta RAG oriented, dove il contesto viene iniettato in formato vettoriale
+ * @param contesto 
+ * @returns 
+ */
+const getFrameworkPromptsRAGContext = async (contesto: string): Promise<string> => {
+
+    const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione'];
+    let promptresult = await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
+    //promptresult = promptresult + "\n\nCONTESTO: {context}";
+    return promptresult;
+};
+
+export { getPromptRecruiter, getPromptDocenteLinux, getFrameworkPrompts, getFrameworkPromptsRAGContext };

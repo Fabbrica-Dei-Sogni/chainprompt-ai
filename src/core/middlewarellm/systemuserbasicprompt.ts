@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { Ollama } from "@langchain/community/llms/ollama";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
+import { retrieveAndAskPrompt } from "./ragtier/documentretrieves.js";
 dotenv.config();
 
 /*
@@ -102,3 +103,18 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
     return answer;
 
 };
+
+/**
+ * Metodo per generare la risposta a partire da un retrieve RAG
+ * @param context 
+ * @param config 
+ * @param prompt 
+ * @returns 
+ */
+export const generateOllamaByRAG = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+
+    let answer = await retrieveAndAskPrompt(context, config, prompt);
+    console.log("Risposta generata:", answer);
+    return answer;
+}
+

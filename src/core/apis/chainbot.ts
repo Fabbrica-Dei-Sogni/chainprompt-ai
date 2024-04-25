@@ -4,9 +4,9 @@
  */
 import express from "express";
 const router = express.Router();
-import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM } from '../services/langchainservice.js';
+import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM, getAnswerRAGOllamaLLM, } from '../services/langchainservice.js';
 import { writeObjectToFile, contextFolder, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getFrameworkPrompts } from '../services/builderpromptservice.js';
+import { getFrameworkPrompts, getFrameworkPromptsRAGContext } from '../services/builderpromptservice.js';
 import * as requestIp from 'request-ip';
 import fs from 'fs';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
@@ -34,6 +34,11 @@ const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
     await wrapperServerLLM(req, res, getAndSendPromptbyOllamaLLM);
 };
 
+const handleLocalRAGOllamaRequest = async (req: any, res: any, next: any) => {
+
+    await wrapperRAGServerLLM(req, res, getAndSendPromptbyRAGOllamaLLM);
+};
+
 const wrapperServerLLM = async (req: any, res: any, wrapperSendAndPromptLLM: any) => {
 
     try {
@@ -42,6 +47,22 @@ const wrapperServerLLM = async (req: any, res: any, wrapperSendAndPromptLLM: any
 
         //se e' il contesto generico si imposta il prompt di default
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+        let answer = await wrapperSendAndPromptLLM(req, res, systemPrompt, context); // Invia il prompt al client
+        res.json({ answer }); // Invia la risposta al client
+    } catch (err) {
+        console.error('Errore durante la conversazione:', err);
+        res.status(500).json({ error: `Si è verificato un errore interno del server` });
+    }
+}
+
+const wrapperRAGServerLLM = async (req: any, res: any, wrapperSendAndPromptLLM: any) => {
+
+    try {
+        const originalUriTokens = req.originalUrl.split('/');
+        const context = originalUriTokens[originalUriTokens.length - 1];
+
+        //se e' il contesto generico si imposta il prompt di default
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPromptsRAGContext(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         let answer = await wrapperSendAndPromptLLM(req, res, systemPrompt, context); // Invia il prompt al client
         res.json({ answer }); // Invia la risposta al client
     } catch (err) {
@@ -60,6 +81,10 @@ async function getAndSendPromptLocalLLM(req: any, res: any, systemPrompt: string
 
 async function getAndSendPromptbyOllamaLLM(req: any, res: any, systemPrompt: string, contextchat: string) {
     return await callBackgetAndSendPromptbyLocalRest(req, res, systemPrompt, contextchat, getAnswerOllamaLLM);
+}
+
+async function getAndSendPromptbyRAGOllamaLLM(req: any, res: any, systemPrompt: string, contextchat: string) {
+    return await callBackgetAndSendPromptbyRAGLocalRest(req, res, systemPrompt, contextchat, getAnswerRAGOllamaLLM);
 }
 
 /**
@@ -106,6 +131,34 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
     return assistantResponse;
 }
 
+async function callBackgetAndSendPromptbyRAGLocalRest(req: any, res: any, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
+
+    //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
+    const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = extractDataFromRequest(req, contextchat);
+
+    //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
+    // Crea una nuova conversazione per questo indirizzo IP
+    const systemprompt = setQuestionHistoryConversation(keyconversation, systemPrompt, question);
+
+    //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
+    const assistantResponse = await invokeRAGLLM(contextchat, temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
+
+    //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
+    setAnswerHistoryConversation(keyconversation, assistantResponse);
+
+    //Fase applicativa di salvataggio della conversazione corrente su un file system.
+    await writeObjectToFile(conversations, contextchat);
+
+    //Fase applicative che o reiterano le fasi precedenti.
+
+    //XXX: ciascuna fase dopo il recupero della risposta è a discrezione delle scelte progettuali applicative in cui scegliere lo strumento migliore per manipolare la risposta.
+    //Questi aspetti saranno cruciali e potrebbero evolversi in componenti che potrebbero essere di dominio ad altre componenti.
+
+    //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
+    //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
+    return assistantResponse;
+}
+
 async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx
@@ -117,6 +170,19 @@ async function invokeLLM(temperature: number | undefined, modelname: string | un
     const assistantResponse = await callbackRequestLLM(config, prompt);
     return assistantResponse;
 }
+
+async function invokeRAGLLM(context: string, temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
+    let config: ConfigChainPrompt = {
+        temperature: temperature, modelname, maxTokens, numCtx
+    };
+    let prompt: ChainPromptBaseTemplate = {
+        systemprompt, question
+    };
+    //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
+    const assistantResponse = await callbackRequestLLM(context, config, prompt);
+    return assistantResponse;
+}
+
 
 function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any) {
     conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
@@ -173,19 +239,26 @@ function extractDataFromRequest(req: any, context: string): DataRequest {
 contexts.forEach(context => {
     router.post(`/langchain/localai/prompt/${context}`, handleLocalRequest);
 });
+router.post(`/langchain/localai/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRequest);
 
 // Genera le route dinamicamente per ogni contesto disponibile
 contexts.forEach(context => {
     router.post(`/langchain/cloud/prompt/${context}`, handleCloudLLMRequest);
 });
+router.post(`/langchain/cloud/prompt/${ENDPOINT_CHATGENERICA}`, handleCloudLLMRequest);
 
 contexts.forEach(context => {
     router.post(`/langchain/ollama/prompt/${context}`, handleLocalOllamaRequest);
 });
-
-//Endpoint di default per avviare una chat generica con un prompt di sistema di default
-router.post(`/langchain/localai/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRequest);
-router.post(`/langchain/cloud/prompt/${ENDPOINT_CHATGENERICA}`, handleCloudLLMRequest);
 router.post(`/langchain/ollama/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalOllamaRequest);
+
+//XXX: gli endpoint seguenti afferiscono a flussi di lavoro integrati con metodi rag per l'interrogazione di prompt
+//Endpoint dinamico per istanziare prompt rag oriented su llm di tipo ollama
+contexts.forEach(context => {
+    router.post(`/langchain/rag/ollama/prompt/${context}`, handleLocalRAGOllamaRequest);
+});
+router.post(`/langchain/rag/ollama/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRAGOllamaRequest);
+
+
 
 export default router;

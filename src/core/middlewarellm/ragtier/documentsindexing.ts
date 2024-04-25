@@ -7,3 +7,29 @@
  * https://python.langchain.com/docs/use_cases/question_answering/quickstart/
  * 
  */
+import { contextFolder } from '../../services/commonservices.js';
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { TextLoader } from "langchain/document_loaders/fs/text";
+import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
+import { RecursiveCharacterTextSplitter, } from 'langchain/text_splitter';
+
+export async function indexingAndStoreDocs(context: string, modelname: string) {
+    const loader = new TextLoader(`${contextFolder}/${context}/prompt.contesto`);
+    const docs = await loader.load();
+    // Creazione di un nuovo splitter per dividere il testo in documenti
+    const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 100,
+        chunkOverlap: 20,
+    });
+    const splits = await textSplitter.splitDocuments(docs);
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+        splits,
+        new OllamaEmbeddings({
+            baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+            model: modelname || process.env.LOCAL_MODEL_NAME,
+        })
+    );
+    const retriever = vectorStore.asRetriever();
+
+    return retriever;
+}

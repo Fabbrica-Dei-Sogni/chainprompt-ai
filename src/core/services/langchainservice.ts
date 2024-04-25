@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { generateCloudLLMWithSystemuserBasicPrompt, generateLocalLLMWithSystemuserBasicPrompt, generateOllamaLLMWithSystemuserBasicPrompt } from "../middlewarellm/systemuserbasicprompt.js";
+import { generateCloudLLMWithSystemuserBasicPrompt, generateLocalLLMWithSystemuserBasicPrompt, generateOllamaLLMWithSystemuserBasicPrompt, generateOllamaByRAG } from "../middlewarellm/systemuserbasicprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 dotenv.config();
 
@@ -17,5 +17,16 @@ const getAnswerOllamaLLM = async (config: ConfigChainPrompt, prompt: ChainPrompt
     return await generateOllamaLLMWithSystemuserBasicPrompt(config, prompt);
 }
 
+/**
+ * Metodo per ottenere una risposta attraverso una interrogazione RAG oriented
+ * @param context 
+ * @param config 
+ * @param prompt 
+ * @returns 
+ */
+const getAnswerRAGOllamaLLM = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+    return await generateOllamaByRAG(context, config, prompt);
+}
 
-export { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM };
+
+export { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM, getAnswerRAGOllamaLLM };

@@ -1,6 +1,5 @@
-import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { SYSTEMPROMPT_DFL, contextFolder } from '../services/commonservices.js';
+import { contextFolder } from '../services/commonservices.js';
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
@@ -23,7 +22,7 @@ const io = new Server(server);
 
 io.on('connection', (socket: Socket) => {
     const ipAddress = socket.handshake.address;
-
+    console.log("Indirizzo ip: ", ipAddress);
     console.log(`Client connesso: ${socket.id} ${ipAddress}`);
 
     // Evento di disconnessione dei client
