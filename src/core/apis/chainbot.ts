@@ -185,17 +185,17 @@ async function invokeRAGLLM(context: string, temperature: number | undefined, mo
 
 
 function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any) {
-    conversations[keyconversation].conversationContext += `\n\nAI: ${assistantResponse}\n`;
+    conversations[keyconversation].conversationContext += `\n<|assistant|>${assistantResponse}<|end|>\n`;
 }
 
 function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string, question: string | undefined) {
     if (!conversations[keyconversation]) {
         conversations[keyconversation] = {
             startTime: new Date(),
-            conversationContext: "\nSystem: " + systemPrompt,
+            conversationContext: `\n<|system|>\n ${systemPrompt}<|end|>\n`,
         };
     }
-    conversations[keyconversation].conversationContext += `\n\nHuman: ${question}\n`;
+    conversations[keyconversation].conversationContext += `\n\n<|user|>\n${question}<|end|>\n`;
     const systemprompt = conversations[keyconversation].conversationContext;
     return systemprompt;
 }
