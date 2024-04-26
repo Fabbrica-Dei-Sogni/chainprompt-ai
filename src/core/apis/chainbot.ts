@@ -116,7 +116,7 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
     const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    setAnswerHistoryConversation(keyconversation, assistantResponse);
+    setAnswerHistoryConversation(keyconversation, assistantResponse, question);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, contextchat);
@@ -144,7 +144,7 @@ async function callBackgetAndSendPromptbyRAGLocalRest(req: any, res: any, system
     const assistantResponse = await invokeRAGLLM(contextchat, temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    setAnswerHistoryConversation(keyconversation, assistantResponse);
+    setAnswerHistoryConversation(keyconversation, assistantResponse, question);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, contextchat);
@@ -184,8 +184,8 @@ async function invokeRAGLLM(context: string, temperature: number | undefined, mo
 }
 
 
-function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any) {
-    conversations[keyconversation].conversationContext += `\n<|assistant|>${assistantResponse}<|end|>\n`;
+function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any, question: any) {
+    conversations[keyconversation].conversationContext += `<|user|>\n${question}<|end|>\n<|assistant|>${assistantResponse}<|end|>\n`;
 }
 
 function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string, question: string | undefined) {
@@ -195,7 +195,7 @@ function setQuestionHistoryConversation(keyconversation: string, systemPrompt: s
             conversationContext: `\n<|system|>\n ${systemPrompt}<|end|>\n`,
         };
     }
-    conversations[keyconversation].conversationContext += `\n\n<|user|>\n${question}<|end|>\n`;
+    //conversations[keyconversation].conversationContext += `\n\n<|user|>\n${question}<|end|>\n`;
     const systemprompt = conversations[keyconversation].conversationContext;
     return systemprompt;
 }
