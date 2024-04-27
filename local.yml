@@ -1,7 +1,7 @@
 name: "suite-ai"
 
 services:
-  chainprompt-ai:
+  chainprompt-ai-local:
     image: chainprompt-ai-local:${IMG_VERSION:-latest}
     container_name: chainprompt-ai-local
     build:

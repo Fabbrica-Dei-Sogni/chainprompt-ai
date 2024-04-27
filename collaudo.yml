@@ -1,9 +1,9 @@
 name: "suite-ai"
 
 services:
-  chatbot-kppa:
-    image: chainprompt-ai-local:${IMG_VERSION:-latest}
-    container_name: chainprompt-ai-local
+  chainprompt-ai-collaudo:
+    image: chainprompt-ai-collaudo:${IMG_VERSION:-latest}
+    container_name: chainprompt-ai-collaudo
     build:
       context: ./
       dockerfile: Dockerfile
