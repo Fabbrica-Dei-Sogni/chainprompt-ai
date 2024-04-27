@@ -15,59 +15,32 @@ const contexts = fs.readdirSync(contextFolder);
  Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
 */
 const handleLocalRequest = async (req: any, res: any, next: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-
-        let answer = await wrapperServerLLM(inputData, contextchat, getAndSendPromptLocalLLM);
-        res.json({ answer });
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
+    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
 };
 
 const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-
-        let answer = await wrapperServerLLM(inputData, contextchat, getAndSendPromptCloudLLM);
-        res.json({ answer });
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
+    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
 };
 
 const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
+    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
+};
+
+const handleLocalRAGOllamaRequest = async (req: any, res: any, next: any) => {
+    await handleRequest(req, res, next, getAndSendPromptbyRAGOllamaLLM);
+};
+
+const handleRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const contextchat = originalUriTokens[originalUriTokens.length - 1];
         const inputData: DataRequest = extractDataFromRequest(req, contextchat);
 
-        let answer = await wrapperServerLLM(inputData, contextchat, getAndSendPromptbyOllamaLLM);
+        let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
         res.json({ answer });
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
         res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-};
-
-const handleLocalRAGOllamaRequest = async (req: any, res: any, next: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-
-        let answer = await wrapperRAGServerLLM(inputData, contextchat, getAndSendPromptbyRAGOllamaLLM);
-        res.json({ answer });
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 };
 
