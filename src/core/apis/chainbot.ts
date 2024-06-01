@@ -78,7 +78,10 @@ function extractDataFromRequest(req: any, context: string): DataRequest {
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
  * E' un esempio di dinamismo, seguendo le best practise il tentativo è rendere tale dinamismo piu in linea con le esigenze applicative future, attualmente l'obiettivo è esporre una chatbot tematica
  */
-
+console.log(">>> Caricamento chat tematiche...");
+contexts.forEach(context => {
+   console.log(context)
+});
 // Genera le route dinamicamente per ogni contesto disponibile
 contexts.forEach(context => {
     router.post(`/langchain/localai/prompt/${context}`, handleLocalRequest);
@@ -102,6 +105,7 @@ contexts.forEach(context => {
     router.post(`/langchain/rag/ollama/prompt/${context}`, handleLocalRAGOllamaRequest);
 });
 router.post(`/langchain/rag/ollama/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRAGOllamaRequest);
+console.log("<<< Caricamento avvenuto con successo");
 
 
 
