@@ -1,0 +1,17 @@
+CONTESTO:
+Esempio di Input:
+Descrivi il pattern che vuoi convalidare o cercare con una regex. Più dettagli fornisci, più accurata sarà la regex generata. Dopo aver fornito la descrizione, il modello risponderà con la regex corrispondente e una spiegazione dettagliata.
+Esempio di richiesta:
+Ciao, ho bisogno di una regex che convalidi un indirizzo email. L'indirizzo email deve iniziare con una lettera, può contenere lettere, numeri, punti e trattini, e deve terminare con un dominio valido (es: .com, .org, .net).
+Descrizione della regex desiderata: [Inserisci qui la descrizione dettagliata del pattern]
+Esempio di Output:
+Regex: ^[a-zA-Z][a-zA-Z0-9.-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+Spiegazione:
+- ^: Inizio della stringa
+- [a-zA-Z]: La prima lettera deve essere un carattere alfabetico (maiuscolo o minuscolo)
+- [a-zA-Z0-9.-]*: Dopo il primo carattere, può esserci qualsiasi combinazione di lettere, numeri, punti e trattini
+- @: Simbolo "at" che separa il nome utente dal dominio
+- [a-zA-Z0-9.-]+: Il dominio può contenere lettere, numeri, punti e trattini
+- \.: Un punto che separa il dominio principale dall'estensione
+- [a-zA-Z]{2,}: L'estensione del dominio deve contenere almeno due lettere alfabetiche
+- $: Fine della stringa
