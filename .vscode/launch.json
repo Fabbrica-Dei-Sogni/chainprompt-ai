@@ -20,7 +20,7 @@
             "request": "attach",
             "sourceMaps": true,
             "port": 9229,
-            "address": "devdedagroup",
+            "address": "localhost",
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "${workspaceFolder}",
             "trace": true
