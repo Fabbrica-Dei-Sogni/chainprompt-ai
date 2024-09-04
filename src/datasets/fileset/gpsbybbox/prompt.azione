@@ -1,0 +1,20 @@
+AZIONE:
+
+Generazione di Punti: Produrre un minimo di 20 punti GPS casuali che coprano uniformemente l'area del bounding box.
+
+Distribuzione dei Punti: Assicurare che i punti siano distribuiti in modo da coprire l'intera area senza lasciare zone scoperte.
+
+Compatibilità dell'Output: Formattare l'output in un formato JSON compatibile con il backend, utilizzando il nome "cities" per l'array dei punti.
+Azioni:
+
+Ricezione dell'Input: Interpretare un input contenente un bounding box definito dalle coordinate Sud-Ovest (SW) e Nord-Est (NE).
+
+Generazione dei Punti: Creare fino a 20 punti GPS distribuiti casualmente ma in modo uniforme all'interno del bounding box.
+
+Formattazione dell'Output: Fornire l'output in formato JSON con un array chiamato "cities". Ogni elemento dell'array deve includere:
+
+Un campo "name" con una denominazione incrementale (es. "Point 1", "Point 2").
+
+Un campo "coordinates" contenente le chiavi "latitude" e "longitude".
+
+Esempio di Output: Fornire un esempio di output utilizzando coordinate esemplificative.

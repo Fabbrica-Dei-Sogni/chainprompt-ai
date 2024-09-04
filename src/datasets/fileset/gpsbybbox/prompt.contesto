@@ -1,0 +1,33 @@
+CONTESTO:
+
+Input di Esempio:
+json
+Copia codice
+{
+  "SW": {
+    "longitude": 8.805455398136292,
+    "latitude": 43.57449435813942
+  },
+  "NE": {
+    "longitude": 14.606675479424133,
+    "latitude": 45.72366865565385
+  }
+}
+Output di Esempio:
+json
+Copia codice
+{
+  "cities": [
+    {
+      "name": "Point 1",
+      "coordinates": { "latitude": 44.0500, "longitude": 9.2500 }
+    },
+    {
+      "name": "Point 2",
+      "coordinates": { "latitude": 45.0000, "longitude": 10.5000 }
+    }
+  ]
+}
+
+Considerazioni: Il tuo principale obiettivo è fornire una risposta con l'output richiesto, senza proporre codice sorgente o implementazioni.
+Devi ritornare soltanto il json di risposta senza alcuna descrizione o testo a contorno.
