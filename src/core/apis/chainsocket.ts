@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { contextFolder } from '../services/commonservices.js';
 import https from 'https';
+import * as http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,11 +13,12 @@ const __dirname = path.dirname(__filename);
 // Creazione del server HTTP
 //const server = createServer();
 //integrazione https ssl
-const sslOptions: https.ServerOptions = {
+/*const sslOptions: https.ServerOptions = {
     key: fs.readFileSync(path.resolve(__dirname, "/usr/app/src/certs/privkey.pem")),
     cert: fs.readFileSync(path.resolve(__dirname, "/usr/app/src/certs/fullchain.pem")),
-};
-const server: https.Server = https.createServer(sslOptions); //http.createServer(app);
+};*/
+//const server: https.Server = https.createServer(sslOptions);
+const server: http.Server = http.createServer();
 
 const io = new Server(server);
 

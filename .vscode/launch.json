@@ -14,5 +14,16 @@
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/usr/app"
         },
+        {
+            "name": "Chainprompt-ai Local",
+            "type": "node",
+            "request": "attach",
+            "sourceMaps": true,
+            "port": 9229,
+            "address": "devdedagroup",
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "${workspaceFolder}",
+            "trace": true
+        },        
     ]
 }
