@@ -60,7 +60,7 @@ async function getAndSendPromptbyLocalRest(req: any, res: any, systemPrompt: str
 }
 
 async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
-    const { systemprompt, question, temperature, modelname, keyconversation } = buildAndTrackPromptRest(req, systemPrompt, contextchat);
+    const { systemprompt, question, temperature, modelname, keyconversation } = extractDataFromRequest(req, systemPrompt, contextchat);
     const assistantResponse = await callbackRequestLLM(req, res, systemprompt, question, temperature || 0.1, modelname);
     conversations[keyconversation].conversationContext += `D: ${assistantResponse}\n`;
     await writeObjectToFile(conversations, contextchat);
@@ -72,14 +72,17 @@ async function callBackgetAndSendPromptbyLocalRest(req: any, res: any, systemPro
  * @param {*} systemPrompt 
  * @returns 
  */
-function buildAndTrackPromptRest(req: any, systemPrompt: string, context: string) {
+function extractDataFromRequest(req: any, systemPrompt: string, context: string) {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     const question = '\n' + req.body.question;
     const modelname = req.body.modelname;
     const temperature = req.body.temperature;
     const ipAddress = requestIp.getClientIp(req);
-    const keyconversation = ipAddress + "_" + context;
+    const sessionchat = req.body.sessionchat;
+    const session = sessionchat ? sessionchat : "defaultsession";
+    const keyconversation = ipAddress + "_" + context + "_" + session;
+    console.log("Avviata conversione con chiave : " + keyconversation);
 
     // Crea una nuova conversazione per questo indirizzo IP
     if (!conversations[keyconversation]) {

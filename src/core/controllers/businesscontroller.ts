@@ -94,7 +94,7 @@ async function callBackgetAndSendPromptbyLocalRest(inputData: DataRequest, syste
     setAnswerHistoryConversation(keyconversation, assistantResponse, question);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
-    await writeObjectToFile(conversations, contextchat);
+    await writeObjectToFile(conversations, keyconversation);
 
     //Fase applicative che o reiterano le fasi precedenti.
 
@@ -122,7 +122,7 @@ async function callBackgetAndSendPromptbyRAGLocalRest(inputData: DataRequest, sy
     setAnswerHistoryConversation(keyconversation, assistantResponse, question);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
-    await writeObjectToFile(conversations, contextchat);
+    await writeObjectToFile(conversations, keyconversation);
 
     //Fase applicative che o reiterano le fasi precedenti.
 

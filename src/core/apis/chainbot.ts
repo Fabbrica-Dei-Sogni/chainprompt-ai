@@ -64,7 +64,12 @@ function extractDataFromRequest(req: any, context: string): DataRequest {
     const modelname = req.body.modelname;
     const temperature = req.body.temperature || 0.1;
     const ipAddress = requestIp.getClientIp(req);
-    const keyconversation = ipAddress + "_" + context;
+    const sessionchat = req.body.sessionchat;
+    const session = sessionchat ? sessionchat : "defaultsession";
+    const keyconversation = ipAddress + "_" + context + "_" + session;
+    console.log("Avviata conversione con chiave : " + keyconversation);
+
+//    const keyconversation = ipAddress + "_" + context;
     console.log("Indirizzo ip: ", ipAddress);
     const maxTokens = req.body.maxTokens || 8032;
     const numCtx = req.body.numCtx || 8032;

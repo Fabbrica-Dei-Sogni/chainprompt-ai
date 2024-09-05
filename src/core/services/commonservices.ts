@@ -11,7 +11,7 @@ const contextFolder = process.env.PATH_FILESET || 'datasets/fileset';
 const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
 
 // Function to write an object to a text file
-async function writeObjectToFile(obj: any, context = 'nondefinito'): Promise<string> {
+async function writeObjectToFile(obj: any, keyconversation = 'nondefinito'): Promise<string> {
     // Get current timestamp
     const timestamp = Date.now();
 
@@ -22,7 +22,7 @@ async function writeObjectToFile(obj: any, context = 'nondefinito'): Promise<str
     }
 
     // Convert timestamp to a date/time string
-    const filename = `${directoryPath}/${timestamp}_${context}_conversation.txt`;
+    const filename = `${directoryPath}/${timestamp}_${keyconversation}_conversation.txt`;
 
     // Convert object to JSON string
     const jsonData = JSON.stringify(obj);
