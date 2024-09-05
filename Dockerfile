@@ -8,7 +8,7 @@ RUN apk add --no-cache make gcc g++
 # Changing working dir
 WORKDIR /usr/app
 ADD package*.json ./
-RUN npm update && npm upgrade && npm install
+RUN npm install
 
 # Copy app to working dir
 COPY . .
