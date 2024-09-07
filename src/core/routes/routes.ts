@@ -2,6 +2,7 @@
 import express from "express";
 import classicbot from "../apis/classicbot.js"
 import chainbot from "../apis/chainbot.js"
+import clickbaitscore from "../apis/clickbaitscore.js"
 const router = express.Router();
 
 /**
@@ -9,6 +10,7 @@ const router = express.Router();
  */
 
 // Utilizza le rotte definite nel modulo "chatbot"
+router.use(clickbaitscore);
 router.use(classicbot);
 router.use(chainbot);
 

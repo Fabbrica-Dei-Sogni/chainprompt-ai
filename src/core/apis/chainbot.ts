@@ -5,10 +5,10 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM, wrapperRAGServerLLM, wrapperServerLLM } from '../controllers/businesscontroller.js'
-import * as requestIp from 'request-ip';
+//import { wrapperRAGServerLLM, wrapperServerLLM } from '../controllers/wrapperllm.controller.js'
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM } from '../controllers/businesscontroller.js'
+import { handlePrompt } from '../controllers/handlers.controller.js'
 import fs from 'fs';
-import { DataRequest } from "../interfaces/datarequest.js";
 const contexts = fs.readdirSync(contextFolder);
 
 /*
@@ -34,9 +34,9 @@ const handleRequest = async (req: any, res: any, next: any, getSendPromptCallbac
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-
-        let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
+        let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
+        //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
+        //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
         res.json({ answer });
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
@@ -56,7 +56,7 @@ const handleRequest = async (req: any, res: any, next: any, getSendPromptCallbac
  * @param context 
  * @returns 
  */
-function extractDataFromRequest(req: any, context: string): DataRequest {
+/*function extractDataFromRequest(req: any, context: string): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     const question = '\n' + req.body.question;
@@ -77,7 +77,7 @@ function extractDataFromRequest(req: any, context: string): DataRequest {
 
 
     return { question, temperature, modelname, maxTokens, numCtx, keyconversation };
-}
+}*/
 
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
@@ -85,7 +85,7 @@ function extractDataFromRequest(req: any, context: string): DataRequest {
  */
 console.log(">>> Caricamento chat tematiche...");
 contexts.forEach(context => {
-   console.log(context)
+    console.log(context)
 });
 // Genera le route dinamicamente per ogni contesto disponibile
 contexts.forEach(context => {

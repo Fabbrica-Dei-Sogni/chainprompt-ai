@@ -11,7 +11,7 @@ import { DataRequest } from "../interfaces/datarequest.js";
 
 const conversations: Record<string, any> = {};
 
-const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
+/*const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
 
     try {
         // const originalUriTokens = req.originalUrl.split('/');
@@ -45,7 +45,8 @@ const wrapperRAGServerLLM = async (inputData: DataRequest, context: string, wrap
         throw err;
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
-}
+}*/
+
 async function getAndSendPromptCloudLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
     return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, contextchat, getAnswerLLM);
 }
@@ -177,5 +178,5 @@ function setQuestionHistoryConversation(keyconversation: string, systemPrompt: s
 
 
 export {
-    getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM, wrapperServerLLM, wrapperRAGServerLLM
+    getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM,
 };
