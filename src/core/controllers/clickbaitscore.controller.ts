@@ -25,10 +25,40 @@ async function scrapeArticle(url: string): Promise<ScrapeResult> {
         const title: string | null = extractTitle($);
         const content: string | null = extractContent($);
 
+        let cleanedContent = content ? // Espressione regolare per rimuovere blocchi di script e funzioni JavaScript
+            content
+                // Rimuove blocchi di <script>...</script>
+                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+
+                // Rimuove funzioni auto-invocate e blocchi JavaScript di tipo (function(){...})();
+                .replace(/\(function.*?\)\(\);/gs, '')
+
+                // Rimuove chiamate a document.getElementById(), setAttribute(), o funzioni simili
+                .replace(/document\.getElementById\([^)]*\)\.[^\n;]+;/g, '')
+
+                // Rimuove altre funzioni JavaScript come setAttribute(), addEventListener() ecc.
+                .replace(/\.\s*(setAttribute|addEventListener|appendChild)\([^)]*\);/g, '')
+
+                // Rimuove assegnazioni di variabili e operazioni che manipolano il DOM
+                .replace(/var\s+\w+\s*=\s*document\.[^\n;]+;/g, '')
+
+                // Rimuove blocchi condizionali if {...}
+                .replace(/if\s*\(.*?\)\s*{[^}]*}/gs, '')
+
+                // Rimuove creazione di elementi script o appendChild()
+                .replace(/document\.createElement\('script'\)[^;]*;/gs, '')
+
+                // Rimuove chiamate a loadScriptAsync, loadSequence ecc.
+                .replace(/loadScriptAsync\([^)]*\);/g, '')
+                .replace(/loadSequence\([^)]*\);/g, '') : "";
+
+        // Rimuove eventuali caratteri non voluti come \n, \t ecc.
+        cleanedContent = cleanedContent.replace(/\\[ntr]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+
         // Stampa il risultato
         console.log('Titolo:', title || 'Non trovato');
-        console.log('Contenuto:', content || 'Non trovato');
-        return { title, content };
+        console.log('Contenuto:', cleanedContent || 'Non trovato');
+        return { title, content: cleanedContent };
     } catch (error) {
         console.error('Errore durante lo scraping:', error);
         throw error;
