@@ -5,7 +5,6 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-//import { wrapperRAGServerLLM, wrapperServerLLM } from '../controllers/wrapperllm.controller.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM } from '../controllers/businesscontroller.js'
 import { handlePrompt } from '../controllers/handlers.controller.js'
 import fs from 'fs';
@@ -43,41 +42,6 @@ const handleRequest = async (req: any, res: any, next: any, getSendPromptCallbac
         res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 };
-
-/**
- * Il metodo ha lo scopo di estrapolare dalla request entrante applicativa i valori di input tra cui il prompt utente, il nome del modello, la temperatura e altre informazioni peculiari,
- * successivamente gestisce uno storico conversazione che nel tempo evolverà seguendo le best practise utilizzando langchain e gli strumenti che offre,
- * ritorna i risultati di systempromp e question parsando in modo opportuno l'inizio della conversazione con il prompt entrante.
- * In futuro prompt con all'interno variabili placeholder avranno una gestione tale da essere compilati tra piu catene di domanda e risposta
- * 
- * 
- * @param req 
- * @param systemPrompt 
- * @param context 
- * @returns 
- */
-/*function extractDataFromRequest(req: any, context: string): DataRequest {
-    console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
-
-    const question = '\n' + req.body.question;
-    console.log("Domanda ricevuta:", question);
-    const modelname = req.body.modelname;
-    const temperature = req.body.temperature || 0.1;
-    const ipAddress = requestIp.getClientIp(req);
-    const sessionchat = req.body.sessionchat;
-    const session = sessionchat ? sessionchat : "defaultsession";
-    const keyconversation = ipAddress + "_" + context + "_" + session;
-    console.log("Avviata conversione con chiave : " + keyconversation);
-
-//    const keyconversation = ipAddress + "_" + context;
-    console.log("Indirizzo ip: ", ipAddress);
-    const maxTokens = req.body.maxTokens || 8032;
-    const numCtx = req.body.numCtx || 8032;
-
-
-
-    return { question, temperature, modelname, maxTokens, numCtx, keyconversation };
-}*/
 
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
