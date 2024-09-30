@@ -36,7 +36,7 @@ const handleRequest = async (req: any, res: any, next: any, getSendPromptCallbac
         let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
         //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
         //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
-        res.json({ answer });
+        res.json(answer);
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
         res.status(500).json({ error: `Si è verificato un errore interno del server` });

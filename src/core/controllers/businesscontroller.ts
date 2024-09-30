@@ -11,42 +11,6 @@ import { DataRequest } from "../interfaces/datarequest.js";
 
 const conversations: Record<string, any> = {};
 
-/*const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
-
-    try {
-        // const originalUriTokens = req.originalUrl.split('/');
-        // const context = originalUriTokens[originalUriTokens.length - 1];
-
-        //se e' il contesto generico si imposta il prompt di default
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        let answer = await wrapperSendAndPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
-        return answer;
-        //res.json({ answer }); // Invia la risposta al client
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-}
-
-const wrapperRAGServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
-
-    try {
-        //const originalUriTokens = req.originalUrl.split('/');
-        //const context = originalUriTokens[originalUriTokens.length - 1];
-
-        //se e' il contesto generico si imposta il prompt di default
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPromptsRAGContext(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        let answer = await wrapperSendAndPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
-        return answer;
-        //res.json({ answer }); // Invia la risposta al client
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-}*/
-
 async function getAndSendPromptCloudLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
     return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, contextchat, getAnswerLLM);
 }
@@ -86,13 +50,16 @@ async function callBackgetAndSendPromptbyLocalRest(inputData: DataRequest, syste
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    const systemprompt = setQuestionHistoryConversation(keyconversation, systemPrompt, question);
+    const systemprompt = inputData.noappendchat ? systemPrompt : setQuestionHistoryConversation(keyconversation, systemPrompt, question);
 
     //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
     const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    setAnswerHistoryConversation(keyconversation, assistantResponse, question);
+    if (!inputData.noappendchat) {
+        console.log("Storico conversazione");
+        setAnswerHistoryConversation(keyconversation, assistantResponse, question);
+    }
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, keyconversation);

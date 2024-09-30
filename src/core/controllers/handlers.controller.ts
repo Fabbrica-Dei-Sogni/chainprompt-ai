@@ -40,7 +40,10 @@ const handlePrompt = async (req: any, contextchat: any, getSendPromptCallback: a
 function extractDataFromRequest(body: RequestBody, context: string, identifier: any): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
-    const question = '\n' + body.question;
+    //Recupero della domanda dal campo question o dal campo text (standard cheshire)
+    var inputvalue = body.question ?? body.text;
+    const question = '\n' + inputvalue;
+
     console.log("Domanda ricevuta:", question);
     const modelname = body.modelname ? body.modelname : "llama";
     const temperature = body.temperature || 0.1;
@@ -54,10 +57,11 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
     //console.log("Indirizzo ip: ", ipAddress);
     const maxTokens = body.maxTokens || 8032;
     const numCtx = body.numCtx || 8032;
+    const noappendchat = body.noappendchat || false;
 
 
 
-    return { question, temperature, modelname, maxTokens, numCtx, keyconversation };
+    return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat };
 }
 
 export {
