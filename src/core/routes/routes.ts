@@ -3,6 +3,7 @@ import express from "express";
 import classicbot from "../apis/classicbot.js"
 import chainbot from "../apis/chainbot.js"
 import clickbaitscore from "../apis/clickbaitscore.js"
+import cheshirecat from "../apis/cheshirecat.js"
 const router = express.Router();
 
 /**
@@ -13,6 +14,7 @@ const router = express.Router();
 router.use(clickbaitscore);
 router.use(classicbot);
 router.use(chainbot);
+router.use(cheshirecat);
 
 console.log(`Importazione delle API avvenuta con successo!`);
 
