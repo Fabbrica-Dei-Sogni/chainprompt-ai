@@ -3,58 +3,32 @@
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
 import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM, getAnswerRAGOllamaLLM, } from '../services/langchainservice.js';
-import { writeObjectToFile } from '../services/commonservices.js';
+import { writeObjectToFile, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
+import { getFrameworkPrompts, getFrameworkPromptsRAGContext } from '../services/builderpromptservice.js';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 
 const conversations: Record<string, any> = {};
 
-async function getAndSendPromptCloudLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerLLM);
+async function getAndSendPromptbyRAGOllamaLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
+    return await callBackgetAndSendPromptbyRAGLocalRest(inputData, systemPrompt, contextchat, getAnswerRAGOllamaLLM);
 }
 
-async function getAndSendPromptLocalLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerLocalLLM);
-}
-
-async function getAndSendPromptbyOllamaLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerOllamaLLM);
-}
-
-/**
- * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
- * istanziare la configurazione del modello llm in ConfigChainPrompt, ciascun parametro è peculiare in base al modello llm scelto per interrogare,
- * impostare il template del prompt in questo caso il prompt è formato da un systemprompt e un userprompt che sono gia preimpostati in modo opportuno a monte.
- * In futuro potranno esserci prompt template con logiche diverse per assolvere scopi piu dinamici e granulati a seconda l'esigenza applicativa.
- * Viene interrogato l'llm in base al tipo di accesso (locale, cloud, ollama server, ecc...)
- * La risposta viene tracciata nello storico di conversazione e salvato su un file di testo (in futuro ci saranno tecniche piu avanzate)
- * La risposta viene ritornata al chiamante.
- * 
- * @param req 
- * @param res 
- * @param systemPrompt 
- * @param contextchat 
- * @param callbackRequestLLM 
- * @returns 
- */
-async function callBackgetAndSendPromptbyLocalRest(inputData: DataRequest, systemPrompt: string, callbackRequestLLM: any) {
+async function callBackgetAndSendPromptbyRAGLocalRest(inputData: DataRequest, systemPrompt: string, contextchat: string, callbackRequestLLM: any) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    const systemprompt = inputData.noappendchat ? systemPrompt : setQuestionHistoryConversation(keyconversation, systemPrompt);
+    const systemprompt = setQuestionHistoryConversation(keyconversation, systemPrompt, question);
 
     //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
-    const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
+    const assistantResponse = await invokeRAGLLM(contextchat, temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    if (!inputData.noappendchat) {
-        console.log("Storico conversazione");
-        setAnswerHistoryConversation(keyconversation, assistantResponse, question);
-    }
+    setAnswerHistoryConversation(keyconversation, assistantResponse, question);
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, keyconversation);
@@ -69,7 +43,7 @@ async function callBackgetAndSendPromptbyLocalRest(inputData: DataRequest, syste
     return assistantResponse;
 }
 
-async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
+async function invokeRAGLLM(context: string, temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx
     };
@@ -77,15 +51,16 @@ async function invokeLLM(temperature: number | undefined, modelname: string | un
         systemprompt, question
     };
     //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
-    const assistantResponse = await callbackRequestLLM(config, prompt);
+    const assistantResponse = await callbackRequestLLM(context, config, prompt);
     return assistantResponse;
 }
+
 
 function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any, question: any) {
     conversations[keyconversation].conversationContext += `<|user|>\n${question}<|end|>\n<|assistant|>${assistantResponse}<|end|>\n`;
 }
 
-function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string) {
+function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string, question: string | undefined) {
     if (!conversations[keyconversation]) {
         conversations[keyconversation] = {
             startTime: new Date(),
@@ -99,5 +74,5 @@ function setQuestionHistoryConversation(keyconversation: string, systemPrompt: s
 
 
 export {
-    getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM,
+    getAndSendPromptbyRAGOllamaLLM,
 };

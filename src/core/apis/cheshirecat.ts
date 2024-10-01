@@ -5,12 +5,11 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM } from '../controllers/businesscontroller.js'
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/businesscontroller.js'
 import { handlePrompt } from '../controllers/handlers.controller.js'
 import fs from 'fs';
 const contexts = fs.readdirSync(contextFolder);
 
-const nosaveconversation = true;
 /*
  Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
 */
