@@ -11,15 +11,17 @@ import { DataRequest } from "../interfaces/datarequest.js";
 const conversations: Record<string, any> = {};
 
 async function getAndSendPromptCloudLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerLLM);
+    //il contextchat è il tema del system prompt.
+    //per ora non viene usato a questo livello, ma puo essere utile in futuro.
+    return await callbackSendPromptToLLM(inputData, systemPrompt, /*contextchat,*/ getAnswerLLM);
 }
 
 async function getAndSendPromptLocalLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerLocalLLM);
+    return await callbackSendPromptToLLM(inputData, systemPrompt, /*contextchat,*/ getAnswerLocalLLM);
 }
 
 async function getAndSendPromptbyOllamaLLM(inputData: DataRequest, systemPrompt: string, contextchat: string) {
-    return await callBackgetAndSendPromptbyLocalRest(inputData, systemPrompt, getAnswerOllamaLLM);
+    return await callbackSendPromptToLLM(inputData, systemPrompt, /*contextchat,*/ getAnswerOllamaLLM);
 }
 
 /**
@@ -38,17 +40,17 @@ async function getAndSendPromptbyOllamaLLM(inputData: DataRequest, systemPrompt:
  * @param callbackRequestLLM 
  * @returns 
  */
-async function callBackgetAndSendPromptbyLocalRest(inputData: DataRequest, systemPrompt: string, callbackRequestLLM: any) {
+async function callbackSendPromptToLLM(inputData: DataRequest, systemPrompt: string, callbackRequestLLM: any) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    const systemprompt = inputData.noappendchat ? systemPrompt : setQuestionHistoryConversation(keyconversation, systemPrompt);
+    let resultSystemPrompt = inputData.noappendchat ? `\n<|system|>\n ${systemPrompt}<|end|>\n` : setQuestionHistoryConversation(keyconversation, systemPrompt);
 
     //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
-    const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, systemprompt, question, callbackRequestLLM);
+    const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, resultSystemPrompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
     if (!inputData.noappendchat) {
