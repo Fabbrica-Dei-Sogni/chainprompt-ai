@@ -2,7 +2,7 @@ import express from "express";
 import { scrapeArticle } from "../controllers/clickbaitscore.controller.js";
 const router = express.Router();
 import { handlePrompt } from '../controllers/handlers.controller.js'
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, getAndSendPromptbyRAGOllamaLLM, } from '../controllers/businesscontroller.js'
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/businesscontroller.js'
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
