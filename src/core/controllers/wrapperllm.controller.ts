@@ -14,7 +14,6 @@ const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapper
 
         //se e' il contesto generico si imposta il prompt di default
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        console.log("System prompt contestuale:\n", systemPrompt);
 
         let answer = await wrapperSendAndPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
         return answer;

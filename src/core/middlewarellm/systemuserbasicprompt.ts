@@ -1,9 +1,9 @@
-import { PromptTemplate } from "@langchain/core/prompts";
 import { OpenAI } from "@langchain/openai";
-import { LLMChain } from "langchain/chains";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { Ollama } from "@langchain/community/llms/ollama";
+import { Ollama } from "@langchain/ollama";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { retrieveAndAskPrompt } from "./ragtier/documentretrieves.js";
 dotenv.config();
@@ -22,12 +22,22 @@ dotenv.config();
 
 export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
-    const completePrompt = new PromptTemplate({
+    /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
         inputVariables: ["systemprompt", "question"],
+    });*/
+    const chatprompt = ChatPromptTemplate.fromTemplate("{systemprompt}\n\n{question}");
+    const llm = new ChatOpenAI({
+        configuration: {
+            baseURL: process.env.URI_LANGCHAIN_LLMSTUDIO,
+        },
+        maxTokens: config.maxTokens,
+        temperature: config.temperature,
+        modelName: config.modelname || process.env.LOCAL_MODEL_NAME
     });
+    const llmChain = chatprompt.pipe(llm);
 
-    const llmChain = new LLMChain({
+    /*const llmChain = new LLMChain({
 
         llm: new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
@@ -35,7 +45,8 @@ export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigCh
             modelName: config.modelname || process.env.LOCAL_MODEL_NAME
         }),
         prompt: completePrompt,
-    });
+    });*/
+
     const answer = await llmChain.invoke({
         systemprompt: prompt.systemprompt,
         question: prompt.question,
@@ -47,12 +58,22 @@ export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigCh
 
 export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
-    const completePrompt = new PromptTemplate({
+    /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
         inputVariables: ["systemprompt", "question"],
+    });*/
+    const chatprompt = ChatPromptTemplate.fromTemplate("{systemprompt}\n\n{question}");
+    const llm = new ChatOpenAI({
+        configuration: {
+            baseURL: process.env.URI_LANGCHAIN_LLMSTUDIO,
+        },
+        maxTokens: config.maxTokens,
+        temperature: config.temperature,
+        modelName: config.modelname || process.env.LOCAL_MODEL_NAME
     });
+    const llmChain = chatprompt.pipe(llm);
 
-    const llmChain = new LLMChain({
+    /*const llmChain = new LLMChain({
 
         llm: new OpenAI({
             configuration: {
@@ -63,7 +84,7 @@ export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigCh
             modelName: config.modelname || process.env.LOCAL_MODEL_NAME
         }),
         prompt: completePrompt,
-    });
+    });*/
     const answer = await llmChain.invoke({
         systemprompt: prompt.systemprompt,
         question: prompt.question,
@@ -75,12 +96,12 @@ export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigCh
 
 export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
-    const completePrompt = new PromptTemplate({
+    /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
         inputVariables: ["systemprompt", "question"],
-    });
+    });*/
 
-    const llmChain = new LLMChain({
+    /*const llmChain = new LLMChain({
 
         llm: new Ollama({
             baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
@@ -94,7 +115,21 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
         }),
         prompt: completePrompt,
 
-    });
+    });*/
+
+    const llm = new Ollama({
+        baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+        temperature: config.temperature,
+        model: config.modelname || process.env.LOCAL_MODEL_NAME,
+        numCtx: config.numCtx,
+
+        //XXX: parametri da capire e sperimentare
+        keepAlive: "24h",
+        logitsAll: true,
+    })
+    const chatprompt = ChatPromptTemplate.fromTemplate("{systemprompt}\n\n{question}");
+    const llmChain = chatprompt.pipe(llm);
+
     const answer = await llmChain.invoke({
         systemprompt: prompt.systemprompt,
         question: prompt.question,

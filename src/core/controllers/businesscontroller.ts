@@ -48,14 +48,17 @@ async function callbackSendPromptToLLM(inputData: DataRequest, systemPrompt: str
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
     let resultSystemPrompt = inputData.noappendchat ? `\n<|system|>\n ${systemPrompt}<|end|>\n` : setQuestionHistoryConversation(keyconversation, systemPrompt);
+    console.log("System prompt contestuale:\n", resultSystemPrompt);
+
 
     //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
     const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, resultSystemPrompt, question, callbackRequestLLM);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
+    let conversation = `<|user|>\n${question}<|end|>\n<|assistant|>${assistantResponse}<|end|>\n`;
+    console.log(conversation);
     if (!inputData.noappendchat) {
-        console.log("Storico conversazione");
-        setAnswerHistoryConversation(keyconversation, assistantResponse, question);
+        setAnswerHistoryConversation(keyconversation, conversation);
     }
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
@@ -83,8 +86,9 @@ async function invokeLLM(temperature: number | undefined, modelname: string | un
     return assistantResponse;
 }
 
-function setAnswerHistoryConversation(keyconversation: string, assistantResponse: any, question: any) {
-    conversations[keyconversation].conversationContext += `<|user|>\n${question}<|end|>\n<|assistant|>${assistantResponse}<|end|>\n`;
+function setAnswerHistoryConversation(keyconversation: string, conversation: string) {
+
+    conversations[keyconversation].conversationContext += conversation;
 }
 
 function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string) {
