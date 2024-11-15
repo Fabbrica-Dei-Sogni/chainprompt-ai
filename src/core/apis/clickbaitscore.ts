@@ -38,6 +38,9 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
         const { title, content } = await scrapeArticle(decodedUri);
         const jsonString = JSON.stringify({ title, content });
         req.body.question = jsonString;
+        //si definiscono i default sul maxtoken e numCtx per il clickbaitscore
+        req.body.numCtx = !req.body.numCtx ? 2040 : req.body.numCtx;
+        req.body.maxToken = !req.body.maxToken ? 8032 : req.body.maxToken;
 
         let answer = await handlePrompt(req, 'clickbaitscore', sendPromptLLMCallback);
 
