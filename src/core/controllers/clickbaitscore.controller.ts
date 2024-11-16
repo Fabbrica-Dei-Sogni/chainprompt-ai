@@ -54,10 +54,6 @@ async function scrapeArticle(url: string): Promise<ScrapeResult> {
 
         // Rimuove eventuali caratteri non voluti come \n, \t ecc.
         cleanedContent = cleanedContent.replace(/\\[ntr]/g, ' ').replace(/\s{2,}/g, ' ').trim();
-
-        // Stampa il risultato
-        console.log('Titolo:', title || 'Non trovato');
-        console.log('Contenuto:', cleanedContent || 'Non trovato');
         return { title, content: cleanedContent };
     } catch (error) {
         console.error('Errore durante lo scraping:', error);

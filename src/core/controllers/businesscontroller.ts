@@ -47,19 +47,37 @@ async function callbackSendPromptToLLM(inputData: DataRequest, systemPrompt: str
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    let resultSystemPrompt = inputData.noappendchat ? `\n<|system|>\n ${systemPrompt}<|end|>\n` : setQuestionHistoryConversation(keyconversation, systemPrompt);
-    console.log("System prompt contestuale:\n", resultSystemPrompt);
+    //let resultSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
+    systemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
+    let resultSystemPrompt = inputData.noappendchat ? systemPrompt
+        : appendSystemPrompt(keyconversation, systemPrompt);
 
+    let resultQuestionPrompt = `<|start_header_id|>user<|end_header_id|>\n${question}<|eot_id|>`;
+    console.log(`System prompt contestuale:\n`, resultSystemPrompt);
+    console.log(`Question prompt utente:\n`, resultQuestionPrompt);
+    if (!inputData.noappendchat) {
+        appendAnswerHistoryConversation(keyconversation, resultSystemPrompt);
+    }
 
-    //Fase di composizione della configurazione del contesto chainprompt con i parametri necessari a processare il prompt
-    const assistantResponse = await invokeLLM(temperature, modelname, maxTokens, numCtx, resultSystemPrompt, question, callbackRequestLLM);
+    const assistantResponse = await invokeLLM
+        (
+            temperature,
+            modelname,
+            maxTokens,
+            numCtx,
+            resultSystemPrompt,
+            question,
+            callbackRequestLLM);
+    const resultAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
+    console.log(`Risposta assistente:\n`, resultAssistantResponse);
 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    let conversation = `<|user|>\n${question}<|end|>\n<|assistant|>${assistantResponse}<|end|>\n`;
-    console.log(conversation);
+    let conversation = `${resultQuestionPrompt}\n${resultAssistantResponse}\n`;
+    console.log(resultSystemPrompt + "\n" + conversation);
     if (!inputData.noappendchat) {
-        setAnswerHistoryConversation(keyconversation, conversation);
+        appendAnswerHistoryConversation(keyconversation, conversation);
     }
+
 
     //Fase applicativa di salvataggio della conversazione corrente su un file system.
     await writeObjectToFile(conversations, keyconversation);
@@ -86,19 +104,19 @@ async function invokeLLM(temperature: number | undefined, modelname: string | un
     return assistantResponse;
 }
 
-function setAnswerHistoryConversation(keyconversation: string, conversation: string) {
+function appendAnswerHistoryConversation(keyconversation: string, conversation: string) {
 
     conversations[keyconversation].conversationContext += conversation;
+    return conversations[keyconversation].conversationContext;
 }
 
-function setQuestionHistoryConversation(keyconversation: string, systemPrompt: string) {
+function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
     if (!conversations[keyconversation]) {
         conversations[keyconversation] = {
             startTime: new Date(),
-            conversationContext: `\n<|system|>\n ${systemPrompt}<|end|>\n`,
+            conversationContext: systemPrompt,
         };
     }
-    //conversations[keyconversation].conversationContext += `\n\n<|user|>\n${question}<|end|>\n`;
     const systemprompt = conversations[keyconversation].conversationContext;
     return systemprompt;
 }

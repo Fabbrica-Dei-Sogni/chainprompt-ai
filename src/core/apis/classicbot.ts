@@ -93,7 +93,6 @@ function extractDataFromRequest(req: any, systemPrompt: string, context: string)
     }
     conversations[keyconversation].conversationContext += `\nU: ${question}\n`;
     console.log("Indirizzo ip: ", ipAddress);
-    console.log("Domanda ricevuta:", question);
     const systemprompt = conversations[keyconversation].conversationContext;
 
     return { systemprompt, question, temperature, modelname, keyconversation };

@@ -28,7 +28,6 @@ const requestLLM = async (req: any, res: any, systemprompt: string, question: st
         });
 
         const answer = response.choices[0].message.content!.trim(); // Ottieni la risposta generata
-        console.log("Risposta generata:", answer);
 
         res.json({ answer }); // Invia la risposta al client
 
@@ -59,7 +58,6 @@ const requestLocalLLM = async (req: any, res: any, systemprompt: string, prompt:
             //risposta proveniente da ollama
             answer = response.data.message.content.trim();
         }
-        console.log("Risposta generata:", answer);
 
         res.json({ answer }); // Invia la risposta al client
 

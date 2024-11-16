@@ -51,7 +51,6 @@ export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigCh
         systemprompt: prompt.systemprompt,
         question: prompt.question,
     });
-    console.log("Risposta generata:", answer);
     return answer;
 
 };
@@ -89,7 +88,6 @@ export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigCh
         systemprompt: prompt.systemprompt,
         question: prompt.question,
     });
-    console.log("Risposta generata:", answer);
     return answer;
 
 };
@@ -134,7 +132,6 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
         systemprompt: prompt.systemprompt,
         question: prompt.question,
     });
-    console.log("Risposta generata:", answer);
     return answer;
 
 };

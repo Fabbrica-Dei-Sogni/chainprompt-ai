@@ -44,7 +44,6 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
     var inputvalue = body.question ?? body.text;
     const question = '\n' + inputvalue;
 
-    console.log("Domanda ricevuta:", question);
     const modelname = body.modelname ? body.modelname : "llama";
     const temperature = body.temperature || 0.1;
 
