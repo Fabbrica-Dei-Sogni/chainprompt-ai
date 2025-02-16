@@ -120,6 +120,11 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
         temperature: config.temperature,
         model: config.modelname || process.env.LOCAL_MODEL_NAME,
         numCtx: config.numCtx,
+        //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
+        //numBatch: 512,
+        //topK: 40,
+        //repeatPenalty: 1.1,
+        //topP: 0.95,
 
         //XXX: parametri da capire e sperimentare
         keepAlive: "24h",

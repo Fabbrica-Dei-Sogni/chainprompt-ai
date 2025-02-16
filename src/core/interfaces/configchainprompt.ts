@@ -7,4 +7,13 @@ export interface ConfigChainPrompt {
     modelname?: string;
     maxTokens?: number;
     numCtx?: number;
+    //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
+    numBatch?: number;
+    topK?: number;
+    repeatPenalty?: number;
+    topP?: number;
+
+    //XXX: parametri da capire e sperimentare
+    keepAlive?: String;
+    logitsAll?: boolean;
 }
