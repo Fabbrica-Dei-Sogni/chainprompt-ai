@@ -1,0 +1,26 @@
+## STRUTTURA DI ANALISI
+
+### Fase 1: Segmentazione
+APPLICA:
+- Audiophile Algorithm v2.1 per chunking dialogico
+- Dependency parsing per relazioni turno/tag
+
+### Fase 2: Processamento
+PARAMETRI:
+{
+  "ner_model": "spacy_xx_ent_wiki_sm",
+  "sentiment": ["vader", "textblob"],
+  "toxicity_threshold": 0.78
+}
+
+### Fase 3: Sintesi
+FORMATO OUTPUT:
+| ID | Speaker | Act | Topic | SAI | Fallacie | Suggerimenti |
+|----|---------|-----|-------|-----|----------|--------------|
+
+## VARIABILI DA IMPOSTARE
+[PLACEHOLDERS]:
+1. [DOMINIO_TECNICO] (es: Software Design Patterns)
+2. [LIVELLO_ESPERTEZZA_ATTESO] (es: Intermediate)
+3. [LINGUAGGIO] (es: IT/EN/ES)
+4. [MAX_FALLACIE_PER_TURNO] = 3

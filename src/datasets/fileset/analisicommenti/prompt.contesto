@@ -1,0 +1,18 @@
+## CONTESTO
+Analizza commenti da [NOME_PLATFORMA] su [ARGOMENTO_DISCUSSIONE]. Obiettivi:
+1. Identificare pattern comunicativi disfunzionali
+2. Mappare relazioni gerarchiche implicite
+3. Rilevare allineamento/disallineamento semantico
+
+## ESEMPIO DI CONFIGURAZIONE
+{
+  "dominio": "Software Engineering",
+  "framework_riferimento": ["GoF Design Patterns", "Spring Framework"],
+  "tossicita_soglia": 0.65,
+  "metriche_aggiuntive": ["cohesion_index", "expertise_signaling"]
+}
+
+## SICUREZZA
+- Abilita: Controllo allucinazioni (modalità strict)
+- Filtra: [PAROLE_SENSIBILI] tramite regex
+- Logica di sanitizzazione: Replace con [MASK_TOKEN]
