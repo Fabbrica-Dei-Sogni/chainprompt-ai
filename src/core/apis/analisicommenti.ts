@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 import { handlePrompt } from '../controllers/handlers.controller.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/businesscontroller.js'
-import { scrapeCommentsYouTube, YouTubeComment } from "../controllers/analisicommenticontroller.js";
+import { scrapeCommentsYouTube, scrapeCommentBranch, YouTubeComment } from "../controllers/analisicommenticontroller.js";
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
@@ -24,7 +24,8 @@ router.post('/features/analisicommenti/ollama', async (req: any, res: any, next:
 
 async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCallback: any) {
 
-    const { url } = req.body;
+    //Parametri di input, l'uri del video you tube e l'id del commento da cui iniziare. Se non c'e l'id viene analizzato l'intera lista dei commenti principali.
+    const { url, idCommento } = req.body;
     // Verifica se l'URL è stato fornito
     if (!url) {
         return res.status(400).json({ error: 'URL mancante' });
@@ -35,7 +36,7 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
         // Chiama lo scraper per l'URL fornito
         const decodedUri = decodeBase64(url);
 
-        const comments: YouTubeComment[] = await scrapeCommentsYouTube(decodedUri);
+        const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
 
         const prompt = formatCommentsForPrompt(comments);
         //TODO: creare il prompt avendo come risultato i commenti

@@ -20,6 +20,9 @@ export interface YouTubeComment {
 
 async function scrapeCommentsYouTube(videoUrl: string): Promise<YouTubeComment[]> {
     try {
+
+        //XXX: per lo scraping utilizzare un headless browser come puppeter.
+        //l'alternativa e' delegare lo scraping al client tramite plugin greasemonkey e fornire in base64 l'intera lista dei commenti (valutare costi benefici)
         const response = await axios.get(videoUrl);
         const $ = load(response.data);
 
