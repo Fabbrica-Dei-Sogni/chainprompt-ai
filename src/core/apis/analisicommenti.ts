@@ -78,6 +78,6 @@ function formatCommentsForPrompt(comments: YouTubeComment[]): string {
     return prompt;
 }
 
-console.log(`Api del clickbaitscore caricati con successo!`);
+console.log(`Api per l'analisi dei commenti caricato con successo!`);
 
 export default router;

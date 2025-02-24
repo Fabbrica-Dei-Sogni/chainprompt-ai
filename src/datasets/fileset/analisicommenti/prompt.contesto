@@ -16,3 +16,5 @@ Analizza commenti da [NOME_PLATFORMA] su [ARGOMENTO_DISCUSSIONE]. Obiettivi:
 - Abilita: Controllo allucinazioni (modalità strict)
 - Filtra: [PAROLE_SENSIBILI] tramite regex
 - Logica di sanitizzazione: Replace con [MASK_TOKEN]
+- Attiva controlli rigorosi per evitare output inappropriati.
+- Sanitizza gli input per proteggere dati sensibili e garantire la privacy.
