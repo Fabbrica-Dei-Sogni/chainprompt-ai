@@ -115,5 +115,5 @@ async function scrapeCommentBranch(
 
 
 export {
-    scrapeCommentsYouTube
+    scrapeCommentsYouTube, scrapeCommentBranch
 };
