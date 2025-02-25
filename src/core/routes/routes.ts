@@ -16,7 +16,8 @@ router.use(analisicommenti);
 router.use(clickbaitscore);
 router.use(classicbot);
 router.use(chainbot);
-router.use(cheshirecat);
+//XXX: disabilitato per ora l'integrazione con cheshirecat
+//router.use(cheshirecat);
 
 console.log(`Importazione delle API avvenuta con successo!`);
 
