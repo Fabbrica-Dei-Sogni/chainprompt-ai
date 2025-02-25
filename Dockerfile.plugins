@@ -1,0 +1,9 @@
+# Usa l'immagine ufficiale Nginx basata su Alpine per mantenere l'ambiente leggero
+FROM nginx:alpine
+
+# Copia il file di configurazione Nginx personalizzato (opzionale)
+# Se non ne usi uno custom, Nginx userà la configurazione di default
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copia la cartella dei plugin nella directory di default di Nginx
+COPY plugins/ /usr/share/nginx/html/plugins/

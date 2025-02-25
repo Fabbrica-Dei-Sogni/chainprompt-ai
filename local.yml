@@ -21,6 +21,19 @@ services:
       - /usr/app/node_modules      
     entrypoint: ./entry-point.sh 
 
+  chainprompt-plugins:
+    image: chainprompt-plugins:${IMG_VERSION:-latest}
+    build:
+      context: ./
+      dockerfile: Dockerfile.plugins
+    ports:
+      - "5600:80"
+    networks:
+      - network-chainprompt-docker      
+    volumes:
+      # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
+      - ./plugins:/usr/share/nginx/html/plugins
+    restart: always
 
 networks:
   network-chainprompt-docker:
