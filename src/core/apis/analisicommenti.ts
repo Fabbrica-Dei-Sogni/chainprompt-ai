@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 import { handlePrompt } from '../controllers/handlers.controller.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/businesscontroller.js'
-import { scrapeCommentsYouTube, scrapeCommentBranch, YouTubeComment } from "../controllers/analisicommenticontroller.js";
+import { YouTubeComment, formatCommentsForPrompt } from "../controllers/analisicommenticontroller.js";
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
@@ -25,18 +25,18 @@ router.post('/features/analisicommenti/ollama', async (req: any, res: any, next:
 async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCallback: any) {
 
     //Parametri di input, l'uri del video you tube e l'id del commento da cui iniziare. Se non c'e l'id viene analizzato l'intera lista dei commenti principali.
-    const { url, idCommento } = req.body;
+    const { payload } = req.body;
     // Verifica se l'URL è stato fornito
-    if (!url) {
-        return res.status(400).json({ error: 'URL mancante' });
+    if (!payload) {
+        return res.status(400).json({ error: 'Payload commenti mancante' });
     }
 
     try {
         // Rispondi con il risultato dello scraping
         // Chiama lo scraper per l'URL fornito
-        const decodedUri = decodeBase64(url);
-
-        const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
+        //const decodeComments = safeBase64Decode(payload);
+        const comments: YouTubeComment[] = payload;
+        //const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
 
         const prompt = formatCommentsForPrompt(comments);
         //TODO: creare il prompt avendo come risultato i commenti
@@ -51,7 +51,7 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
         // Rispondi con il risultato dello scraping
         res.json(answer);
     } catch (error) {
-        res.status(500).json({ error: 'Errore durante lo scraping' });
+        res.status(500).json({ error: 'Errore durante l\'analisi dei commenti' });
     }
 }
 
@@ -59,24 +59,6 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
 function decodeBase64(base64: string): string {
     const buffer = Buffer.from(base64, 'base64');
     return buffer.toString('utf-8');
-}
-
-// Funzione di formattazione avanzata
-function formatCommentsForPrompt(comments: YouTubeComment[]): string {
-    let prompt = "=== INIZIO COMMENTI YOUTUBE ===\n\n";
-
-    comments.forEach((comment, index) => {
-        prompt += `[COMMENT #${index + 1}]\n` +
-            `Autore: ${comment.author}\n` +
-            `Contenuto: ${comment.content}\n` +
-            `Like: ${comment.likes || "N/A"}\n` +
-            `Data: ${comment.timestamp}\n` +
-            `Risposte: ${comment.repliesCount}\n` +
-            "-----------------------------\n\n";
-    });
-
-    prompt += "=== FINE COMMENTI YOUTUBE ===";
-    return prompt;
 }
 
 console.log(`Api per l'analisi dei commenti caricato con successo!`);
