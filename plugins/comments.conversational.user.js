@@ -1,13 +1,16 @@
 // ==UserScript==
 // @name         Analisi conversazionale UTube
 // @namespace    https://www.youtube.com/
-// @version      1.0
+// @version      2.0.0
 // @description  Sottopone a una intelligenza artificiale un analisi conversazionale di utenti
 // @author       Ale
 // @match        *://www.youtube.com/*
 // @grant        GM_xmlhttpRequest
+// @grant        GM_getResourceText
+// @grant        GM_addStyle
 // @require      https://alessandromodica.com/plugins/framework-plugins.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js
+// @resource     EXT_CSS https://alessandromodica.com/plugins/styles.css
 // @connect      alessandromodica.com
 // ==/UserScript==
 
@@ -83,62 +86,6 @@ function showLoadingSpinner() {
     document.body.appendChild(overlay);
     return overlay;
 }
-
-// 1. Stili CSS personalizzati (simili a YouTube)
-const styles = `
-        .analysis-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .analysis-dialog {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            width: 80%;
-            max-width: 600px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .analysis-spinner {
-            animation: rotate 1s linear infinite;
-            width: 50px;
-            height: 50px;
-            margin: 20px auto;
-        }
-
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
-        }
-
-        .analysis-content {
-            color: #0f0f0f;
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
-
-        .yt-button {
-            background: #f8f9fa;
-            border: 1px solid #dadce0;
-            border-radius: 18px;
-            color: #3ea6ff;
-            padding: 0 16px;
-            height: 36px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 16px;
-        }
-    `;
 
 
 /**
@@ -354,10 +301,12 @@ function initializeScript() {
     console.log("Analisi conversazionale plugin avviato!");
 
     // 2. Aggiungi gli stili al documento
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
-
+    //const styleSheet = document.createElement('style');
+    //styleSheet.textContent = styles;
+    //document.head.appendChild(styleSheet);
+    // 1. Carica il CSS esterno
+    const externalCSS = GM_getResourceText("EXT_CSS");
+    GM_addStyle(externalCSS);
 
     // Creazione di una Trusted Types policy di default per bypassare l'errore di TrustedScriptURL.
     // ATTENZIONE: Questa policy ritorna il valore inalterato, quindi non esegue sanitizzazione.
