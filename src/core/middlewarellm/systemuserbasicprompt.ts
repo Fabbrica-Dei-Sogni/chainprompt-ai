@@ -32,6 +32,7 @@ export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigCh
             baseURL: process.env.URI_LANGCHAIN_LLMSTUDIO,
         },
         maxTokens: config.maxTokens,
+        apiKey: process.env.OPENAI_API_KEY,
         temperature: config.temperature,
         modelName: config.modelname || process.env.LOCAL_MODEL_NAME
     });
