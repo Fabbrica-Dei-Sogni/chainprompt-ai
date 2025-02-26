@@ -1,3 +1,5 @@
+const HOSTDOMAIN = 'https://alessandromodica.com:1443/';
+
 function createTrustPolicy() {
     console.log("Inizializzazione trust policy...");
     if (window.trustedTypes && window.trustedTypes.createPolicy) {

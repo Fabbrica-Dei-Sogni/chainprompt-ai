@@ -5,9 +5,140 @@
 // @description  Sottopone a una intelligenza artificiale un analisi conversazionale di utenti
 // @author       Ale
 // @match        *://www.youtube.com/*
-// @grant        none
-// @require      	https://alessandromodica.com/plugins/framework-plugins.js
+// @grant        GM_xmlhttpRequest
+// @require      https://alessandromodica.com/plugins/framework-plugins.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js
+// @connect      alessandromodica.com
 // ==/UserScript==
+
+
+// 5. Funzione principale di invio dati
+async function sendAnalysisRequest(comments) {
+
+    //const rawPayload = JSON.stringify(comments);
+    //let base64Payload = safeBase64Encode(rawPayload);
+    const payload = {
+        payload: comments,
+        modelname: 'llama3.2'
+    };
+
+    const overlay = showLoadingSpinner();
+
+    try {
+        const response = await new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'POST',
+                url: HOSTDOMAIN + 'chatbot/api/v1/features/analisicommenti/ollama',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(payload),
+                onload: resolve,
+                onerror: reject
+            });
+        });
+
+        //const responseData = JSON.parse(response.answer);
+        showResultsDialog(response.responseText); // Decodifica la risposta base64
+    } catch (error) {
+        showResultsDialog(`Errore nell'analisi: ${error.message}`);
+    } finally {
+        overlay.remove();
+    }
+}
+
+// 4. Funzione per mostrare i risultati
+function showResultsDialog(content) {
+    const overlay = document.createElement('div');
+    overlay.className = 'analysis-overlay';
+
+    overlay.innerHTML = `
+            <div class="analysis-dialog">
+                <div class="analysis-content">${content}</div>
+                <button class="yt-button" onclick="this.parentElement.parentElement.remove()">Chiudi</button>
+            </div>
+        `;
+
+    document.body.appendChild(overlay);
+}
+
+// 3. Funzione per mostrare lo spinner
+function showLoadingSpinner() {
+    const overlay = document.createElement('div');
+    overlay.className = 'analysis-overlay';
+
+    overlay.innerHTML = `
+            <div class="analysis-dialog">
+                <div class="analysis-spinner">
+                    <svg viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="20" fill="none" stroke="#3ea6ff" stroke-width="4" stroke-linecap="round">
+                            <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                <div style="text-align: center; color: #606060;">Analisi in corso...</div>
+            </div>
+        `;
+
+    document.body.appendChild(overlay);
+    return overlay;
+}
+
+// 1. Stili CSS personalizzati (simili a YouTube)
+const styles = `
+        .analysis-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .analysis-dialog {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .analysis-spinner {
+            animation: rotate 1s linear infinite;
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .analysis-content {
+            color: #0f0f0f;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .yt-button {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 18px;
+            color: #3ea6ff;
+            padding: 0 16px;
+            height: 36px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+    `;
 
 
 /**
@@ -37,7 +168,8 @@ function initVueApp() {
             showAlert() {
                 const comments = getCommentsUTube(document.querySelector('ytd-comments'));
                 console.log(JSON.stringify(comments));
-                alert('Questo è un alert generato da Vue.js!');
+                sendAnalysisRequest(comments);
+                //alert('Questo è un alert generato da Vue.js!');
             }
         }
     };
@@ -86,7 +218,8 @@ function injectAnalysisButtonToReplies(commentsContainer) {
                     event.stopPropagation();
                     const comments = getCommentsUTube(comment, 'ytd-comment-view-model');
                     console.log(JSON.stringify(comments));
-                    alert('Analisi risposte per questo commento!');
+                    sendAnalysisRequest(comments);
+                    //alert('Analisi risposte per questo commento!');
                 });
                 buttonContainer.appendChild(button);
             }
@@ -220,6 +353,12 @@ function initializeScript() {
 
     console.log("Analisi conversazionale plugin avviato!");
 
+    // 2. Aggiungi gli stili al documento
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+
+
     // Creazione di una Trusted Types policy di default per bypassare l'errore di TrustedScriptURL.
     // ATTENZIONE: Questa policy ritorna il valore inalterato, quindi non esegue sanitizzazione.
     // Valuta attentamente l'impatto in base al contesto di sicurezza della tua applicazione.
@@ -234,5 +373,4 @@ function initializeScript() {
     main().catch(err => console.error('Errore nell\'inizializzazione dell\'app Vue:', err));
 
 })();
-
 
