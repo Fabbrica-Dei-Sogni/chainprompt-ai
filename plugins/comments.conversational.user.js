@@ -9,6 +9,44 @@
 // @require      	https://alessandromodica.com/plugins/framework-plugins.js
 // ==/UserScript==
 
+
+/**
+ * Funzione di inizializzazione dell'applicazione Vue.
+ * Definisce un componente con un pulsante che, al click,
+ * invoca una funzione per mostrare un alert.
+ */
+function initVueApp() {
+    // Crea il container se non esiste già
+    if (!document.getElementById('vue-app')) {
+        createVueContainer();
+    }
+
+    // Definiamo il componente principale con template e metodi
+    const App = {
+        template: `
+                <div>
+                    <button
+                        @click="showAlert"
+                        class="yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m yt-spec-button-shape-next--icon-leading"
+                        aria-label="Vue Alert Button">
+                        <span class="yt-spec-button-shape-next__button-text-content">Analizza commenti</span>
+                    </button>
+                </div>
+            `,
+        methods: {
+            showAlert() {
+                const comments = getCommentsUTube(document.querySelector('ytd-comments'));
+                console.log(JSON.stringify(comments));
+                alert('Questo è un alert generato da Vue.js!');
+            }
+        }
+    };
+
+    // Utilizziamo Vue.createApp se stiamo lavorando con Vue 3
+    const { createApp } = Vue;
+    createApp(App).mount('#vue-app');
+}
+
 /**
  * Inietta il pulsante "Analisi Risposte" in ciascun commento che possiede risposte.
  * Viene analizzato ogni elemento ytd-comment-renderer e se al suo interno è presente un
@@ -46,6 +84,8 @@ function injectAnalysisButtonToReplies(commentsContainer) {
                 // Associa un evento al click
                 button.addEventListener('click', (event) => {
                     event.stopPropagation();
+                    const comments = getCommentsUTube(comment, 'ytd-comment-view-model');
+                    console.log(JSON.stringify(comments));
                     alert('Analisi risposte per questo commento!');
                 });
                 buttonContainer.appendChild(button);
@@ -58,7 +98,7 @@ function injectAnalysisButtonToReplies(commentsContainer) {
  * Crea e inietta un container per l'app Vue all'interno del container dei pulsanti di YouTube.
  * Il container è configurato per avere un layout inline in modo da integrarsi accanto agli altri pulsanti.
  */
-function createContainer(referenceElement) {
+function createContainer(parent) {
     const container = document.createElement('div');
     container.id = 'vue-app';
     // Imposta il container come blocco e definisce uno positioning relativo
@@ -66,45 +106,69 @@ function createContainer(referenceElement) {
     container.style.position = 'relative';
     container.style.width = '100%';
     container.style.marginTop = '8px';
-    referenceElement.appendChild(container);
+    parent.appendChild(container);
     //referenceElement.insertAdjacentElement('afterend', container);
 }
 
-
 /**
- * Funzione di inizializzazione dell'applicazione Vue.
- * Definisce un componente con un pulsante che, al click,
- * invoca una funzione per mostrare un alert.
+ * Crea ed inietta un container dedicato per l'app Vue.
  */
-function initVueApp() {
-    // Crea il container se non esiste già
-    if (!document.getElementById('vue-app')) {
-        createContainer();
-    }
-
-    // Definiamo il componente principale con template e metodi
-    const App = {
-        template: `
-                <div>
-                    <button
-                        @click="showAlert"
-                        class="yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m yt-spec-button-shape-next--icon-leading"
-                        aria-label="Vue Alert Button">
-                        <span class="yt-spec-button-shape-next__button-text-content">Analizza commenti</span>
-                    </button>
-                </div>
-            `,
-        methods: {
-            showAlert() {
-                alert('Questo è un alert generato da Vue.js!');
-            }
-        }
-    };
-
-    // Utilizziamo Vue.createApp se stiamo lavorando con Vue 3
-    const { createApp } = Vue;
-    createApp(App).mount('#vue-app');
+function createVueContainer() {
+    const container = document.createElement('div');
+    container.id = 'vue-app';
+    container.style.position = 'fixed';
+    container.style.bottom = '10px';
+    container.style.right = '10px';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
 }
+
+function getCommentsUTube(commentsContainer, replies) {
+    const commentElements = commentsContainer.querySelectorAll(replies == null ? 'ytd-comment-thread-renderer' : replies);
+    const comments = [];
+    commentElements.forEach(commentEl => {
+
+        // Estrae il nome dell'autore
+        const authorEl = commentEl.querySelector('#author-text span');
+        const author = authorEl ? authorEl.textContent.trim() : '';
+
+        // Estrae il contenuto del commento
+        const contentEl = commentEl.querySelector('#content-text');
+        const content = contentEl ? contentEl.textContent.trim() : '';
+
+        // Estrae il numero di like (voto)
+        const likesEl = commentEl.querySelector('#vote-count-middle');
+        const likes = likesEl ? likesEl.textContent.trim() : '0';
+
+        // Estrae il timestamp del commento
+        const timestampEl = commentEl.querySelector('yt-formatted-string.published-time-text');
+        const timestamp = timestampEl ? timestampEl.textContent.trim() : '';
+
+        // Estrae il numero di risposte eventualmente presenti
+        const repliesIndicator = commentEl.querySelector('ytd-button-renderer#more-replies');
+        let repliesCount = 0;
+        if (repliesIndicator) {
+            // Estrae i numeri rimuovendo tutti i caratteri non numerici
+            const repliesText = repliesIndicator.textContent.trim();
+            repliesCount = parseInt(repliesText.replace(/\D/g, '')) || 0;
+        }
+
+        // Costruisce il POJO per il commento
+        comments.push({
+            author,
+            content,
+            likes,
+            timestamp,
+            repliesCount
+        });
+
+    });
+
+    return comments;
+
+}
+
+
 
 /**
 * Funzione principale che esegue il caricamento di Vue.js (se non presente)
@@ -148,21 +212,6 @@ function initializeScript() {
         // Qui puoi aggiungere il tuo codice di scraping o inizializzare Vue.js
         injectAnalysisButtonToReplies(container);
     });
-}
-
-function observData(callbackInit) {
-
-    // Osserva i cambiamenti nel DOM per rilevare la navigazione dinamica
-    const observer = new MutationObserver(() => {
-        const appContainer = document.querySelector('ytd-app');
-        if (appContainer) {
-            //console.log("Navigazione rilevata, inizializzo lo script...");
-            callbackInit();
-        }
-    });
-
-    // Configura l'osservatore per monitorare cambiamenti nel body
-    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 (function () {

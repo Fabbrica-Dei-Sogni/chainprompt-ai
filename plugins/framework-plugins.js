@@ -57,3 +57,18 @@ function waitForCommentsContainer(scrapeCallback) {
         }
     }, 1000);
 }
+
+function observData(callbackInit) {
+
+    // Osserva i cambiamenti nel DOM per rilevare la navigazione dinamica
+    const observer = new MutationObserver(() => {
+        const appContainer = document.querySelector('ytd-app');
+        if (appContainer) {
+            //console.log("Navigazione rilevata, inizializzo lo script...");
+            callbackInit();
+        }
+    });
+
+    // Configura l'osservatore per monitorare cambiamenti nel body
+    observer.observe(document.body, { childList: true, subtree: true });
+}
