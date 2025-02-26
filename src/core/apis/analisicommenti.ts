@@ -5,7 +5,7 @@ import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyO
 import { YouTubeComment, formatCommentsForPrompt } from "../controllers/analisicommenticontroller.js";
 
 /**
- * La classe rappresenta l'endpoint della feature clickbaitscore.
+ * La classe rappresenta l'endpoint della feature analisicommenti.
  
  */
 
