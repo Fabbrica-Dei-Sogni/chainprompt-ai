@@ -23,6 +23,7 @@ services:
 
   chainprompt-plugins:
     image: chainprompt-plugins:${IMG_VERSION:-latest}
+    container_name: chainprompt-plugins-local
     build:
       context: ./
       dockerfile: Dockerfile.plugins
