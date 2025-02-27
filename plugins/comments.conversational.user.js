@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Analisi conversazionale UTube
 // @namespace    https://www.youtube.com/
-// @version      2.0.0
+// @version      2.0.3
 // @description  Sottopone a una intelligenza artificiale un analisi conversazionale di utenti
 // @author       Ale
 // @match        *://www.youtube.com/*
@@ -50,41 +50,80 @@ async function sendAnalysisRequest(comments) {
     }
 }
 
-// 4. Funzione per mostrare i risultati
-function showResultsDialog(content) {
-    const overlay = document.createElement('div');
-    overlay.className = 'analysis-overlay';
+function showConfirmationDialog() {
+    return new Promise((resolve) => {
+        const container = document.createElement('div');
+        container.className = 'analysis-container';
 
-    overlay.innerHTML = `
-            <div class="analysis-dialog">
-                <div class="analysis-content">${content}</div>
-                <button class="yt-button" onclick="this.parentElement.parentElement.remove()">Chiudi</button>
+        container.innerHTML = `
+            <div class="analysis-confirm-dialog">
+                <div style="margin-bottom: 16px; color: #606060;">
+                    Stai per inviare i commenti per l'analisi. L'operazione potrebbe richiedere alcuni minuti.
+                </div>
+                <div class="dialog-footer">
+                    <button class="yt-button confirm-btn">Conferma</button>
+                    <button class="yt-button cancel-btn">Annulla</button>
+                </div>
             </div>
         `;
 
-    document.body.appendChild(overlay);
+        document.body.appendChild(container);
+
+        container.querySelector('.confirm-btn').addEventListener('click', () => {
+            container.remove();
+            resolve(true);
+        });
+
+        container.querySelector('.cancel-btn').addEventListener('click', () => {
+            container.remove();
+            resolve(false);
+        });
+    });
+}
+
+
+// 4. Funzione per mostrare i risultati
+function showResultsDialog(content) {
+    const container = document.createElement('div');
+    container.className = 'analysis-container';
+
+    container.innerHTML = `
+        <div class="analysis-dialog">
+            <div class="dialog-header">
+                <span>Risultati analisi</span>
+                <button class="yt-button" onclick="this.closest('.analysis-container').remove()">Chiudi</button>
+            </div>
+            <div class="dialog-content">
+                <div class="scrollable-content">${content}</div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(container);
 }
 
 // 3. Funzione per mostrare lo spinner
 function showLoadingSpinner() {
-    const overlay = document.createElement('div');
-    overlay.className = 'analysis-overlay';
+    const container = document.createElement('div');
+    container.className = 'analysis-container';
 
-    overlay.innerHTML = `
-            <div class="analysis-dialog">
-                <div class="analysis-spinner">
-                    <svg viewBox="0 0 50 50">
-                        <circle cx="25" cy="25" r="20" fill="none" stroke="#3ea6ff" stroke-width="4" stroke-linecap="round">
-                            <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
-                        </circle>
-                    </svg>
-                </div>
-                <div style="text-align: center; color: #606060;">Analisi in corso...</div>
+    container.innerHTML = `
+        <div class="analysis-dialog">
+            <div class="dialog-header">
+                <span>Analisi in corso</span>
             </div>
-        `;
+            <div class="analysis-spinner">
+                <svg viewBox="0 0 50 50" width="40" height="40">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="#3ea6ff" stroke-width="4" stroke-linecap="round">
+                        <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            </div>
+        </div>
+    `;
 
-    document.body.appendChild(overlay);
-    return overlay;
+    document.body.appendChild(container);
+    return container;
 }
 
 
@@ -102,21 +141,23 @@ function initVueApp() {
     // Definiamo il componente principale con template e metodi
     const App = {
         template: `
-                <div>
-                    <button
-                        @click="showAlert"
-                        class="yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m yt-spec-button-shape-next--icon-leading"
-                        aria-label="Vue Alert Button">
-                        <span class="yt-spec-button-shape-next__button-text-content">Analizza commenti</span>
-                    </button>
-                </div>
+        <div>
+            <button
+                @click="handleAnalysis"
+                class="yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m yt-spec-button-shape-next--icon-leading"
+                aria-label="Vue Alert Button">
+                <span class="yt-spec-button-shape-next__button-text-content">Analizza commenti</span>
+            </button>
+        </div>
             `,
         methods: {
-            showAlert() {
+            async handleAnalysis() {
+                const confirmed = await showConfirmationDialog();
+                if (!confirmed) return;
+
                 const comments = getCommentsUTube(document.querySelector('ytd-comments'));
-                console.log(JSON.stringify(comments));
+                console.log('Commenti da analizzare:', comments);
                 sendAnalysisRequest(comments);
-                //alert('Questo è un alert generato da Vue.js!');
             }
         }
     };
@@ -161,7 +202,11 @@ function injectAnalysisButtonToReplies(commentsContainer) {
                     'yt-spec-button-shape-next--icon-leading'
                 );
                 // Associa un evento al click
-                button.addEventListener('click', (event) => {
+                button.addEventListener('click', async (event) => {
+
+                    const confirmed = await showConfirmationDialog();
+                    if (!confirmed) return;
+
                     event.stopPropagation();
                     const comments = getCommentsUTube(comment, 'ytd-comment-view-model');
                     console.log(JSON.stringify(comments));

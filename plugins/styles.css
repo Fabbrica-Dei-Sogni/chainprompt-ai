@@ -51,3 +51,73 @@
             cursor: pointer;
             margin-top: 16px;
         }
+
+    .analysis-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+        width: 90%;
+        transform: translateY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .analysis-confirm-dialog {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        margin-bottom: 10px;
+    }
+
+    .analysis-dialog {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 0;
+        max-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .dialog-header {
+        padding: 16px;
+        border-bottom: 1px solid #eee;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dialog-content {
+        padding: 16px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .dialog-footer {
+        padding: 16px;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .analysis-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .scrollable-content {
+        max-height: 50vh;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+
+    .yt-button {
+        /* Mantieni gli stili esistenti */
+        min-width: 80px;
+    }        
