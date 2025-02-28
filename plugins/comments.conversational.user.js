@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Analisi conversazionale UTube
 // @namespace    https://www.youtube.com/
-// @version      2.0.3
+// @version      2.0.19
 // @description  Sottopone a una intelligenza artificiale un analisi conversazionale di utenti
 // @author       Ale
 // @match        *://www.youtube.com/*
@@ -12,8 +12,36 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js
 // @resource     EXT_CSS https://alessandromodica.com/plugins/styles.css
 // @connect      alessandromodica.com
+// @require      https://unpkg.com/markdown-it@13.0.2/dist/markdown-it.min.js
+// @require      https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js
 // ==/UserScript==
 
+
+// Componente Vue per il rendering Markdown
+const MarkdownRenderer = {
+    props: ['content'],
+    setup(props) {
+        const md = window.markdownit({
+            html: true,
+            linkify: true,
+            typographer: true,
+            breaks: true
+        });
+
+        const renderMarkdown = Vue.computed(() => {
+            const normalizedContent = props.content
+                .replace(/\r\n/g, '<br/>')  // Windows -> Unix
+                .replace(/\r/g, '<br/>');   // Mac -> Unix
+            const rawHtml = md.render(normalizedContent);
+            return DOMPurify.sanitize(rawHtml);
+        });
+
+        return { renderMarkdown };
+    },
+    template: `
+        <div class="markdown-content" v-html="renderMarkdown"></div>
+    `
+};
 
 // 5. Funzione principale di invio dati
 async function sendAnalysisRequest(comments) {
@@ -54,7 +82,6 @@ function showConfirmationDialog() {
     return new Promise((resolve) => {
         const container = document.createElement('div');
         container.className = 'analysis-container';
-
         container.innerHTML = `
             <div class="analysis-confirm-dialog">
                 <div style="margin-bottom: 16px; color: #606060;">
@@ -86,18 +113,32 @@ function showConfirmationDialog() {
 function showResultsDialog(content) {
     const container = document.createElement('div');
     container.className = 'analysis-container';
-
     container.innerHTML = `
         <div class="analysis-dialog">
             <div class="dialog-header">
                 <span>Risultati analisi</span>
-                <button class="yt-button" onclick="this.closest('.analysis-container').remove()">Chiudi</button>
+                <button class="yt-button" @click="close">Chiudi</button>
             </div>
             <div class="dialog-content">
-                <div class="scrollable-content">${content}</div>
+                <markdown-renderer :content="content"></markdown-renderer>
             </div>
         </div>
     `;
+
+    const app = Vue.createApp({
+        data() {
+            return {
+                content: content
+            }
+        },
+        methods: {
+            close() {
+                container.remove()
+            }
+        }
+    });
+    app.component('markdown-renderer', MarkdownRenderer);
+    app.mount(container);
 
     document.body.appendChild(container);
 }
@@ -161,7 +202,6 @@ function initVueApp() {
             }
         }
     };
-
     // Utilizziamo Vue.createApp se stiamo lavorando con Vue 3
     const { createApp } = Vue;
     createApp(App).mount('#vue-app');
