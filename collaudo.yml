@@ -8,8 +8,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - "5500:5000"
-      - "6000:6000"      
+      - "127.0.0.1:5500:5000"
+      - "127.0.0.1:6000:6000"      
     env_file:
       - ./.env.collaudo
     networks:
@@ -27,7 +27,7 @@ services:
       context: ./
       dockerfile: Dockerfile.plugins
     ports:
-      - "5600:80"
+      - "127.0.0.1:5600:80"
     networks:
       - network-chainprompt-docker      
     volumes:
