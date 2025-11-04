@@ -1,0 +1,1 @@
+Questi plugins sono degli esperimenti di estensioni per chrome , ma le ultime policy di chrome hanno reso inutilizzabili questi plugins in questa forma
