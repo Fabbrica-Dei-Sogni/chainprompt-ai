@@ -1,11 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import https from 'https';
 import * as http from 'http';
-import fs from 'fs';
-import path from 'path';
 import cors from 'cors';
-import { fileURLToPath } from 'url';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
@@ -20,14 +16,7 @@ const agent = new Agent({
 });
 setGlobalDispatcher(agent);
 
-//https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
-//approccio per recuperare la directory corrente per caricare i certificati
-const __filename = fileURLToPath(import.meta.url);
-//const __dirname = path.dirname(__filename);
-
 const app: express.Application = express();
-//const socket = require('./core/sockets/coresocket');
-
 
 const port: number = parseInt(process.env.PORT || '3000'); // Usa il valore della variabile di ambiente PORT, se definita, altrimenti usa la porta 3000
 const nameAssistant: string = process.env.NAME_ASSISTANT || "Chainprompt AI";
@@ -43,20 +32,7 @@ console.log(`Versione api rest : ${apiversion}`);
 app.use(apiversion, api);
 console.log(`Importing api completed!`);
 
-//integrazione https ssl
-/*const sslOptions: https.ServerOptions = {
-    key: fs.readFileSync(path.resolve(__dirname, "/usr/app/src/certs/privkey.pem")),
-    cert: fs.readFileSync(path.resolve(__dirname, "/usr/app/src/certs/fullchain.pem")),
-};
-const server: https.Server = https.createServer(sslOptions, app);
-console.log(`HTTPS server created!`);
-*/
 const server: http.Server = http.createServer(app);
 console.log(`HTTP server created!`);
 
 server.listen(port, () => console.log(`${nameAssistant} avviato sulla porta:${port}`));
-
-/*const socketport: number = parseInt(process.env.SOCKET_PORT || '6000');
-socket.listen(socketport, () => {
-    console.log(`${nameAssistant} su Socket.IO in ascolto sulla porta ${socketport}`);
-});*/
