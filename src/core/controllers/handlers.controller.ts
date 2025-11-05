@@ -1,6 +1,6 @@
 
-import { handle } from '../../services/handlerchain.service.js';
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../commons/businesscontroller.js'
+import { handle } from '../services/handlerchain.service.js';
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from './business.controller.js'
 import * as requestIp from 'request-ip';
 /**
  * La classe rappresenta l'handler prompt comune a tutte le apis qui implementate. 

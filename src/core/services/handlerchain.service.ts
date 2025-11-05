@@ -1,5 +1,5 @@
 
-import { wrapperServerLLM } from '../controllers/commons/wrapperllm.controller.js'
+import { wrapperServerLLM } from './wrapperllm.service.js'
 import { DataRequest } from "../interfaces/datarequest.js";
 import { RequestBody } from '../interfaces/requestbody.js';
 

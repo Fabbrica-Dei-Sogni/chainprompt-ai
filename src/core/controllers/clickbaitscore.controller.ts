@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { handlePrompt } from '../handlers/handlers.controller.js'
+import { handlePrompt } from './handlers.controller.js'
 
 /**
  * La classe rappresenta il business specifico per il clickbait features.

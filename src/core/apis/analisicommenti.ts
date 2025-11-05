@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { handleCloudLLMRequest,handleLocalOllamaRequest,handleLocalRequest } from '../controllers/handlers/analisicommenti.handlers.controller.js'
+import { handleCloudLLMRequest,handleLocalOllamaRequest,handleLocalRequest } from '../handlers/analisicommenti.handler.js'
 
 /**
  * La classe rappresenta l'endpoint della feature analisicommenti.

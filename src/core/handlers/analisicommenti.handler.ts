@@ -1,6 +1,6 @@
 
-import { submitAgentAction } from "../agents/analisicommenti.controller.js";
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../commons/businesscontroller.js'
+import { submitAgentAction } from "../controllers/analisicommenti.controller.js";
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/business.controller.js'
 
 
 const handleLocalRequest = async (req: any, res: any, next: any) => {

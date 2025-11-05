@@ -1,5 +1,5 @@
 
-import { handlePrompt } from '../handlers/handlers.controller.js'
+import { handlePrompt } from './handlers.controller.js'
 
 //Workaround per rimuovere il system prompt di cheshire in attesa di capire come cambiarlo con il plugin hook opportuno.
 function removeCheshireCatText(input: string): string {
