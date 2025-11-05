@@ -16,6 +16,13 @@ import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
 import { ChainPromptBaseTemplate } from '../../interfaces/chainpromptbasetemplate.js';
 import { indexingAndStoreDocs } from "./documentsindexing.js";
 
+/**
+ * @deprecated
+ * @param context @#@
+ * @param config 
+ * @param prompt 
+ * @returns 
+ */
 export async function retrieveAndAskPrompt(context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) {
 
     //XXX: attualmente il flusso che recupera il vettore, lo ricrea sempre da zero tramite l'embedding api del modello scelto.

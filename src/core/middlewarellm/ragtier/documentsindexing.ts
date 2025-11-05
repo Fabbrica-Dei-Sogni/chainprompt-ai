@@ -13,6 +13,12 @@ import { TextLoader } from "langchain/document_loaders/fs/text";
 import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
 import { RecursiveCharacterTextSplitter, } from 'langchain/text_splitter';
 
+/**
+ * @deprecated
+ * @param context
+ * @param modelname 
+ * @returns 
+ */
 export async function indexingAndStoreDocs(context: string, modelname: string) {
     const loader = new TextLoader(`${contextFolder}/${context}/prompt.contesto`);
     const docs = await loader.load();
