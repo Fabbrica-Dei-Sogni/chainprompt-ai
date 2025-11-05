@@ -12,8 +12,8 @@ import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { Ollama } from "@langchain/community/llms/ollama";
-import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
-import { ChainPromptBaseTemplate } from '../../interfaces/chainpromptbasetemplate.js';
+import { ConfigChainPrompt } from '../../../core/interfaces/configchainprompt.js';
+import { ChainPromptBaseTemplate } from '../../../core/interfaces/chainpromptbasetemplate.js';
 import { indexingAndStoreDocs } from "./documentsindexing.js";
 
 /**

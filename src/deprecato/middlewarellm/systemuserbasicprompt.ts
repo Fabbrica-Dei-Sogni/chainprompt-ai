@@ -2,9 +2,9 @@ import { OpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
+import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
 import { Ollama } from "@langchain/ollama";
-import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
+import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
 import { retrieveAndAskPrompt } from "./ragtier/documentretrieves.js";
 dotenv.config();
 
@@ -20,7 +20,7 @@ dotenv.config();
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
 
-export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
     /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
@@ -56,7 +56,7 @@ export const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigCh
 
 };
 
-export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
     /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
@@ -93,7 +93,7 @@ export const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigCh
 
 };
 
-export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
     /*const completePrompt = new PromptTemplate({
         template: "{systemprompt}\n\n{question}",
@@ -150,10 +150,22 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
  * @returns
  * @deprecated
   */
-export const generateOllamaByRAG = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+const generateOllamaByRAG = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
     let answer = await retrieveAndAskPrompt(context, config, prompt);
     console.log("Risposta generata:", answer);
     return answer;
+}
+
+/**
+ * Metodo per ottenere una risposta attraverso una interrogazione RAG oriented
+ * @deprecated
+ * @param context 
+ * @param config 
+ * @param prompt 
+ * @returns 
+ */
+export const getAnswerRAGOllamaLLM = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
+    return await generateOllamaByRAG(context, config, prompt);
 }
 

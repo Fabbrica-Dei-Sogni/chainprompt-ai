@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
-import socket from './core/apis/deprecato/chainsocket.js'
 dotenv.config();
 
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
@@ -24,7 +23,7 @@ setGlobalDispatcher(agent);
 //https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
 //approccio per recuperare la directory corrente per caricare i certificati
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+//const __dirname = path.dirname(__filename);
 
 const app: express.Application = express();
 //const socket = require('./core/sockets/coresocket');

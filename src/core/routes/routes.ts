@@ -1,6 +1,5 @@
 // Rappresenta il file in cui raggruppare le varie rotte definite nella cartella "apis"
 import express from "express";
-import classicbot from "../apis/deprecato/classicbot.js"
 import chainbot from "../apis/chainbot.js"
 import clickbaitscore from "../apis/clickbaitscore.js"
 import analisicommenti from "../apis/analisicommenti.js"
@@ -9,12 +8,15 @@ const router = express.Router();
 
 /**
  * Tutte le apis supportate dall'applicazione vengono importate in questo aggregatore di rotte applicative
+
+prima versione deprecata, ma iniziatore di tutto il progetto
+router.use(classicbot);
+
  */
 
 // Utilizza le rotte definite nel modulo "chatbot"
 router.use(analisicommenti);
 router.use(clickbaitscore);
-router.use(classicbot);
 router.use(chainbot);
 //XXX: disabilitato per ora l'integrazione con cheshirecat
 //router.use(cheshirecat);

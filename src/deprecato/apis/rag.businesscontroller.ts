@@ -2,12 +2,11 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM, getAnswerRAGOllamaLLM, } from '../../services/langchainservice.js';
-import { writeObjectToFile, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../../services/commonservices.js';
-import { getFrameworkPrompts, getFrameworkPromptsRAGContext } from '../../services/builderpromptservice.js';
-import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
-import { ChainPromptBaseTemplate } from "../../interfaces/chainpromptbasetemplate.js";
-import { DataRequest } from "../../interfaces/datarequest.js";
+import { getAnswerRAGOllamaLLM, } from '../../deprecato/middlewarellm/systemuserbasicprompt.js';
+import { writeObjectToFile } from '../../core/services/commonservices.js';
+import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
+import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
+import { DataRequest } from "../../core/interfaces/datarequest.js";
 
 const conversations: Record<string, any> = {};
 
