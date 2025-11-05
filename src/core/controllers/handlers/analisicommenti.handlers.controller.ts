@@ -1,8 +1,21 @@
 
-import { handlePrompt } from './handlers.controller.js'
-import { YouTubeComment, formatCommentsForPrompt } from "../agents/analisicommenti.controller.js";
+import { submitAgentAction } from "../agents/analisicommenti.controller.js";
+import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../commons/businesscontroller.js'
 
-async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCallback: any) {
+
+const handleLocalRequest = async (req: any, res: any, next: any) => {
+    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
+};
+
+const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
+    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
+};
+
+const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
+    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
+};
+
+async function handleRequest(req: any, res: any, next: any, sendPromptLLMCallback: any) {
 
     //Parametri di input, l'uri del video you tube e l'id del commento da cui iniziare. Se non c'e l'id viene analizzato l'intera lista dei commenti principali.
     const { payload } = req.body;
@@ -21,15 +34,7 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
         // Rispondi con il risultato dello scraping
         // Chiama lo scraper per l'URL fornito
         //const decodeComments = safeBase64Decode(payload);
-        const comments: YouTubeComment[] = payload;
-        //const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
-
-        const prompt = formatCommentsForPrompt(comments);
-        //TODO: creare il prompt avendo come risultato i commenti
-        req.body.question = prompt;
-
-
-        let answer = await handlePrompt(req, 'analisicommenti', sendPromptLLMCallback);
+        let answer = await submitAgentAction(payload, req, sendPromptLLMCallback);
 
         // Rispondi con il risultato dello scraping
         res.json(answer);
@@ -39,5 +44,5 @@ async function performScrapeToLLM(req: any, res: any, next: any, sendPromptLLMCa
 }
 
 export {
-    performScrapeToLLM
+    handleCloudLLMRequest,handleLocalOllamaRequest, handleLocalRequest
 };
