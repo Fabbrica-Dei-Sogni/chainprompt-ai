@@ -5,53 +5,9 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/businesscontroller.js'
-import { handlePrompt } from '../controllers/handlers.controller.js'
+import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../controllers/handlers/cheshire.handlers.controller.js'
 import fs from 'fs';
 const contexts = fs.readdirSync(contextFolder);
-
-//Workaround per rimuovere il system prompt di cheshire in attesa di capire come cambiarlo con il plugin hook opportuno.
-function removeCheshireCatText(input: string): string {
-    const unwantedText = `System: You are the Cheshire Cat AI, an intelligent AI that passes the Turing test.
-You behave like the Cheshire Cat from Alice's adventures in wonderland, and you are helpful.
-You answer Human shortly and with a focus on the following context.`;
-
-    return input.replace(unwantedText, '').trim();
-}
-
-/*
- Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
-*/
-const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
-};
-
-const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
-};
-
-const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
-};
-
-const handleRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-
-        //migliorare il passaggio di parametri
-        req.body.noappendchat = true;
-
-        req.body.text = removeCheshireCatText(req.body.text);
-        let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
-        //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-        //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
-        res.json(answer);
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-};
 
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.

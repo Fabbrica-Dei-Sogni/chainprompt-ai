@@ -19,6 +19,7 @@ const getAnswerOllamaLLM = async (config: ConfigChainPrompt, prompt: ChainPrompt
 
 /**
  * Metodo per ottenere una risposta attraverso una interrogazione RAG oriented
+ * @deprecated
  * @param context 
  * @param config 
  * @param prompt 
@@ -29,4 +30,4 @@ const getAnswerRAGOllamaLLM = async (context: string, config: ConfigChainPrompt,
 }
 
 
-export { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM, getAnswerRAGOllamaLLM };
+export { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM };

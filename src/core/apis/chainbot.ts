@@ -5,40 +5,9 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/businesscontroller.js'
-import { handlePrompt } from '../controllers/handlers.controller.js'
+import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../controllers/handlers/handlers.controller.js'
 import fs from 'fs';
 const contexts = fs.readdirSync(contextFolder);
-
-/*
- Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
-*/
-const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
-};
-
-const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
-};
-
-const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
-};
-
-
-const handleRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
-    try {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
-        //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-        //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
-        res.json(answer);
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-};
 
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.

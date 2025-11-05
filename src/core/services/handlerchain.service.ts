@@ -1,19 +1,12 @@
 
-import { wrapperServerLLM } from '../controllers/wrapperllm.controller.js'
-import * as requestIp from 'request-ip';
+import { wrapperServerLLM } from '../controllers/commons/wrapperllm.controller.js'
 import { DataRequest } from "../interfaces/datarequest.js";
 import { RequestBody } from '../interfaces/requestbody.js';
-/**
- * La classe rappresenta l'handler prompt comune a tutte le apis qui implementate. 
- questa tecnica vuole essere scalabile per introdurre features che utilizzano un llm per svolgere varie cose.
- */
-const handlePrompt = async (req: any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
+
+const handle = async (ipAddress: any, data : any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
     try {
-        //        const originalUriTokens = req.originalUrl.split('/');
-        //        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const ipAddress = requestIp.getClientIp(req);
         console.log("Indirizzo ip: ", ipAddress);
-        const inputData: DataRequest = extractDataFromRequest(req.body, contextchat, ipAddress);
+        const inputData: DataRequest = extractDataFromRequest(data, contextchat, ipAddress);
 
         let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
 
@@ -64,5 +57,5 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
 }
 
 export {
-    handlePrompt
+    handle
 };

@@ -147,8 +147,9 @@ export const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigC
  * @param context 
  * @param config 
  * @param prompt 
- * @returns 
- */
+ * @returns
+ * @deprecated
+  */
 export const generateOllamaByRAG = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
 
     let answer = await retrieveAndAskPrompt(context, config, prompt);

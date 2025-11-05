@@ -1,6 +1,6 @@
 // Rappresenta il file in cui raggruppare le varie rotte definite nella cartella "apis"
 import express from "express";
-import classicbot from "../apis/classicbot.js"
+import classicbot from "../apis/deprecato/classicbot.js"
 import chainbot from "../apis/chainbot.js"
 import clickbaitscore from "../apis/clickbaitscore.js"
 import analisicommenti from "../apis/analisicommenti.js"

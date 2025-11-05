@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { contextFolder } from '../services/commonservices.js';
+import { contextFolder } from '../../services/commonservices.js';
 import https from 'https';
 import * as http from 'http';
 import fs from 'fs';

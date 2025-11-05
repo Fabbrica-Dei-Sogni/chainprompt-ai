@@ -2,9 +2,9 @@
 /**
  * La classe rappresenta i wrapper llm disponibili per una conversazione classica o di tipo rag
  */
-import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
-import { getFrameworkPrompts, getFrameworkPromptsRAGContext } from '../services/builderpromptservice.js';
-import { DataRequest } from "../interfaces/datarequest.js";
+import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../../services/commonservices.js';
+import { getFrameworkPrompts, getFrameworkPromptsRAGContext } from '../../services/builderpromptservice.js';
+import { DataRequest } from "../../interfaces/datarequest.js";
 
 const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
 

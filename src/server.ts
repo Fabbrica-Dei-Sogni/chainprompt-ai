@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
-import socket from './core/apis/chainsocket.js'
+import socket from './core/apis/deprecato/chainsocket.js'
 dotenv.config();
 
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
