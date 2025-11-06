@@ -96,7 +96,7 @@ function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
     return systemprompt;
 }
 
-async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, callbackRequestLLM: any) {
+async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, answerCallback: any) {
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx
     };
@@ -104,6 +104,6 @@ async function invokeLLM(temperature: number | undefined, modelname: string | un
         systemprompt, question
     };
     //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
-    const assistantResponse = await callbackRequestLLM(config, prompt);
+    const assistantResponse = await answerCallback(config, prompt);
     return assistantResponse;
 }
