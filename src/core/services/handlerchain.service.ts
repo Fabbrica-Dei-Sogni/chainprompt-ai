@@ -19,6 +19,48 @@ const handle = async (ipAddress: any, data : any, contextchat: any, getSendPromp
 };
 
 /**
+ * 
+ Handler per istanziare agenti identificati da una label e che forniscono un payload in questa forma
+
+export interface RequestBody {
+    text: string;                 //Campo standard usato come input come ad esempio da cheshirecat
+    question: string;             // deprecated Domanda inviata dall'utente
+    modelname?: string;           // Nome del modello (predefinito a "llama" se non specificato)
+    temperature?: number;         // Valore della temperatura per il modello (default: 0.1)
+    sessionchat?: string;         // Identificativo della sessione (default: "defaultsession" se non presente)
+    maxTokens?: number;           // Numero massimo di token (default: 8032)
+    numCtx?: number;              // Numero massimo di contesto (default: 8032)
+    //parametro introdotto per disabilitare l'append della conversazione.
+    //cheshire ad esempio gestisce nativamente le conversazioni e non e' necessario, anzi sconsigliato, gestire l'append da chainprompt
+    noappendchat?: boolean;
+
+}
+
+La callback getSendPromptCallback istruisce il provider llm da utilizzare per inviare il prompt.
+
+
+ * @param label 
+ * @param data 
+ * @param contextchat 
+ * @param getSendPromptCallback 
+ * @returns 
+ */
+export const handleAgent = async (label: any, data : any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
+    try {
+        console.log("Agente : ", label);
+        const inputData: DataRequest = extractDataFromRequest(data, contextchat, label);
+
+        let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
+
+        return answer;
+    } catch (err) {
+        console.error('Errore durante la conversazione:', err);
+        throw err;
+        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
+    }
+};
+
+/**
  * Il metodo ha lo scopo di estrapolare dalla request entrante applicativa i valori di input tra cui il prompt utente, il nome del modello, la temperatura e altre informazioni peculiari,
  * successivamente gestisce uno storico conversazione che nel tempo evolverà seguendo le best practise utilizzando langchain e gli strumenti che offre,
  * ritorna i risultati di systempromp e question parsando in modo opportuno l'inizio della conversazione con il prompt entrante.
