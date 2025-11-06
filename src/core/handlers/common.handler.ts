@@ -23,17 +23,36 @@ const handlePrompt = async (req: any, contextchat: any, getSendPromptCallback: a
  Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
 */
 const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await submitAgentAction(req, res, next, getAndSendPromptLocalLLM);
+    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
 };
 
 const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await submitAgentAction(req, res, next, getAndSendPromptCloudLLM);
+    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
 };
 
 const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await submitAgentAction(req, res, next, getAndSendPromptbyOllamaLLM);
+    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
 };
 
+async function handleRequest(req: any, res: any, next: any, sendPromptLLMCallback: any) {
+
+    const { url } = req.body;
+    // Verifica se l'URL è stato fornito
+    if (!url) {
+        return res.status(400).json({ error: 'URL mancante' });
+    }
+
+    try {
+        // Rispondi con il risultato dello scraping
+        // Chiama lo scraper per l'URL fornito
+        let answer = await submitAgentAction(req, res, next, sendPromptLLMCallback);
+
+        // Rispondi con il risultato dello scraping
+        res.json(answer);
+    } catch (error) {
+        res.status(500).json({ error: 'Errore durante una conversazione common' });
+    }
+}
 
 const submitAgentAction = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
     try {

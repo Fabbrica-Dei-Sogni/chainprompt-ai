@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../handlers/common.handler.js'
+import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../handlers/clickbaitscore.handler.js'
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
