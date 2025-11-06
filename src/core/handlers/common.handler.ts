@@ -57,12 +57,6 @@ export const handleLocalOllamaRequest = async (req: any, res: any, next: any) =>
 
 async function handleRequest(req: any, res: any, next: any, sendPromptLLMCallback: any) {
 
-    const { url } = req.body;
-    // Verifica se l'URL è stato fornito
-    if (!url) {
-        return res.status(400).json({ error: 'URL mancante' });
-    }
-
     try {
         // Rispondi con il risultato dello scraping
         // Chiama lo scraper per l'URL fornito
@@ -80,8 +74,6 @@ const submitAgentAction = async (req: any, res: any, next: any, getSendPromptCal
         const originalUriTokens = req.originalUrl.split('/');
         const contextchat = originalUriTokens[originalUriTokens.length - 1];
         let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
-        //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-        //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
         res.json(answer);
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
