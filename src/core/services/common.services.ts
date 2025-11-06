@@ -2,16 +2,17 @@ import fs from 'fs';
 import dotenv from "dotenv";
 dotenv.config();
 
-// Define constants
-const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
-const ENDPOINT_CHATGENERICA = 'chatgenerica'
-// Define file names and fixed URI
-const uriFisso = process.env.PATH_FILESET || 'datasets/fileset'; // Modify with your fixed URI
-const contextFolder = process.env.PATH_FILESET || 'datasets/fileset';
 const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
 
+// Define constants
+export const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
+export const ENDPOINT_CHATGENERICA = 'chatgenerica'
+// Define file names and fixed URI
+export const uriFisso = process.env.PATH_FILESET || 'datasets/fileset'; // Modify with your fixed URI
+export const contextFolder = process.env.PATH_FILESET || 'datasets/fileset';
+
 // Function to write an object to a text file
-async function writeObjectToFile(obj: any, keyconversation = 'nondefinito'): Promise<string> {
+export async function writeObjectToFile(obj: any, keyconversation = 'nondefinito'): Promise<string> {
     // Get current timestamp
     const timestamp = Date.now();
 
@@ -40,11 +41,3 @@ async function writeObjectToFile(obj: any, keyconversation = 'nondefinito'): Pro
         });
     });
 }
-
-export {
-    writeObjectToFile,
-    uriFisso,
-    contextFolder,
-    SYSTEMPROMPT_DFL,
-    ENDPOINT_CHATGENERICA,
-};

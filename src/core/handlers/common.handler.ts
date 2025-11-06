@@ -1,11 +1,15 @@
 
-import { handle, handleAgent } from '../services/handlerchain.service.js';
+import { handle } from '../services/handlerchain.service.js';
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/business.controller.js'
 import * as requestIp from 'request-ip';
-import { RequestBody } from '../interfaces/requestbody.js';
+
 /**
  * La classe rappresenta l'handler prompt comune a tutte le apis qui implementate. 
  questa tecnica vuole essere scalabile per introdurre features che utilizzano un llm per svolgere varie cose.
+
+  La callback getSendPromptCallback istruisce il provider llm da utilizzare per inviare il prompt, in base a quelle supportate dal business controller.
+    getAndSendPromptLocalLLM getAndSendPromptCloudLLM getAndSendPromptbyOllamaLLM
+
  */
 export const handlePrompt = async (req: any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
     try {
@@ -17,26 +21,6 @@ export const handlePrompt = async (req: any, contextchat: any, getSendPromptCall
         console.error('Errore durante la conversazione:', err);
         throw err;
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-};
-
-/**
- * Handler per istanziare un agente identificato da una label e che fornisce un payload dati a norma llm
- 
- La callback getSendPromptCallback istruisce il provider llm da utilizzare per inviare il prompt, in base a quelle supportate dal business controller.
-    getAndSendPromptLocalLLM getAndSendPromptCloudLLM getAndSendPromptbyOllamaLLM
- * @param label 
- * @param payload 
- * @param contextchat 
- * @param getSendPromptCallback 
- * @returns 
- */
-export const handleAgentPrompt = async (label: any, payload: RequestBody, contextchat: any, getSendPromptCallback: any): Promise<any> => {
-    try {
-        return handleAgent(label, payload, contextchat, getSendPromptCallback);
-    } catch (err) {
-        console.error('Errore durante le operazioni di '+label+' :', err);
-        throw err;
     }
 };
 

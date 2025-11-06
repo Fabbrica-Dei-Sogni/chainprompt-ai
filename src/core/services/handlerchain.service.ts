@@ -3,24 +3,8 @@ import { wrapperServerLLM } from './wrapperllm.service.js'
 import { DataRequest } from "../interfaces/datarequest.js";
 import { RequestBody } from '../interfaces/requestbody.js';
 
-const handle = async (ipAddress: any, data : any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
-    try {
-        console.log("Indirizzo ip: ", ipAddress);
-        const inputData: DataRequest = extractDataFromRequest(data, contextchat, ipAddress);
-
-        let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
-
-        return answer;
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-};
-
 /**
- * 
- Handler per istanziare agenti identificati da una label e che forniscono un payload in questa forma
+    Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
 
 export interface RequestBody {
     text: string;                 //Campo standard usato come input come ad esempio da cheshirecat
@@ -39,16 +23,12 @@ export interface RequestBody {
 La callback getSendPromptCallback istruisce il provider llm da utilizzare per inviare il prompt.
 
 
- * @param label 
- * @param data 
- * @param contextchat 
- * @param getSendPromptCallback 
- * @returns 
+    il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handleAgent = async (label: any, data : any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
+export const handle = async (ipAddress: any, data : any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
     try {
-        console.log("Agente : ", label);
-        const inputData: DataRequest = extractDataFromRequest(data, contextchat, label);
+        console.log("Indirizzo ip: ", ipAddress);
+        const inputData: DataRequest = extractDataFromRequest(data, contextchat, ipAddress);
 
         let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
 
@@ -97,7 +77,3 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
 
     return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat };
 }
-
-export {
-    handle
-};

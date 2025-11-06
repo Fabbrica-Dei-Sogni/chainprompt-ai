@@ -72,19 +72,19 @@ export const getOllamaLLM = (config: ConfigChainPrompt) => {
         logitsAll: true,
     })
     const llmChain = chatprompt.pipe(llm);
-    console.info("Ollama LLM Chain created:", llmChain);
+    //console.info("Ollama LLM Chain created:", llmChain);
     return llmChain;
 
 };
 
 export const invokeChain = async (llm : Runnable, prompt: ChainPromptBaseTemplate) =>
 { 
-    console.info("Invoking chain with prompt:", prompt);
+    //console.info("Invoking chain with prompt:", prompt);
     const answer = await llm.invoke({
         systemprompt: prompt.systemprompt,
         question: prompt.question,
     });
-    console.info("Chain invoked, answer:", answer);
+    //console.info("Chain invoked, answer:", answer);
     return answer;
 }
 

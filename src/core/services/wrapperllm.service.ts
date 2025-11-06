@@ -17,7 +17,7 @@ const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };
 
-const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
+export const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
 
     try {
         // const originalUriTokens = req.originalUrl.split('/');
@@ -35,7 +35,3 @@ const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapper
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 }
-
-export {
-    wrapperServerLLM
-};

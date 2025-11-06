@@ -6,7 +6,7 @@ import { promises as fsPromises } from 'fs';
  * @returns {Promise<string>} A Promise that resolves with the file content as a string,
  * or rejects with an error if there's an issue reading the file.
  */
-const readFileOrigin: (file: string) => Promise<string> = async (file: string) => {
+export const readFileOrigin: (file: string) => Promise<string> = async (file: string) => {
     const content = await fsPromises.readFile(file, 'utf8');
     return content;
 };
@@ -18,7 +18,7 @@ const readFileOrigin: (file: string) => Promise<string> = async (file: string) =
  * @returns {Promise<string>} A Promise that resolves with the text file content as a string,
  * or rejects with an error if there's an issue reading the file.
  */
-const readFileAndSend: (fileToRead: string) => Promise<string> = async (
+export const readFileAndSend: (fileToRead: string) => Promise<string> = async (
     fileToRead: string
 ) => {
     try {
@@ -44,7 +44,7 @@ const readFileAndSend: (fileToRead: string) => Promise<string> = async (
  * @returns {Promise<string>} A Promise that resolves with the resulting string containing the content
  * of all the concatenated text files, or rejects with an error if there's an issue reading the files.
  */
-const readFileAndConcat: (fileNames: string[], fixedUri: string) => Promise<string> = async (
+export const readFileAndConcat: (fileNames: string[], fixedUri: string) => Promise<string> = async (
     fileNames: string[],
     fixedUri: string
 ) => {
@@ -79,5 +79,3 @@ const readFileAndConcat: (fileNames: string[], fixedUri: string) => Promise<stri
         throw error;
     }
 };
-
-export { readFileAndConcat, readFileAndSend, readFileOrigin };

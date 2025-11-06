@@ -1,5 +1,3 @@
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { ChatOpenAI } from '@langchain/openai';
 import { ChainPromptBaseTemplate } from '../interfaces/chainpromptbasetemplate.js';
 import { ConfigChainPrompt } from '../interfaces/configchainprompt.js';
 import { getCloudLLM, getLocalLLM, getOllamaLLM, invokeChain } from './langchain.service.js'
