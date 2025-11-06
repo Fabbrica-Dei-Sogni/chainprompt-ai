@@ -2,9 +2,21 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { submitAgentAction } from "../controllers/cheshire.controller.js";
+import { handlePrompt } from '../controllers/handlers.controller.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/business.controller.js'
+import { removeCheshireCatText } from "../controllers/cheshire.controller.js";
 
+async function submitAgentAction(req: any, getSendPromptCallback: any) {
+        const originalUriTokens = req.originalUrl.split('/');
+        const contextchat = originalUriTokens[originalUriTokens.length - 1];
+
+        //migliorare il passaggio di parametri
+        req.body.noappendchat = true;
+
+        req.body.text = removeCheshireCatText(req.body.text);
+        let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
+        return answer;
+    }
 /*
  Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
 */

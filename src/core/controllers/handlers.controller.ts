@@ -23,19 +23,19 @@ const handlePrompt = async (req: any, contextchat: any, getSendPromptCallback: a
  Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
 */
 const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
+    await submitAgentAction(req, res, next, getAndSendPromptLocalLLM);
 };
 
 const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
+    await submitAgentAction(req, res, next, getAndSendPromptCloudLLM);
 };
 
 const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
+    await submitAgentAction(req, res, next, getAndSendPromptbyOllamaLLM);
 };
 
 
-const handleRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
+const submitAgentAction = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const contextchat = originalUriTokens[originalUriTokens.length - 1];

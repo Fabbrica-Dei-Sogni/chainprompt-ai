@@ -1,7 +1,20 @@
 
-import { submitAgentAction } from "../controllers/analisicommenti.controller.js";
+import { handlePrompt } from '../controllers/handlers.controller.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/business.controller.js'
+import { formatCommentsForPrompt, YouTubeComment } from "../controllers/analisicommenti.controller.js";
 
+
+async function submitAgentAction(payload: any, req: any, sendPromptLLMCallback: any) {
+        const comments: YouTubeComment[] = payload;
+        //const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
+        const prompt = formatCommentsForPrompt(comments);
+        //TODO: creare il prompt avendo come risultato i commenti
+        req.body.question = prompt;
+
+
+        let answer = await handlePrompt(req, 'analisicommenti', sendPromptLLMCallback);
+        return answer;
+    }
 
 const handleLocalRequest = async (req: any, res: any, next: any) => {
     await handleRequest(req, res, next, getAndSendPromptLocalLLM);

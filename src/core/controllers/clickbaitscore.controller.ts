@@ -92,20 +92,6 @@ function extractContent($: any): string | null {
 }
 
 
-async function submitAgentAction(url: any, req: any, sendPromptLLMCallback: any) {
-    const decodedUri = decodeBase64(url);
-
-    const { title, content } = await scrapeArticle(decodedUri);
-    req.body.question = `<TITOLO>${title}</TITOLO>\n<ARTICOLO>${content}</ARTICOLO>\n`;
-    //si definiscono i default sul maxtoken e numCtx per il clickbaitscore
-    req.body.numCtx = !req.body.numCtx ? 2040 : req.body.numCtx;
-    req.body.maxToken = !req.body.maxToken ? 8032 : req.body.maxToken;
-    req.body.noappendchat = true;
-
-    let answer = await handlePrompt(req, 'clickbaitscore', sendPromptLLMCallback);
-    return answer;
-}
-
 // Funzione per decodificare la stringa base64
 function decodeBase64(base64: string): string {
     const buffer = Buffer.from(base64, 'base64');
@@ -113,5 +99,5 @@ function decodeBase64(base64: string): string {
 }
 
 export {
-    submitAgentAction
+    scrapeArticle, decodeBase64
 };
