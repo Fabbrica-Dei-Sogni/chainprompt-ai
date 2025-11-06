@@ -1,5 +1,5 @@
-import { readFileAndConcat } from '../../core/services/readerpromptservice.js';
-import { uriFisso, contextFolder } from '../../core/services/commonservices.js';
+import { readFileAndConcat } from '../../core/services/readerprompt.service.js';
+import { uriFisso, contextFolder } from '../../core/services/common.services.js';
 
 /**
  * Il servizio ha lo scopo di costruire i prompt in base a logiche applicative di composizione del prompt, seguendo i framework piu usati.

@@ -3,7 +3,7 @@
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
 import { getAnswerRAGOllamaLLM, } from '../../deprecato/middlewarellm/systemuserbasicprompt.js';
-import { writeObjectToFile } from '../../core/services/commonservices.js';
+import { writeObjectToFile } from '../../core/services/common.services.js';
 import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../../core/interfaces/datarequest.js";

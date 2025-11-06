@@ -4,7 +4,7 @@
  */
 import express from "express";
 const router = express.Router();
-import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/commonservices.js';
+import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
 import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../handlers/common.handler.js'
 import fs from 'fs';
 const contexts = fs.readdirSync(contextFolder);

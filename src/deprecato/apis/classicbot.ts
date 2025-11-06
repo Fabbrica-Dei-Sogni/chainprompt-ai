@@ -8,7 +8,7 @@ import express from "express";
 import * as requestIp from 'request-ip';
 const router = express.Router();
 
-import { writeObjectToFile, contextFolder, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../../core/services/commonservices.js';
+import { writeObjectToFile, contextFolder, SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../../core/services/common.services.js';
 import { getFrameworkPrompts } from '../services/builderpromptservice.js';
 import { requestLLM, requestLocalLLM } from '../services/requestllmservice.js';
 

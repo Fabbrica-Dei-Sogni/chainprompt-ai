@@ -7,7 +7,7 @@
  * https://python.langchain.com/docs/use_cases/question_answering/quickstart/
  * 
  */
-import { contextFolder } from '../../../core/services/commonservices.js';
+import { contextFolder } from '../../../core/services/common.services.js';
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";

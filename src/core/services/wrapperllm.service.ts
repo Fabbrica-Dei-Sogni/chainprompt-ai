@@ -2,10 +2,10 @@
 /**
  * La classe rappresenta i wrapper llm disponibili per una conversazione classica o di tipo rag
  */
-import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from './commonservices.js';
+import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from './common.services.js';
 import { DataRequest } from "../interfaces/datarequest.js";
-import { readFileAndConcat } from './readerpromptservice.js';
-import { contextFolder } from './commonservices.js';
+import { readFileAndConcat } from './readerprompt.service.js';
+import { contextFolder } from './common.services.js';
 /**
  * Retrieves the framework prompts for the specified context.
  *
