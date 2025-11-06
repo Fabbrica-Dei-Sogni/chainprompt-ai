@@ -2,9 +2,9 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { handlePrompt } from '../controllers/handlers.controller.js'
+import { handlePrompt } from './common.handler.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/business.controller.js'
-import { removeCheshireCatText } from "../controllers/cheshire.controller.js";
+import { removeCheshireCatText } from "../agents/cheshire.agent.js";
 
 async function submitAgentAction(req: any, getSendPromptCallback: any) {
         const originalUriTokens = req.originalUrl.split('/');

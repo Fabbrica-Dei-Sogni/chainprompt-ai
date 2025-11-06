@@ -1,7 +1,7 @@
 
-import { handlePrompt } from '../controllers/handlers.controller.js'
+import { handlePrompt } from './common.handler.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/business.controller.js'
-import { formatCommentsForPrompt, YouTubeComment } from "../controllers/analisicommenti.controller.js";
+import { formatCommentsForPrompt, YouTubeComment } from "../agents/analisicommenti.agent.js";
 
 
 async function submitAgentAction(payload: any, req: any, sendPromptLLMCallback: any) {

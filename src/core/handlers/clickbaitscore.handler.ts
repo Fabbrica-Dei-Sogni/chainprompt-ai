@@ -1,6 +1,6 @@
-import { handlePrompt } from '../controllers/handlers.controller.js'
+import { handlePrompt } from './common.handler.js'
 import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/business.controller.js'
-import { scrapeArticle,decodeBase64 } from "../controllers/clickbaitscore.controller.js";
+import { scrapeArticle,decodeBase64 } from "../agents/clickbaitscore.agent.js";
 
 async function submitAgentAction(url: any, req: any, sendPromptLLMCallback: any) {
     const decodedUri = decodeBase64(url);
