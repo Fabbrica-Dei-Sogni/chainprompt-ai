@@ -110,7 +110,7 @@ function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
  * @param provider 
  * @returns 
  */
-async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: string | undefined, answerCallback: any, provider: LLMProvider,) {
+async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: any, answerCallback: any, provider: LLMProvider,) {
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx
     };
