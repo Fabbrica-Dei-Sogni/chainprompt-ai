@@ -2,7 +2,7 @@
 /**
  * Business controller per fornire gli accessi ai modelli llm supportati.
  */
-import { getAnswerLLM, getAnswerLocalLLM, getAnswerOllamaLLM } from '../services/generate.service.js';
+import { getAnswerLLMByProvider } from '../services/generate.service.js';
 import { senderToLLM } from '../services/business.service.js'
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
@@ -20,13 +20,12 @@ export async function getAndSendPrompt(
   inputData: DataRequest,
   systemPrompt: string
 ) {
+    
   switch (provider) {
     case LLMProvider.OpenAICloud:
-      return await senderToLLM(inputData, systemPrompt, getAnswerLLM);
     case LLMProvider.OpenAILocal:
-      return await senderToLLM(inputData, systemPrompt, getAnswerLocalLLM);
     case LLMProvider.Ollama:
-      return await senderToLLM(inputData, systemPrompt, getAnswerOllamaLLM);
+      return await senderToLLM(inputData, systemPrompt, getAnswerLLMByProvider, provider);
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
