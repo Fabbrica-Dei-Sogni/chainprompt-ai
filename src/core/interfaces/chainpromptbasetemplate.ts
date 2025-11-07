@@ -7,6 +7,6 @@ import { HumanMessageFields, SystemMessageFields } from "@langchain/core/message
  * 
  */
 export interface ChainPromptBaseTemplate {
-  systemprompt: string | SystemMessageFields;
-  question: string | HumanMessageFields;
+  systemprompt: SystemMessageFields;
+  question: HumanMessageFields;
 }
