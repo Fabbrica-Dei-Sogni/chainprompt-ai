@@ -1,8 +1,9 @@
 import { handlePrompt } from './common.handler.js'
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM, } from '../controllers/business.controller.js'
+import { getAndSendPrompt } from '../controllers/business.controller.js'
 import { scrapeArticle,decodeBase64 } from "../agents/clickbaitscore.agent.js";
+import { LLMProvider } from '../models/llmprovider.enum.js';
 
-async function submitAgentAction(url: any, req: any, sendPromptLLMCallback: any) {
+async function submitAgentAction(url: any, req: any, next: any, sendPromptLLMCallback: any) {
     const decodedUri = decodeBase64(url);
 
     const { title, content } = await scrapeArticle(decodedUri);
@@ -16,38 +17,33 @@ async function submitAgentAction(url: any, req: any, sendPromptLLMCallback: any)
     return answer;
 }
 
-const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
-};
-
-const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
-};
-
-const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
-};
-
-async function handleRequest(req: any, res: any, next: any, sendPromptLLMCallback: any) {
-
+export const handleLLMRequest = async (
+  req: any,
+  res: any,
+  next: any,
+  provider: LLMProvider
+) => {
+    try {
+      
+    //XXX: parametro specifico per il clickbaitscore
     const { url } = req.body;
     // Verifica se l'URL è stato fornito
     if (!url) {
         return res.status(400).json({ error: 'URL mancante' });
     }
+    //--------------------------------------
+        
+    // Usa la funzione generica getAndSendPrompt basata sulla enum provider
+    const answer = await submitAgentAction(
+      req,
+      res,
+      next,
+      async (inputData: any, systemPrompt: string) =>
+        getAndSendPrompt(provider, inputData, systemPrompt)
+    );
 
-    try {
-        // Rispondi con il risultato dello scraping
-        // Chiama lo scraper per l'URL fornito
-        let answer = await submitAgentAction(url, req, sendPromptLLMCallback);
-
-        // Rispondi con il risultato dello scraping
-        res.json(answer);
-    } catch (error) {
-        res.status(500).json({ error: 'Errore durante lo scraping' });
-    }
-}
-
-export {
-    handleLocalRequest, handleCloudLLMRequest, handleLocalOllamaRequest
+    res.json(answer);
+  } catch (error) {
+    res.status(500).json({ error: "Errore durante lo scraping" });
+  }
 };

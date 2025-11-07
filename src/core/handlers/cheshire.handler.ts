@@ -3,47 +3,41 @@
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
 import { handlePrompt } from './common.handler.js'
-import { getAndSendPromptCloudLLM, getAndSendPromptLocalLLM, getAndSendPromptbyOllamaLLM } from '../controllers/business.controller.js'
+import { getAndSendPrompt } from '../controllers/business.controller.js'
 import { removeCheshireCatText } from "../agents/cheshire.agent.js";
+import { LLMProvider } from '../models/llmprovider.enum.js';
 
-async function submitAgentAction(req: any, getSendPromptCallback: any) {
-        const originalUriTokens = req.originalUrl.split('/');
-        const contextchat = originalUriTokens[originalUriTokens.length - 1];
+async function submitAgentAction(req: any, next: any, getSendPromptCallback: any) {
+    const originalUriTokens = req.originalUrl.split('/');
+    const contextchat = originalUriTokens[originalUriTokens.length - 1];
 
-        //migliorare il passaggio di parametri
-        req.body.noappendchat = true;
+    //migliorare il passaggio di parametri
+    req.body.noappendchat = true;
 
-        req.body.text = removeCheshireCatText(req.body.text);
-        let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
-        return answer;
-    }
-/*
- Funzioni handle per gestire la richiesta del prompt per un determinato contesto che sia locale come llmstudio, cloud come chatgpt o claude di antrophic tramite la apikey, oppure tramite server seamless come ollama
-*/
-const handleLocalRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptLocalLLM);
-};
+    req.body.text = removeCheshireCatText(req.body.text);
+    let answer = await handlePrompt(req, contextchat, getSendPromptCallback);
+    return answer;
+}
 
-const handleCloudLLMRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptCloudLLM);
-};
-
-const handleLocalOllamaRequest = async (req: any, res: any, next: any) => {
-    await handleRequest(req, res, next, getAndSendPromptbyOllamaLLM);
-};
-
-const handleRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
+export const handleLLMRequest = async (
+    req: any,
+    res: any,
+    next: any,    
+    provider: LLMProvider
+) => {
     try {
-        let answer = await submitAgentAction(req, getSendPromptCallback);
-        //const inputData: DataRequest = extractDataFromRequest(req, contextchat);
-        //let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
+        // Usa la funzione generica getAndSendPrompt basata sulla enum provider
+        const answer = await submitAgentAction(
+            req,
+            next,
+            async (inputData: any, systemPrompt: string) =>
+                getAndSendPrompt(provider, inputData, systemPrompt)
+        );
+
         res.json(answer);
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
+    } catch (error) {
+        console.error('Errore durante la conversazione con cheshire cat:', error);
         res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 };
 
-export {
-    handleLocalRequest, handleCloudLLMRequest, handleLocalOllamaRequest
-};

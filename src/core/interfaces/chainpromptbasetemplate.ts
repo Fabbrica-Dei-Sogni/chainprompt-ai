@@ -1,3 +1,5 @@
+import { SystemMessageFields } from "@langchain/core/messages";
+
 /**
  * Interfaccia che rappresenta il template prompt base dell'applicazione in cui si esplicitano il system e user prompt.
  * 
@@ -5,6 +7,6 @@
  * 
  */
 export interface ChainPromptBaseTemplate {
-    systemprompt?: string;
-    question?: string;
+    systemprompt?: string | SystemMessageFields;
+    question?: string | SystemMessageFields;
 }

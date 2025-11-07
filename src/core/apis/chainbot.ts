@@ -5,8 +5,9 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
-import { handleCloudLLMRequest, handleLocalOllamaRequest, handleLocalRequest } from '../handlers/common.handler.js'
+import { handleLLMRequest } from '../handlers/common.handler.js'
 import fs from 'fs';
+import { providerRoutes } from "../routes/provider.routes.js";
 const contexts = fs.readdirSync(contextFolder);
 
 /**
@@ -14,26 +15,18 @@ const contexts = fs.readdirSync(contextFolder);
  * E' un esempio di dinamismo, seguendo le best practise il tentativo è rendere tale dinamismo piu in linea con le esigenze applicative future, attualmente l'obiettivo è esporre una chatbot tematica
  */
 console.log(">>> Caricamento chat tematiche...");
-contexts.forEach(context => {
-    console.log(context)
-});
-// Genera le route dinamicamente per ogni contesto disponibile
-contexts.forEach(context => {
-    router.post(`/langchain/localai/prompt/${context}`, handleLocalRequest);
-});
-router.post(`/langchain/localai/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalRequest);
 
-// Genera le route dinamicamente per ogni contesto disponibile
-contexts.forEach(context => {
-    router.post(`/langchain/cloud/prompt/${context}`, handleCloudLLMRequest);
+// Per ogni provider e suo prefisso, genera le route dinamiche usando l'handler generico
+providerRoutes.forEach(({ prefix, provider }) => {
+  contexts.forEach(context => {
+    router.post(`/langchain/${prefix}/prompt/${context}`, (req, res, next) =>
+      handleLLMRequest(req, res, next, provider)
+    );
+  });
+  router.post(`/langchain/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`, (req, res, next) =>
+    handleLLMRequest(req, res, next, provider)
+  );
 });
-router.post(`/langchain/cloud/prompt/${ENDPOINT_CHATGENERICA}`, handleCloudLLMRequest);
-
-contexts.forEach(context => {
-    router.post(`/langchain/ollama/prompt/${context}`, handleLocalOllamaRequest);
-});
-router.post(`/langchain/ollama/prompt/${ENDPOINT_CHATGENERICA}`, handleLocalOllamaRequest);
-
 
 console.log("<<< Caricamento avvenuto con successo");
 
