@@ -1,7 +1,7 @@
 
 import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from './common.services.js';
 import { DataRequest } from "../interfaces/datarequest.js";
-import { readFileAndConcat } from './readerprompt.service.js';
+import { readFileAndConcat } from './reader-prompt.service.js';
 import { contextFolder } from './common.services.js';
 import { RequestBody } from '../interfaces/requestbody.js';
 

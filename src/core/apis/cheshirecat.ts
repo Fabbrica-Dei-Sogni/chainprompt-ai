@@ -5,9 +5,9 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
-import { handleLLMRequest } from '../handlers/cheshire.handler.js'
 import fs from 'fs';
 import { providerRoutes } from "../routes/provider.routes.js";
+import { handleCheshireRequest } from "../handlers/preprocessor.handler.js";
 
 const contexts = fs.readdirSync(contextFolder);
 
@@ -19,11 +19,11 @@ console.log(">>> Caricamento chat tematiche per essere interrogate da cheshire c
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
     router.post(`/cheshirecat/${prefix}/prompt/${context}`, (req, res, next) =>
-      handleLLMRequest(req, res, next, provider)
+      handleCheshireRequest(req, res, next, provider)
     );
   });
   router.post(`/cheshirecat/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`, (req, res, next) =>
-    handleLLMRequest(req, res, next, provider)
+    handleCheshireRequest(req, res, next, provider)
   );
 });
 

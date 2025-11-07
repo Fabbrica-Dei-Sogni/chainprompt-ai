@@ -1,13 +1,27 @@
+import { Runnable } from '@langchain/core/runnables';
 import { ChainPromptBaseTemplate } from '../interfaces/chainpromptbasetemplate.js';
 import { ConfigChainPrompt } from '../interfaces/configchainprompt.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
-import { getCloudLLM, getLocalLLM, getOllamaLLM, invokeChain } from './langchain.service.js'
+import { getCloudLLM, getLocalLLM, getOllamaLLM, invokeChain } from './llm-execution.service.js'
 
-export const getAnswerLLMByProvider = async (
+export const getAnswerByProvider = async (
   provider: LLMProvider,
   config: ConfigChainPrompt,
   prompt: ChainPromptBaseTemplate
 ) => {
+  let llmChain = getInstanceLLM(provider, config);
+
+  return await submitPrompt(llmChain, prompt);
+};
+
+export async function submitPrompt(llmChain: Runnable, config: ChainPromptBaseTemplate) {
+  
+  const answer = await invokeChain(llmChain, config);
+
+  return answer;
+}
+
+export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt) {
   let llmChain;
 
   switch (provider) {
@@ -23,8 +37,5 @@ export const getAnswerLLMByProvider = async (
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
-
-  const answer = await invokeChain(llmChain, prompt);
-
-  return answer;
+  return llmChain;
 };

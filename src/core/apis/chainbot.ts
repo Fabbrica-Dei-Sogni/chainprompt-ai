@@ -5,9 +5,9 @@
 import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
-import { handleLLMRequest } from '../handlers/common.handler.js'
 import fs from 'fs';
 import { providerRoutes } from "../routes/provider.routes.js";
+import { handleCommonRequest } from "../handlers/preprocessor.handler.js";
 const contexts = fs.readdirSync(contextFolder);
 
 /**
@@ -20,11 +20,11 @@ console.log(">>> Caricamento chat tematiche...");
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
     router.post(`/langchain/${prefix}/prompt/${context}`, (req, res, next) =>
-      handleLLMRequest(req, res, next, provider)
+      handleCommonRequest(req, res, next, provider)
     );
   });
   router.post(`/langchain/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`, (req, res, next) =>
-    handleLLMRequest(req, res, next, provider)
+    handleCommonRequest(req, res, next, provider)
   );
 });
 

@@ -2,7 +2,7 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { writeObjectToFile } from '../services/common.services.js';
+import { writeObjectToFile } from './conversation-storage.js';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../interfaces/datarequest.js";
