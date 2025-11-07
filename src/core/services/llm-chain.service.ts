@@ -94,7 +94,15 @@ export const invokeChain = async (llm : Runnable, prompt: ChainPromptBaseTemplat
 
 
 
-
+/**
+ * Metodo preposto all'invio di un prompt ad un llm fornito di tool strutturati.
+ Flusso implementativo il piu possibile aderente alle best practise
+ 
+ * @param llm 
+ * @param prompt 
+ * @param tools 
+ * @returns 
+ */
 export const invokeWithTools = async (
   llm: Runnable,
   prompt: ChainPromptBaseTemplate,

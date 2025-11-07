@@ -2,8 +2,6 @@ import fs from 'fs';
 import dotenv from "dotenv";
 dotenv.config();
 
-const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
-
 // Define constants
 export const SYSTEMPROMPT_DFL = 'Sei gentile e professionale';
 export const ENDPOINT_CHATGENERICA = 'chatgenerica'
