@@ -2,7 +2,7 @@ import { Runnable } from '@langchain/core/runnables';
 import { ChainPromptBaseTemplate } from '../interfaces/chainpromptbasetemplate.js';
 import { ConfigChainPrompt } from '../interfaces/configchainprompt.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
-import { getCloudLLM, getLocalLLM, getOllamaLLM, invokeChain } from './llm-execution.service.js'
+import { getCloudLLM, getLocalLLM, getOllamaLLM, invokeChain } from './llm-chain.service.js'
 
 export const getAnswerByProvider = async (
   provider: LLMProvider,
