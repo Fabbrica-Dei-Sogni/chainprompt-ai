@@ -6,6 +6,7 @@ import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
 import { Ollama } from "@langchain/ollama";
 import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
 import { retrieveAndAskPrompt } from "./ragtier/documentretrieves.js";
+import { Runnable } from "@langchain/core/runnables";
 dotenv.config();
 
 /*
@@ -35,7 +36,7 @@ const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainProm
         apiKey: process.env.OPENAI_API_KEY,
         temperature: config.temperature,
         modelName: config.modelname || process.env.LOCAL_MODEL_NAME
-    });
+    }) as unknown as Runnable;
     const llmChain = chatprompt.pipe(llm);
 
     /*const llmChain = new LLMChain({
@@ -70,7 +71,7 @@ const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainProm
         maxTokens: config.maxTokens,
         temperature: config.temperature,
         modelName: config.modelname || process.env.LOCAL_MODEL_NAME
-    });
+    }) as unknown as Runnable;;
     const llmChain = chatprompt.pipe(llm);
 
     /*const llmChain = new LLMChain({

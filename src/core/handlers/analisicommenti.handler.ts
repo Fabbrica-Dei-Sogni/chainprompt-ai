@@ -5,7 +5,7 @@ import { formatCommentsForPrompt, YouTubeComment } from "../agents/analisicommen
 import { LLMProvider } from '../models/llmprovider.enum.js';
 
 
-async function submitAgentAction(payload: any, req: any, next: any, sendPromptLLMCallback: any) {
+async function submitRequest(payload: any, req: any, next: any, sendPromptLLMCallback: any) {
     const comments: YouTubeComment[] = payload;
     //const comments: YouTubeComment[] = idCommento != null ? await scrapeCommentBranch(decodedUri, idCommento) : await scrapeCommentsYouTube(decodedUri);
     const prompt = formatCommentsForPrompt(comments);
@@ -40,7 +40,7 @@ export const handleLLMRequest = async (
         // Rispondi con il risultato dello scraping
         // Chiama lo scraper per l'URL fornito
         //const decodeComments = safeBase64Decode(payload);
-        const answer = await submitAgentAction(
+        const answer = await submitRequest(
             payload,
             req,
             next,

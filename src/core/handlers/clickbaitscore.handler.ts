@@ -3,7 +3,7 @@ import { getAndSendPrompt } from '../controllers/business.controller.js'
 import { scrapeArticle,decodeBase64 } from "../agents/clickbaitscore.agent.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
 
-async function submitAgentAction(url: any, req: any, next: any, sendPromptLLMCallback: any) {
+async function submitRequest(url: any, req: any, next: any, sendPromptLLMCallback: any) {
     const decodedUri = decodeBase64(url);
 
     const { title, content } = await scrapeArticle(decodedUri);
@@ -34,7 +34,7 @@ export const handleLLMRequest = async (
     //--------------------------------------
         
     // Usa la funzione generica getAndSendPrompt basata sulla enum provider
-    const answer = await submitAgentAction(
+    const answer = await submitRequest(
       req,
       res,
       next,

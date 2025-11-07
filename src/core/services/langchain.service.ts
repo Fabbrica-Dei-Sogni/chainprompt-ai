@@ -25,14 +25,15 @@ dotenv.config();
 
 const chatprompt = ChatPromptTemplate.fromTemplate("{systemprompt}\n\n{question}");
 
-export const getCloudLLM = async (config: ConfigChainPrompt) => {
+export const getCloudLLM = (config: ConfigChainPrompt) => {
 
     const llm = new ChatOpenAI({
         maxTokens: config.maxTokens,
         apiKey: process.env.OPENAI_API_KEY,
         temperature: config.temperature,
         modelName: config.modelname || process.env.LOCAL_MODEL_NAME
-    });
+    }) as unknown as Runnable;
+    
     const llmChain = chatprompt.pipe(llm);
 
     return llmChain;
@@ -40,7 +41,7 @@ export const getCloudLLM = async (config: ConfigChainPrompt) => {
 };
 
 
-export const getLocalLLM = async (config: ConfigChainPrompt) => {
+export const getLocalLLM = (config: ConfigChainPrompt) => {
 
     const llm = new ChatOpenAI({
         configuration: {
@@ -49,7 +50,8 @@ export const getLocalLLM = async (config: ConfigChainPrompt) => {
         maxTokens: config.maxTokens,
         temperature: config.temperature,
         modelName: config.modelname || process.env.LOCAL_MODEL_NAME
-    });
+    })as unknown as Runnable;
+    
     const llmChain = chatprompt.pipe(llm);
 
     return llmChain;
@@ -103,10 +105,8 @@ export const invokeWithTools = async (
     new SystemMessage(prompt.systemprompt!), // System prompt arricchito dal file tematico
     new HumanMessage(prompt.question!)       // Query utente
   ];
-
   // Prima invocazione: genera AIMessage (con o senza tool_calls)
   let response: AIMessage = await llm.invoke(messages) as AIMessage;
-
   // Loop asincrono per tool calling: continua finché ci sono tool da eseguire
   while (response.tool_calls && response.tool_calls.length > 0) {
     for (const toolCall of response.tool_calls) {
@@ -135,7 +135,6 @@ export const invokeWithTools = async (
     // Opzionale: limite iterazioni per prevenire loop infiniti (best practice)
     // if (messages.length > 10) throw new Error('Max iterazioni tool raggiunte');
   }
-
   // Ritorna AIMessage finale (sempre .content popolato)
   return response;
 };

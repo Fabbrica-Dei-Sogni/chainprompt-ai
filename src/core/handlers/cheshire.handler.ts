@@ -7,7 +7,7 @@ import { getAndSendPrompt } from '../controllers/business.controller.js'
 import { removeCheshireCatText } from "../agents/cheshire.agent.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
 
-async function submitAgentAction(req: any, next: any, getSendPromptCallback: any) {
+async function submitRequest(req: any, next: any, getSendPromptCallback: any) {
     const originalUriTokens = req.originalUrl.split('/');
     const contextchat = originalUriTokens[originalUriTokens.length - 1];
 
@@ -27,7 +27,7 @@ export const handleLLMRequest = async (
 ) => {
     try {
         // Usa la funzione generica getAndSendPrompt basata sulla enum provider
-        const answer = await submitAgentAction(
+        const answer = await submitRequest(
             req,
             next,
             async (inputData: any, systemPrompt: string) =>

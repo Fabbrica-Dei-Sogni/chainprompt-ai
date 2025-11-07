@@ -13,7 +13,7 @@ import { LLMProvider } from '../models/llmprovider.enum.js';
 
  */
 
-const submitAgentAction = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
+const submitRequest = async (req: any, res: any, next: any, getSendPromptCallback: any) => {
     try {
         const originalUriTokens = req.originalUrl.split('/');
         const contextchat = originalUriTokens[originalUriTokens.length - 1];
@@ -50,7 +50,7 @@ export const handleLLMRequest = async (
 ) => {
   try {
     // Usa la funzione generica getAndSendPrompt basata sulla enum provider
-    const answer = await submitAgentAction(
+    const answer = await submitRequest(
       req,
       res,
       next,
