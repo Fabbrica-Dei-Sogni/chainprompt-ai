@@ -7,8 +7,19 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
+import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 
 const conversations: Record<string, any> = {};
+
+export const executeByProvider = async (
+  provider: LLMProvider,
+  config: ConfigChainPrompt,
+  prompt: ChainPromptBaseTemplate
+) => {
+  let llmChain = getInstanceLLM(provider, config);
+
+  return await invokeChain(llmChain, prompt);
+};
 
 /**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
@@ -45,17 +56,19 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         appendAnswerHistoryConversation(keyconversation, resultSystemPrompt);
     }
 
+    let config: ConfigChainPrompt = {
+        temperature: temperature, modelname, maxTokens, numCtx
+    };
+    let prompt: ChainPromptBaseTemplate = {
+        systemprompt: resultSystemPrompt, question: question as any
+    };
+
     const assistantResponse = await invokeLLM
-        (
-            temperature,
-            modelname,
-            maxTokens,
-            numCtx,
-            resultSystemPrompt,
-            question,
+            (config,
+            prompt,
             answerCallback,
             provider);
-    
+
 
     const resultAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
     console.log(`Risposta assistente:\n`, resultAssistantResponse);
@@ -84,6 +97,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
 function appendAnswerHistoryConversation(keyconversation: string, conversation: string) {
 
     conversations[keyconversation].conversationContext += conversation;
+    
     return conversations[keyconversation].conversationContext;
 }
 
@@ -94,30 +108,18 @@ function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
             conversationContext: systemPrompt,
         };
     }
-    const systemprompt = conversations[keyconversation].conversationContext;
-    return systemprompt;
+    return conversations[keyconversation].conversationContext;
 }
 
-/**
+ /**
  * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
- * @param temperature 
- * @param modelname 
- * @param maxTokens 
- * @param numCtx 
- * @param systemprompt 
- * @param question 
- * @param answerCallback 
- * @param provider 
- * @returns 
- */
-async function invokeLLM(temperature: number | undefined, modelname: string | undefined, maxTokens: number | undefined, numCtx: number | undefined, systemprompt: any, question: any, answerCallback: any, provider: LLMProvider,) {
-    let config: ConfigChainPrompt = {
-        temperature: temperature, modelname, maxTokens, numCtx
-    };
-    let prompt: ChainPromptBaseTemplate = {
-        systemprompt, question
-    };
+  * @param config 
+  * @param prompt 
+  * @param answerCallback 
+  * @param provider 
+  * @returns 
+  */
+async function invokeLLM(config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate, answerCallback: any, provider: LLMProvider,) {
     //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
-    const assistantResponse = await answerCallback(provider, config, prompt);
-    return assistantResponse;
+    return await answerCallback(provider, config, prompt);
 }

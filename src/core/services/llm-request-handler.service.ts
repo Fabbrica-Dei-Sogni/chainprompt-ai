@@ -27,12 +27,12 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handle = async (ipAddress: any, data: any, contextchat: any, getSendPromptCallback: any): Promise<any> => {
+export const handle = async (ipAddress: any, data: any, contextchat: any, getAnswerByPromptCallback: any): Promise<any> => {
     try {
         console.log("Indirizzo ip: ", ipAddress);
         const inputData: DataRequest = extractDataFromRequest(data, contextchat, ipAddress);
 
-        let answer = await wrapperServerLLM(inputData, contextchat, getSendPromptCallback);
+        let answer = await handlerLLM(inputData, contextchat, getAnswerByPromptCallback);
 
         return answer;
     } catch (err) {
@@ -91,7 +91,7 @@ const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };
 
-const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapperSendAndPromptLLM: any) => {
+const handlerLLM = async (inputData: DataRequest, context: string, getAnswerByPromptLLM: any) => {
 
     try {
         // const originalUriTokens = req.originalUrl.split('/');
@@ -100,7 +100,7 @@ const wrapperServerLLM = async (inputData: DataRequest, context: string, wrapper
         //se e' il contesto generico si imposta il prompt di default
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
 
-        let answer = await wrapperSendAndPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
+        let answer = await getAnswerByPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
         return answer;
         //res.json({ answer }); // Invia la risposta al client
     } catch (err) {

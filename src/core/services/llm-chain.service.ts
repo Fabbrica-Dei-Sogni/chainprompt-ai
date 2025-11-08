@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
 import { Runnable } from "@langchain/core/runnables";
+import { LLMProvider } from "../models/llmprovider.enum.js";
 
 dotenv.config();
 
@@ -21,8 +22,34 @@ dotenv.config();
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
 
+export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate) => {
 
-export const getCloudLLM = (config: ConfigChainPrompt) => {
+  const llmChain = CHAT_PROMPT.pipe(llm);
+  const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
+  return answer;
+}
+
+export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt) {
+  let llmChain;
+
+  switch (provider) {
+    case LLMProvider.OpenAICloud:
+      llmChain = getCloudLLM(config);
+      break;
+    case LLMProvider.OpenAILocal:
+      llmChain = getLocalLLM(config);
+      break;
+    case LLMProvider.Ollama:
+      llmChain = getOllamaLLM(config);
+      break;
+    default:
+      throw new Error(`Provider non supportato: ${provider}`);
+  }
+  return llmChain;
+}; 
+
+
+const getCloudLLM = (config: ConfigChainPrompt) => {
 
   const llm = new ChatOpenAI({
     maxTokens: config.maxTokens,
@@ -36,7 +63,7 @@ export const getCloudLLM = (config: ConfigChainPrompt) => {
 };
 
 
-export const getLocalLLM = (config: ConfigChainPrompt) => {
+const getLocalLLM = (config: ConfigChainPrompt) => {
 
   const llm = new ChatOpenAI({
     configuration: {
@@ -51,7 +78,7 @@ export const getLocalLLM = (config: ConfigChainPrompt) => {
 
 };
 
-export const getOllamaLLM = (config: ConfigChainPrompt) => {
+const getOllamaLLM = (config: ConfigChainPrompt) => {
 
   const llm = new Ollama({
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
@@ -71,11 +98,3 @@ export const getOllamaLLM = (config: ConfigChainPrompt) => {
   return llm;
 
 };
-
-
-export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate) => {
-
-  const llmChain = CHAT_PROMPT.pipe(llm);
-  const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
-  return answer;
-}
