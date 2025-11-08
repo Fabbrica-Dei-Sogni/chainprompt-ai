@@ -5,6 +5,32 @@ import { readFileAndConcat } from './reader-prompt.service.js';
 import { contextFolder } from './common.services.js';
 import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
+import { LLMProvider } from '../models/llmprovider.enum.js';
+import { senderToLLM } from './llm-middleware.service.js';
+
+/**
+ * Ritorna la risposta dall'llm in base agli input forniti, il systemprompt e il provider di accesso
+
+ * @param inputData 
+ * @param systemPrompt 
+ * @param provider 
+ * @returns 
+ */
+async function getAnswerByPrompt(
+  inputData: DataRequest,
+  systemPrompt: string,
+  provider: LLMProvider,
+) {
+    
+  switch (provider) {
+    case LLMProvider.OpenAICloud:
+    case LLMProvider.OpenAILocal:
+    case LLMProvider.Ollama:
+      return await senderToLLM(inputData, systemPrompt, provider);
+    default:
+      throw new Error(`Provider non supportato: ${provider}`);
+  }
+}
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
@@ -28,16 +54,37 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handle = async (identifier: string, data: RequestBody, contextchat: string, getAnswerByPromptCallback: any): Promise<any> => {
+export const handle = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider): Promise<any> => {
     try {
+        
         console.log("Identificativo chiamante: ", identifier);
-        const inputData: DataRequest = extractDataFromRequest(data, contextchat, identifier);
 
-        let answer = await handlerLLM(inputData, contextchat, getAnswerByPromptCallback);
-
+        const inputData: DataRequest = extractDataFromRequest(data, context, identifier);
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+        let answer = await getAnswerByPrompt(inputData, systemPrompt, provider); // Invia il prompt al client
+        
         return answer;
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
+        throw err;
+        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
+    }
+};
+
+export const handleAgent = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider, getAnswerByAgent: any): Promise<any> => {
+    try {
+        
+        console.log("Identificativo chiamante: ", identifier);
+
+        const inputData: DataRequest = extractDataFromRequest(data, context, identifier);
+        //Recupero del systemprompt dalla logica esistente
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+
+        const answer = getAnswerByAgent(inputData, systemPrompt, provider);
+        
+        return answer;
+    } catch (err) {
+        console.error('Errore durante la comunicazione con un agente:', err);
         throw err;
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
@@ -91,22 +138,3 @@ export const getFrameworkPrompts = async (contesto: string): Promise<string> => 
     const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };
-
-const handlerLLM = async (inputData: DataRequest, context: string, getAnswerByPromptLLM: any) => {
-
-    try {
-        // const originalUriTokens = req.originalUrl.split('/');
-        // const context = originalUriTokens[originalUriTokens.length - 1];
-
-        //se e' il contesto generico si imposta il prompt di default
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-
-        let answer = await getAnswerByPromptLLM(inputData, systemPrompt, context); // Invia il prompt al client
-        return answer;
-        //res.json({ answer }); // Invia la risposta al client
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
-}

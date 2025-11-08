@@ -1,20 +1,19 @@
 import { ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate } from "@langchain/core/prompts";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { getInstanceLLM } from "../services/llm-chain.service.js";
+import { getInstanceLLM } from "./llm-chain.service.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
 import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, ReactAgent, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
-import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../services/common.services.js";
-import { getFrameworkPrompts } from "../services/llm-request-handler.service.js";
+import '../../logger.js';
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
 
 // Definisci il prompt template (system + user + placeholder per tool output)
 //XXX: verra definito nella cartella dei prompt
-const systemPrompt = `Sei un esperto assistente di cybersecurity. Usa il tool "cybersecurity_api_tool" per interrogare dati API quando necessario.
+const systemPromptDFL = `Sei un esperto assistente di cybersecurity. Usa il tool "cybersecurity_api_tool" per interrogare dati API quando necessario.
 Se devi analizzare vulnerabilità, specifica un JSON con "url" (endpoint API) e "params" (query params come oggetto).
 Analizza i dati restituiti dal tool e fornisci risposte precise, basate su fatti, con rischi e mitigazioni.`;
 
@@ -28,7 +27,7 @@ const contextSchema = z.object({
  */
 const dynamicSystemPrompt = dynamicSystemPromptMiddleware<z.infer<typeof contextSchema>>((state, runtime) => {
     const userRole = runtime.context.userRole || "user";
-    const basePrompt = systemPrompt;
+    const basePrompt = systemPromptDFL;
 
     if (userRole === "expert") {
         return `${basePrompt} Provide detailed technical responses.`;
@@ -65,10 +64,7 @@ const handleToolErrors = createMiddleware({
  * @param tools 
  * @returns 
  */
-export async function getAgent(inputData: DataRequest, provider: LLMProvider, context: string, tools: Tool[]) {
-
-    //Recupero del systemprompt dalla logica esistente
-    const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+export async function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [new CybersecurityAPITool()]) {
 
     const { temperature, modelname, maxTokens, numCtx }: DataRequest = inputData;
 
@@ -77,8 +73,6 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, co
     };
 
     const llm = getInstanceLLM(provider, config);
-
-    tools = [new CybersecurityAPITool()];
 
     // 4. Crea l'agent con prompt custom
     const agent = createAgent({
@@ -93,12 +87,22 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, co
 }
 
 export async function invokeAgent(agent: ReactAgent, question: string) {
-
-    const result = await agent.invoke(
-        { messages: [{ role: "user", content: question }] },
-        //{ context: { userRole: "expert" } }
-    );
-
-    return result;
+    try {
+        console.info("Invio richiesta all'agente: " + question);
+        const result = await agent.invoke(
+            { messages: [{ role: "user", content: question }] },
+            //{ context: { userRole: "expert" } }
+        );
+        return result;
+    } catch (error) {
+        console.error("Errore durante l'invocazione dell'agente:", error);
+        // Puoi personalizzare il messaggio di errore per l'utente qui
+        return {
+            error: true,
+            message: "Si è verificato un errore nella comunicazione con l'agente. Riprova più tardi.",
+            details: error instanceof Error ? error.message : String(error),
+        };
+    }
 }
+
 

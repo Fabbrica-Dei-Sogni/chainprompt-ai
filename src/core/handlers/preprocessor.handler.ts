@@ -2,13 +2,13 @@ import { NextFunction } from "express";
 import { YouTubeComment, formatCommentsForPrompt } from "../agents/analisicommenti.agent.js";
 import { removeCheshireCatText } from "../agents/cheshire.agent.js";
 import { decodeBase64, scrapeArticle } from "../agents/clickbaitscore.agent.js";
-import { getAnswerByPrompt } from "../controllers/business.controller.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { handle } from '../services/llm-request-handler.service.js';
+import { handle, handleAgent } from '../services/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../interfaces/requestbody.js";
 import '../../logger.js';
+import { getAnswerByThreatIntel } from "../agents/cyber-agent.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -36,32 +36,69 @@ async function genericHandler(
     //recupero del requestbody 
     let body = req.body as RequestBody;
 
-    const answer = await handlePrompt(body, identifier, contextchat, provider);
+    const answer = await handle(identifier, body, contextchat, provider);
 
     res.json(answer);
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error('Errore durante la conversazione:', err);
     res.status(500).json({ error: "Errore interno" });
   }
 };
 
-const handlePrompt = async (body: RequestBody, identifier: string, contextchat: any, provider: LLMProvider): Promise<any> => {
+async function agentHandler(
+  req: any,
+  res: any,
+  next: any,
+  provider: LLMProvider,
+  preprocessor: Preprocessor,
+  answerCallback: any,
+  contextchat: string,
+  defaultParams?: Partial<DataRequest>
+) {
   try {
 
-    return handle(identifier, body, contextchat,
-      //l'estrazione dei dati dal body  avviene nella fase di handler, successivamente i dati estratti sono forniti al getAnserByPrompt  
-      async (inputData: DataRequest, systemPrompt: string) =>
-        getAnswerByPrompt(provider, inputData, systemPrompt));
+    //in questa fase il body puo avere parametri che non sono contemplati nel tipo RequestBody, ma che sono utilizzati dalla fase di proprocessing del tema dedicato.
+    //si vuole lasciare libertà di input tra le fasi di preparazione del prompt di un chat tematico dalla fase di interrogazione llm
+    await preprocessor(req);
+
+    // Applica i parametri di default che mancano
+    Object.assign(req.body, defaultParams);
+
+    //dopo il preprocessing per il tema dedicato vengono recuperati l'identificativo, in questo caso l'ip address del chiamante, e il body ricevuto dagli endpoint applicativi che sono a norma per una interrogazione llm
+    //recupero identificativo chiamante, in questo caso l'ip address
+    const identifier = requestIp.getClientIp(req)!;
+    //recupero del requestbody 
+    let body = req.body as RequestBody;
+
+    const answer = await handleAgent(identifier, body, contextchat, provider, answerCallback);
+
+    res.json(answer);
   } catch (err) {
     console.error('Errore durante la conversazione:', err);
-    throw err;
-    //res.status(500).json({ error: `Si è verificato un errore interno del server` });
+    res.status(500).json({ error: "Errore interno" });
   }
 };
 
 //
 // Preprocessori specifici per ciascun contesto
 //
+export const handleCyberSecurityAgent = (
+  req: any,
+  res: any,
+  next: NextFunction,
+  provider: LLMProvider
+) => agentHandler(req, res, next, provider, cyberSecurityPreprocessor, getAnswerByThreatIntel, 'threatintel');
+
+
+const cyberSecurityPreprocessor: Preprocessor = async (req) => {
+  try {
+    // Nessuna modifica, usato per contesti generici
+    console.info("Sconfiggi l'inferno apocalittico!! Forza e coraggio!");
+  } catch (error) {
+    console.error("Errore nel preprocessore di default:", error);
+    throw error;
+  }
+};
 
 /**
  * Preprocessore per clickbaitscore (scraping + decode + set parametri)

@@ -1,0 +1,2 @@
+CONTESTO:
+Se devi analizzare vulnerabilità, specifica un JSON con "url" (endpoint API) e "params" (query params come oggetto).

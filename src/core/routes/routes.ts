@@ -3,6 +3,7 @@ import express from "express";
 import chainbot from "../apis/chainbot.js"
 import clickbaitscore from "../apis/clickbaitscore.js"
 import analisicommenti from "../apis/analisicommenti.js"
+import threatintel from "../apis/threatintel.js"
 import cheshirecat from "../apis/cheshirecat.js"
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use(classicbot);
 router.use(analisicommenti);
 router.use(clickbaitscore);
 router.use(chainbot);
+router.use(threatintel);
 //XXX: disabilitato per ora l'integrazione con cheshirecat
 //router.use(cheshirecat);
 
