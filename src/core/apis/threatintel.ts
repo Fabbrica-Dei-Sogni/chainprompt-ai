@@ -19,7 +19,7 @@ router.post('/features/threatintel/cloud', (req, res, next) =>
 );
 
 router.post('/features/threatintel/ollama', (req, res, next) =>
-  handleCyberSecurityAgent(req, res, next, LLMProvider.Ollama)
+  handleCyberSecurityAgent(req, res, next, LLMProvider.ChatOllama)
 );
 
 console.log(`Api del threatintel caricati con successo!`);

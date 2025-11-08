@@ -9,30 +9,6 @@ import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToLLM } from './llm-middleware.service.js';
 
 /**
- * Ritorna la risposta dall'llm in base agli input forniti, il systemprompt e il provider di accesso
-
- * @param inputData 
- * @param systemPrompt 
- * @param provider 
- * @returns 
- */
-async function getAnswerByPrompt(
-  inputData: DataRequest,
-  systemPrompt: string,
-  provider: LLMProvider,
-) {
-    
-  switch (provider) {
-    case LLMProvider.OpenAICloud:
-    case LLMProvider.OpenAILocal:
-    case LLMProvider.Ollama:
-      return await senderToLLM(inputData, systemPrompt, provider);
-    default:
-      throw new Error(`Provider non supportato: ${provider}`);
-  }
-}
-
-/**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
 
 export interface RequestBody {
@@ -61,7 +37,7 @@ export const handle = async (identifier: string, data: RequestBody, context: str
 
         const inputData: DataRequest = extractDataFromRequest(data, context, identifier);
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        let answer = await getAnswerByPrompt(inputData, systemPrompt, provider); // Invia il prompt al client
+        let answer = await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
         
         return answer;
     } catch (err) {

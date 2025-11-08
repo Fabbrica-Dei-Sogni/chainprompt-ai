@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
-import { ChatOllama } from "@langchain/ollama";
+import { ChatOllama, Ollama } from "@langchain/ollama";
 import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
@@ -75,6 +75,9 @@ export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt)
     case LLMProvider.Ollama:
       instance = getOllamaLLM(config);
       break;
+    case LLMProvider.ChatOllama:
+      instance = getChatOllamaLLM(config);
+      break;
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
@@ -119,9 +122,31 @@ const getLocalLLM = (config: ConfigChainPrompt) => {
 
 };
 
-const getOllamaLLM = (config: ConfigChainPrompt) => {
+const getChatOllamaLLM = (config: ConfigChainPrompt) => {
 
   const llm = new ChatOllama({
+    baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+    temperature: config.temperature,
+    //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
+    model: config.modelname || process.env.LOCAL_MODEL_NAME,
+    numCtx: config.numCtx,
+    //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
+    //numBatch: 512,
+    //topK: 40,
+    //repeatPenalty: 1.1,
+    //topP: 0.95,
+
+    //XXX: parametri da capire e sperimentare
+    //keepAlive: "24h",
+    //logitsAll: true,
+  });
+  return llm;
+
+};
+
+const getOllamaLLM = (config: ConfigChainPrompt) => {
+
+  const llm = new Ollama({
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
     temperature: config.temperature,
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore

@@ -1,5 +1,6 @@
 export enum LLMProvider {
   OpenAICloud = "openaicloud",
   OpenAILocal = "openailocal",
-  Ollama = "ollama"
+  Ollama = "ollama",
+  ChatOllama = "chatollama"
 }
