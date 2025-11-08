@@ -16,24 +16,30 @@ import '../../logger.js';
  */
 console.log(">>> Caricamento chat tematiche...");
 
-const allContext: string[] = [];
+//log solo dei contesti tematici alla prima iterazione dei provider
+const allContext: Record<string, boolean> = {};
 
 // Per ogni provider e suo prefisso, genera le route dinamiche usando l'handler generico
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
     let route = `/langchain/${prefix}/prompt/${context}`;
-    allContext.push(context);
+    if (!allContext[context]) {
+      console.log(context);   // Logga solo alla prima occorrenza
+      allContext[context] = true;
+    }
     router.post(route, (req, res, next) =>
       handleCommonRequest(req, res, next, provider)
     );
   });
   let genericRoute = `/langchain/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`;
-  allContext.push(ENDPOINT_CHATGENERICA);
+  if (!allContext[ENDPOINT_CHATGENERICA]) {
+    console.log(ENDPOINT_CHATGENERICA);  // Logga solo alla prima occorrenza
+    allContext[ENDPOINT_CHATGENERICA] = true;
+  }
   router.post(genericRoute, (req, res, next) =>
     handleCommonRequest(req, res, next, provider)
   );
 });
-allContext.forEach(context => console.log(context));
 
 console.log("<<< Caricamento avvenuto con successo");
 
