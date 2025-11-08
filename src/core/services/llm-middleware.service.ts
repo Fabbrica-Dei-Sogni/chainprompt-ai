@@ -29,6 +29,7 @@ const executeByProvider = async (
     return await invokeChain(getInstanceLLM(provider, config), prompt);
 };
 
+
 /**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
  * istanziare la configurazione del modello llm in ConfigChainPrompt, ciascun parametro è peculiare in base al modello llm scelto per interrogare,
@@ -48,21 +49,11 @@ const executeByProvider = async (
 export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider,) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
-    const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+    const { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    //let resultSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
-    systemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
-    let resultSystemPrompt = inputData.noappendchat ? systemPrompt
-        : appendSystemPrompt(keyconversation, systemPrompt);
-
-    let resultQuestionPrompt = `<|start_header_id|>user<|end_header_id|>\n${question}<|eot_id|>`;
-    console.log(`System prompt contestuale:\n`, resultSystemPrompt);
-    console.log(`Question prompt utente:\n`, resultQuestionPrompt);
-    if (!inputData.noappendchat) {
-        appendAnswerHistoryConversation(keyconversation, resultSystemPrompt);
-    }
+    const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx
@@ -83,7 +74,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
     let conversation = `${resultQuestionPrompt}\n${resultAssistantResponse}\n`;
     console.log(resultSystemPrompt + "\n" + conversation);
-    if (!inputData.noappendchat) {
+    if (!noappendchat) {
         appendAnswerHistoryConversation(keyconversation, conversation);
     }
 
@@ -99,6 +90,30 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return assistantResponse;
+}
+
+export function buildConversation(inputData: DataRequest, systemPrompt: string) {
+    
+    //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
+    const { question, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+
+    //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
+    // Crea una nuova conversazione per questo indirizzo IP
+    //let resultSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
+    let formattedSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
+    let resultSystemPrompt = noappendchat ? formattedSystemPrompt
+        : appendSystemPrompt(keyconversation, formattedSystemPrompt);
+
+    let resultQuestionPrompt = `<|start_header_id|>user<|end_header_id|>\n${question}<|eot_id|>`;
+    console.log(`System prompt contestuale:\n`, resultSystemPrompt);
+    console.log(`Question prompt utente:\n`, resultQuestionPrompt);
+    if (!noappendchat) {
+        appendAnswerHistoryConversation(keyconversation, resultSystemPrompt);
+    }
+    
+    return {
+        resultSystemPrompt, resultQuestionPrompt
+    }
 }
 
 function appendAnswerHistoryConversation(keyconversation: string, conversation: string) {
