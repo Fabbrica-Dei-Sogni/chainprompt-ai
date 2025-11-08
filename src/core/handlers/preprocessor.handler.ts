@@ -7,26 +7,35 @@ import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import { handle } from '../services/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
+import { RequestBody } from "../interfaces/requestbody.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
 async function genericHandler(
-  req: any, 
-  res: any, 
-  next: any, 
+  req: any,
+  res: any,
+  next: any,
   provider: LLMProvider,
   preprocessor: Preprocessor,
   contextchat: string,
   defaultParams?: Partial<DataRequest>
 ) {
   try {
+
+    //in questa fase il body puo avere parametri che non sono contemplati nel tipo RequestBody, ma che sono utilizzati dalla fase di proprocessing del tema dedicato.
+    //si vuole lasciare libertà di input tra le fasi di preparazione del prompt di un chat tematico dalla fase di interrogazione llm
     await preprocessor(req);
-    
+
     // Applica i parametri di default che mancano
     Object.assign(req.body, defaultParams);
 
-    const answer = await handlePrompt(req, contextchat, async (inputData: DataRequest, systemPrompt: string) =>
-      getAnswerByPrompt(provider, inputData, systemPrompt));
+    //dopo il preprocessing per il tema dedicato vengono recuperati l'identificativo, in questo caso l'ip address del chiamante, e il body ricevuto dagli endpoint applicativi che sono a norma per una interrogazione llm
+    //recupero identificativo chiamante, in questo caso l'ip address
+    const identifier = requestIp.getClientIp(req)!;
+    //recupero del requestbody 
+    let body = req.body as RequestBody;
+
+    const answer = await handlePrompt(body, identifier, contextchat, provider);
 
     res.json(answer);
   } catch (e) {
@@ -35,24 +44,28 @@ async function genericHandler(
   }
 };
 
-const handlePrompt = async (req: any, contextchat: any, getAnswerByPromptCallback: any): Promise<any> => {
-    try {
-        //        const originalUriTokens = req.originalUrl.split('/');
-        //        const contextchat = originalUriTokens[originalUriTokens.length - 1];
-        const ipAddress = requestIp.getClientIp(req);
-        return handle(ipAddress, req.body, contextchat, getAnswerByPromptCallback);
-    } catch (err) {
-        console.error('Errore durante la conversazione:', err);
-        throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
-    }
+const handlePrompt = async (body: RequestBody, identifier: string, contextchat: any, provider: LLMProvider): Promise<any> => {
+  try {
+
+    return handle(identifier, body, contextchat,
+      //l'estrazione dei dati dal body  avviene nella fase di handler, successivamente i dati estratti sono forniti al getAnserByPrompt  
+      async (inputData: DataRequest, systemPrompt: string) =>
+        getAnswerByPrompt(provider, inputData, systemPrompt));
+  } catch (err) {
+    console.error('Errore durante la conversazione:', err);
+    throw err;
+    //res.status(500).json({ error: `Si è verificato un errore interno del server` });
+  }
 };
 
 //
 // Preprocessori specifici per ciascun contesto
 //
 
-// Preprocessore per clickbaitscore (scraping + decode + set parametri)
+/**
+ * Preprocessore per clickbaitscore (scraping + decode + set parametri)
+ * @param req 
+ */
 const clickbaitPreprocessor: Preprocessor = async (req) => {
   try {
     const { url } = req.body;
@@ -71,7 +84,11 @@ const clickbaitPreprocessor: Preprocessor = async (req) => {
   }
 };
 
-// Preprocessore per cheshire (rimuove testo indesiderato + no append)
+/**
+Preprocessore per cheshire (rimuove testo indesiderato + no append)
+ * 
+ * @param req 
+ */
 const cheshirePreprocessor: Preprocessor = async (req) => {
   try {
     req.body.noappendchat = true;
@@ -85,7 +102,11 @@ const cheshirePreprocessor: Preprocessor = async (req) => {
   }
 };
 
-// Preprocessore per analisi commenti YouTube (formatta payload + setta no append)
+/**
+  Preprocessore per analisi commenti YouTube (formatta payload + setta no append)
+ * 
+ * @param req 
+ */
 const analisiCommentiPreprocessor: Preprocessor = async (req) => {
   try {
     const { payload } = req.body;
@@ -105,7 +126,10 @@ const analisiCommentiPreprocessor: Preprocessor = async (req) => {
   }
 };
 
-// Preprocessore di default (nessuna modifica, utile per casi generici)
+/**
+ Preprocessore di default (nessuna modifica, utile per casi generici)
+ * @param req 
+ */
 const defaultPreprocessor: Preprocessor = async (req) => {
   try {
     // Nessuna modifica, usato per contesti generici

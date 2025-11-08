@@ -11,14 +11,21 @@ import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 
 const conversations: Record<string, any> = {};
 
-export const executeByProvider = async (
-  provider: LLMProvider,
-  config: ConfigChainPrompt,
-  prompt: ChainPromptBaseTemplate
-) => {
-  let llmChain = getInstanceLLM(provider, config);
+/**
+* L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
+ * @param config 
+ * @param prompt 
+ * @param answerCallback 
+ * @param provider 
+ * @returns 
+ */
+const executeByProvider = async (
+    config: ConfigChainPrompt,
+    prompt: ChainPromptBaseTemplate,
+    provider: LLMProvider
 
-  return await invokeChain(llmChain, prompt);
+) => {
+    return await invokeChain(getInstanceLLM(provider, config), prompt);
 };
 
 /**
@@ -37,7 +44,7 @@ export const executeByProvider = async (
  * @param callbackRequestLLM 
  * @returns 
  */
-export async function senderToLLM(inputData: DataRequest, systemPrompt: string, answerCallback: any, provider: LLMProvider,) {
+export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider,) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, temperature, modelname, maxTokens, numCtx, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
@@ -63,10 +70,9 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         systemprompt: resultSystemPrompt, question: question as any
     };
 
-    const assistantResponse = await invokeLLM
-            (config,
+    const assistantResponse = await executeByProvider
+        (config,
             prompt,
-            answerCallback,
             provider);
 
 
@@ -97,7 +103,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
 function appendAnswerHistoryConversation(keyconversation: string, conversation: string) {
 
     conversations[keyconversation].conversationContext += conversation;
-    
+
     return conversations[keyconversation].conversationContext;
 }
 
@@ -109,17 +115,4 @@ function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
         };
     }
     return conversations[keyconversation].conversationContext;
-}
-
- /**
- * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
-  * @param config 
-  * @param prompt 
-  * @param answerCallback 
-  * @param provider 
-  * @returns 
-  */
-async function invokeLLM(config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate, answerCallback: any, provider: LLMProvider,) {
-    //Fase in cui avviene la chiamata al modello llm tramite invoke langchain
-    return await answerCallback(provider, config, prompt);
 }

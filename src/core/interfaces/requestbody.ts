@@ -1,6 +1,9 @@
+/**
+ * Request body riconosciuta dalle rest endpoint applicativo
+ */
 export interface RequestBody {
     text: string;                 //Campo standard usato come input come ad esempio da cheshirecat
-    question: string;             // @deprecated Domanda inviata dall'utente
+    question: string;             // Domanda inviata dall'utente , tuttavia puo essere presente nel campo text
     modelname?: string;           // Nome del modello (predefinito a "llama" se non specificato)
     temperature?: number;         // Valore della temperatura per il modello (default: 0.1)
     sessionchat?: string;         // Identificativo della sessione (default: "defaultsession" se non presente)

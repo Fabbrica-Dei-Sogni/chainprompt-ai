@@ -27,10 +27,10 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handle = async (ipAddress: any, data: any, contextchat: any, getAnswerByPromptCallback: any): Promise<any> => {
+export const handle = async (identifier: string, data: RequestBody, contextchat: string, getAnswerByPromptCallback: any): Promise<any> => {
     try {
-        console.log("Indirizzo ip: ", ipAddress);
-        const inputData: DataRequest = extractDataFromRequest(data, contextchat, ipAddress);
+        console.log("Identificativo chiamante: ", identifier);
+        const inputData: DataRequest = extractDataFromRequest(data, contextchat, identifier);
 
         let answer = await handlerLLM(inputData, contextchat, getAnswerByPromptCallback);
 
@@ -54,7 +54,7 @@ export const handle = async (ipAddress: any, data: any, contextchat: any, getAns
  * @param context 
  * @returns 
  */
-function extractDataFromRequest(body: RequestBody, context: string, identifier: any): DataRequest {
+function extractDataFromRequest(body: RequestBody, context: string, identifier: string): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     //Recupero della domanda dal campo question o dal campo text (standard cheshire)
