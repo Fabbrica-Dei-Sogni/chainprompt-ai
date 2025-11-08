@@ -1,10 +1,9 @@
+import dotenv from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
 import { Ollama } from "@langchain/ollama";
-
-import dotenv from "dotenv";
+import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
-import { Runnable } from "@langchain/core/runnables";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 
 dotenv.config();
@@ -28,12 +27,32 @@ dotenv.config();
  * @param prompt 
  * @returns 
  */
-export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate) => {
+export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate): Promise<string> => {
+  try {
+    //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
+    const llmChain = CHAT_PROMPT.pipe(llm);
+    const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
+    return answer;
+  } catch (error: unknown) {
 
-  const llmChain = CHAT_PROMPT.pipe(llm);
-  const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
-  return answer;
-}
+    //XXX: gestione accurata dell'errore ricevuto da un llm
+
+    // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
+    console.error("Errore durante l'invocazione della chain LLM:", error);
+
+    // Gestione custom errori specifici (opzionale)
+    if (error instanceof Error) {
+      // Puoi controllare messaggi o tipi per retry, rate limit, ...
+      if (error.message.includes("rate limit")) {
+        // eventuale logica retry o backoff
+        console.warn("Rate limit superata. Considera retry o backoff.");
+      }
+    }
+
+    // Rilancia come errore specifico oppure generico per chiamante
+    throw new Error(`Errore invokeChain: ${(error as Error).message || String(error)}`);
+  }
+};
 
 /**
  * Ritorna l'istanza di un llm in base al provider scelto.
@@ -43,22 +62,22 @@ export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate
  * @returns 
  */
 export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt) {
-  let llmChain;
+  let instance;
 
   switch (provider) {
     case LLMProvider.OpenAICloud:
-      llmChain = getCloudLLM(config);
+      instance = getCloudLLM(config);
       break;
     case LLMProvider.OpenAILocal:
-      llmChain = getLocalLLM(config);
+      instance = getLocalLLM(config);
       break;
     case LLMProvider.Ollama:
-      llmChain = getOllamaLLM(config);
+      instance = getOllamaLLM(config);
       break;
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
-  return llmChain;
+  return instance;
 }; 
 
 
@@ -69,6 +88,10 @@ const getCloudLLM = (config: ConfigChainPrompt) => {
     apiKey: process.env.OPENAI_API_KEY,
     temperature: config.temperature,
     modelName: config.modelname || process.env.LOCAL_MODEL_NAME
+  /**
+  il cast forzato a runnable in questa forma
+  è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+   */
   }) as unknown as Runnable;
 
   return llm;
@@ -85,6 +108,10 @@ const getLocalLLM = (config: ConfigChainPrompt) => {
     maxTokens: config.maxTokens,
     temperature: config.temperature,
     modelName: config.modelname || process.env.LOCAL_MODEL_NAME
+  /**
+  il cast forzato a runnable in questa forma
+  è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+   */
   }) as unknown as Runnable;
 
   return llm;
@@ -96,6 +123,7 @@ const getOllamaLLM = (config: ConfigChainPrompt) => {
   const llm = new Ollama({
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
     temperature: config.temperature,
+    //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
     model: config.modelname || process.env.LOCAL_MODEL_NAME,
     numCtx: config.numCtx,
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
