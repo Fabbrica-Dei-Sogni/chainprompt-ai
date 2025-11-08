@@ -4,7 +4,7 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "./llm-chain.service.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
-import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, ReactAgent, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
+import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, providerStrategy, ReactAgent, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../logger.js';
 
@@ -20,6 +20,18 @@ Analizza i dati restituiti dal tool e fornisci risposte precise, basate su fatti
 //esempio per fornire uno schema all'agente
 const contextSchema = z.object({
     userRole: z.enum(["expert", "beginner"]),
+});
+
+//un output strutturato e' possibile solo con llm che lo supportano
+const genericAgentOutputSchema = z.object({
+  summary: z.string().describe("Riassunto conciso dell'analisi o risposta finale."),
+  data: z.object({}).passthrough().describe("Dati estratti o tool results, in formato libero o strutturato."),
+  actions: z.array(z.object({
+    type: z.string().describe("Tipo di azione (es. tool call, recommendation)."),
+    details: z.string().optional().describe("Dettagli specifici."),
+  })).optional().describe("Azioni eseguite o raccomandate."),
+  confidence: z.number().min(0).max(1).optional().describe("Livello di confidenza (0-1)."),
+  errors: z.array(z.string()).optional().describe("Eventuali errori rilevati."),
 });
 
 /**
@@ -74,14 +86,18 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
 
     const llm = getInstanceLLM(provider, config);
     
-
+    // Strategia per output strutturato generico
+    const responseFormat = providerStrategy(genericAgentOutputSchema);
+    
     // 4. Crea l'agent con prompt custom
     const agent = createAgent({
         model: llm,
         tools,
         //contextSchema: contextSchema,
         middleware: [handleToolErrors/*, dynamicSystemPrompt*/] as const,
-        systemPrompt: systemPrompt
+        systemPrompt: systemPrompt,
+        //solo su llm supportati
+        //responseFormat
     });
 
     return agent;
@@ -94,11 +110,12 @@ export async function invokeAgent(agent: ReactAgent, question: string) {
             { messages: [{ role: "user", content: question }] },
             //{ context: { userRole: "expert" } }
         );
+        
         return result;
     } catch (error) {
         console.error("Errore durante l'invocazione dell'agente:", error);
         // Puoi personalizzare il messaggio di errore per l'utente qui
-        return {
+        throw {
             error: true,
             message: "Si è verificato un errore nella comunicazione con l'agente. Riprova più tardi.",
             details: error instanceof Error ? error.message : String(error),

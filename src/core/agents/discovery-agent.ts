@@ -11,6 +11,7 @@ export async function getAnswerByThreatIntel(inputData: DataRequest, systemPromp
     const agent = await getAgent(inputData, provider, systemPrompt, [new CybersecurityAPITool()]);
     const result = await invokeAgent(agent, question!);
 
+    //return result.messages[result.messages.length - 1].content;
     return result;
 }
 
@@ -20,6 +21,7 @@ export async function getAnswerByClickbaitscore(inputData: DataRequest, systemPr
     const agent = await getAgent(inputData, provider, systemPrompt, [new ScrapingTool()]);
     const result = await invokeAgent(agent, question!);
 
+    //return result.messages[result.messages.length - 1].content;
     return result;
 }
 
