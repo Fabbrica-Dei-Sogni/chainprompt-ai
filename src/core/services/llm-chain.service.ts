@@ -21,6 +21,13 @@ dotenv.config();
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
 
+/**
+ * Crea un chain llm, lo invoca e attende la risposta.
+
+ * @param llm 
+ * @param prompt 
+ * @returns 
+ */
 export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate) => {
 
   const llmChain = CHAT_PROMPT.pipe(llm);
@@ -28,6 +35,13 @@ export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate
   return answer;
 }
 
+/**
+ * Ritorna l'istanza di un llm in base al provider scelto.
+ 
+ * @param provider 
+ * @param config 
+ * @returns 
+ */
 export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt) {
   let llmChain;
 

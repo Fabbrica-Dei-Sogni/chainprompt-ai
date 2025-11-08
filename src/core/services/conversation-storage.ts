@@ -4,7 +4,13 @@ dotenv.config();
 
 const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
 
-// Function to write an object to a text file
+/**
+ Function to write an object to a text file
+ * 
+ * @param obj 
+ * @param keyconversation 
+ * @returns 
+ */
 export async function writeObjectToFile(obj: any, keyconversation = 'nondefinito'): Promise<string> {
     // Get current timestamp
     const timestamp = Date.now();
