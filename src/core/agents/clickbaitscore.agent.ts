@@ -14,7 +14,7 @@ interface ScrapeResult {
 }
 
 // Funzione principale di scraping
-async function scrapeArticle(url: string): Promise<ScrapeResult> {
+export async function scrapeArticle(url: string): Promise<ScrapeResult> {
     try {
         // Esegui la richiesta HTTP e ottieni il contenuto HTML
         const { data }: { data: string } = await axios.get(url);
@@ -91,11 +91,7 @@ function extractContent($: any): string | null {
 
 
 // Funzione per decodificare la stringa base64
-function decodeBase64(base64: string): string {
+export function decodeBase64(base64: string): string {
     const buffer = Buffer.from(base64, 'base64');
     return buffer.toString('utf-8');
 }
-
-export {
-    scrapeArticle, decodeBase64
-};

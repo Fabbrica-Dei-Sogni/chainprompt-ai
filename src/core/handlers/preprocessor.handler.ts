@@ -8,7 +8,7 @@ import { handle, handleAgent } from '../services/llm-request-handler.service.js'
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../interfaces/requestbody.js";
 import '../../logger.js';
-import { getAnswerByThreatIntel } from "../agents/cyber-agent.js";
+import { getAnswerByClickbaitscore, getAnswerByThreatIntel } from "../agents/discovery-agent.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -79,9 +79,7 @@ async function agentHandler(
   }
 };
 
-//
-// Preprocessori specifici per ciascun contesto
-//
+//handler di agenti
 export const handleCyberSecurityAgent = (
   req: any,
   res: any,
@@ -99,6 +97,34 @@ const cyberSecurityPreprocessor: Preprocessor = async (req) => {
     throw error;
   }
 };
+
+export const handleClickbaitAgent = (
+  req: any,
+  res: any,
+  next: NextFunction,
+  provider: LLMProvider
+) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, getAnswerByClickbaitscore, 'clickbaitscore');
+
+const clickbaitAgentPreprocessor: Preprocessor = async (req) => {
+  try {
+    const { url } = req.body;
+    if (!url) {
+      throw new Error("URL mancante nel payload per clickbaitscore");
+    }
+    const decodedUri = decodeBase64(url);
+    req.body.question = decodedUri;
+    req.body.numCtx = req.body.numCtx ?? 2040;
+    req.body.maxToken = req.body.maxToken ?? 8032;
+    req.body.noappendchat = true;
+  } catch (error) {
+    console.error("Errore nel preprocessore agente clickbaitscore:", error);
+    throw error;  // rilancia per essere gestito centralmente
+  }
+};
+
+//
+// Preprocessori specifici per ciascun contesto
+//
 
 /**
  * Preprocessore per clickbaitscore (scraping + decode + set parametri)
