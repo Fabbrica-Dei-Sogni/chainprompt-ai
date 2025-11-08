@@ -65,8 +65,8 @@ export const getOllamaLLM = (config: ConfigChainPrompt) => {
     //topP: 0.95,
 
     //XXX: parametri da capire e sperimentare
-    keepAlive: "24h",
-    logitsAll: true,
+    //keepAlive: "24h",
+    //logitsAll: true,
   })
   return llm;
 
