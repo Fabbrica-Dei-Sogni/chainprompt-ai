@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
-import { Ollama } from "@langchain/ollama";
+import { ChatOllama } from "@langchain/ollama";
 import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
@@ -121,7 +121,7 @@ const getLocalLLM = (config: ConfigChainPrompt) => {
 
 const getOllamaLLM = (config: ConfigChainPrompt) => {
 
-  const llm = new Ollama({
+  const llm = new ChatOllama({
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
     temperature: config.temperature,
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
@@ -136,7 +136,7 @@ const getOllamaLLM = (config: ConfigChainPrompt) => {
     //XXX: parametri da capire e sperimentare
     //keepAlive: "24h",
     //logitsAll: true,
-  })
+  });
   return llm;
 
 };
