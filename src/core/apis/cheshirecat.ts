@@ -8,6 +8,7 @@ import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.service
 import fs from 'fs';
 import { providerRoutes } from "../routes/provider.routes.js";
 import { handleCheshireRequest } from "../handlers/preprocessor.handler.js";
+import '../../logger.js';
 
 const contexts = fs.readdirSync(contextFolder);
 
@@ -18,6 +19,7 @@ const contexts = fs.readdirSync(contextFolder);
 console.log(">>> Caricamento chat tematiche per essere interrogate da cheshire cat ai...");
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
+    console.log(prefix +"-"+context);
     router.post(`/cheshirecat/${prefix}/prompt/${context}`, (req, res, next) =>
       handleCheshireRequest(req, res, next, provider)
     );

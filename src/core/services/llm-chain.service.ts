@@ -5,6 +5,7 @@ import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
+import '../../logger.js';
 
 dotenv.config();
 

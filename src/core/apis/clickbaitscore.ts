@@ -2,6 +2,7 @@ import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import { handleClickbaitRequest } from "../handlers/preprocessor.handler.js";
+import '../../logger.js';
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.

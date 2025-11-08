@@ -4,6 +4,7 @@ import { DataRequest } from "../interfaces/datarequest.js";
 import { readFileAndConcat } from './reader-prompt.service.js';
 import { contextFolder } from './common.services.js';
 import { RequestBody } from '../interfaces/requestbody.js';
+import '../../logger.js';
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm

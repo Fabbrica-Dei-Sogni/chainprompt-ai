@@ -8,6 +8,7 @@ import { LLMProvider } from "../models/llmprovider.enum.js";
 import { handle } from '../services/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../interfaces/requestbody.js";
+import '../../logger.js';
 
 export type Preprocessor = (req: any) => Promise<void>;
 

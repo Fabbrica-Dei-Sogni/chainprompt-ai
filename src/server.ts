@@ -5,6 +5,7 @@ import cors from 'cors';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
+import './logger.js';
 dotenv.config();
 
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js

@@ -8,6 +8,7 @@ import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.j
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
+import '../../logger.js';
 
 const conversations: Record<string, any> = {};
 

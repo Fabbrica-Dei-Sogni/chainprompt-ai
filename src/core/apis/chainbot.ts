@@ -9,24 +9,31 @@ import fs from 'fs';
 import { providerRoutes } from "../routes/provider.routes.js";
 import { handleCommonRequest } from "../handlers/preprocessor.handler.js";
 const contexts = fs.readdirSync(contextFolder);
-
+import '../../logger.js';
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
  * E' un esempio di dinamismo, seguendo le best practise il tentativo è rendere tale dinamismo piu in linea con le esigenze applicative future, attualmente l'obiettivo è esporre una chatbot tematica
  */
 console.log(">>> Caricamento chat tematiche...");
 
+const allContext: string[] = [];
+
 // Per ogni provider e suo prefisso, genera le route dinamiche usando l'handler generico
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
-    router.post(`/langchain/${prefix}/prompt/${context}`, (req, res, next) =>
+    let route = `/langchain/${prefix}/prompt/${context}`;
+    allContext.push(context);
+    router.post(route, (req, res, next) =>
       handleCommonRequest(req, res, next, provider)
     );
   });
-  router.post(`/langchain/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`, (req, res, next) =>
+  let genericRoute = `/langchain/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`;
+  allContext.push(ENDPOINT_CHATGENERICA);
+  router.post(genericRoute, (req, res, next) =>
     handleCommonRequest(req, res, next, provider)
   );
 });
+allContext.forEach(context => console.log(context));
 
 console.log("<<< Caricamento avvenuto con successo");
 

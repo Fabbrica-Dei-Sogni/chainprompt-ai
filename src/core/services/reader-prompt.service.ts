@@ -1,4 +1,5 @@
 import { promises as fsPromises } from 'fs';
+import '../../logger.js';
 
 /**
  * Reads the content of the source file.
