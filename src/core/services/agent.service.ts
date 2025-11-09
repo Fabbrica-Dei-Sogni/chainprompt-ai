@@ -5,7 +5,7 @@ import { DataRequest } from "../interfaces/datarequest.js";
 import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, providerStrategy, ReactAgent, summarizationMiddleware, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../logger.js';
-import { MemorySaver } from "@langchain/langgraph";
+import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -46,7 +46,16 @@ const dynamicSystemPrompt = dynamicSystemPromptMiddleware<z.infer<typeof context
         return `${basePrompt} Explain concepts simply and avoid jargon.`;
     }
     return basePrompt;
-})
+});
+
+/**
+ * Stato della memoria dell'agente in modo che ci siano userPreferences, ma anche altro.
+ da studiare meglio
+ */
+const customAgentState = z.object({
+  messages: MessagesZodState.shape.messages,
+  userPreferences: z.record(z.string(), z.string()),
+});
 
 
 /**
@@ -118,7 +127,9 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
 
         //XXX: serve per inserire una short memory
         //studiarne meglio il suo funzionamento e integrazione
-        checkpointer
+        checkpointer,
+
+        stateSchema: customAgentState
 
         //solo su llm supportati
         //responseFormat
