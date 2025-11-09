@@ -2,15 +2,13 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { writeObjectToFile } from './conversation-storage.js';
+import { buildConversation, commitConversation, tailConversation } from './conversation-storage.js';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../logger.js';
-
-const conversations: Record<string, any> = {};
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
@@ -80,62 +78,4 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return assistantResponse;
-}
-
-async function commitConversation(noappendchat: boolean | undefined, keyconversation: string, conversation: string) {
-    if (!noappendchat) {
-        appendAnswerHistoryConversation(keyconversation, conversation);
-    }
-    //Fase applicativa di salvataggio della conversazione corrente su un file system.
-    await writeObjectToFile(conversations, keyconversation);
-}
-
-function tailConversation(assistantResponse: string, resultQuestionPrompt: string, resultSystemPrompt: any) {
-    const formattedAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
-    console.log(`Risposta assistente:\n`, formattedAssistantResponse);
-    //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    let conversation = `${resultQuestionPrompt}\n${formattedAssistantResponse}\n`;
-    console.log(resultSystemPrompt + "\n" + conversation);
-    return conversation;
-}
-
-export function buildConversation(inputData: DataRequest, systemPrompt: string) {
-    
-    //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
-    const { question, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
-
-    //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
-    // Crea una nuova conversazione per questo indirizzo IP
-    //let resultSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
-    let formattedSystemPrompt = `\n<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n ${systemPrompt}<|eot_id|>\n`;
-    let resultSystemPrompt = noappendchat ? formattedSystemPrompt
-        : appendSystemPrompt(keyconversation, formattedSystemPrompt);
-
-    let resultQuestionPrompt = `<|start_header_id|>user<|end_header_id|>\n${question}<|eot_id|>`;
-    console.log(`System prompt contestuale:\n`, resultSystemPrompt);
-    console.log(`Question prompt utente:\n`, resultQuestionPrompt);
-    if (!noappendchat) {
-        appendAnswerHistoryConversation(keyconversation, resultSystemPrompt);
-    }
-    
-    return {
-        resultSystemPrompt, resultQuestionPrompt
-    }
-}
-
-function appendAnswerHistoryConversation(keyconversation: string, conversation: string) {
-
-    conversations[keyconversation].conversationContext += conversation;
-
-    return conversations[keyconversation].conversationContext;
-}
-
-function appendSystemPrompt(keyconversation: string, systemPrompt: string) {
-    if (!conversations[keyconversation]) {
-        conversations[keyconversation] = {
-            startTime: new Date(),
-            conversationContext: systemPrompt,
-        };
-    }
-    return conversations[keyconversation].conversationContext;
 }
