@@ -3,9 +3,10 @@ import dotenv from "dotenv";
 import { DataRequest } from '../interfaces/datarequest.js';
 dotenv.config();
 
+//XXX: questo approccio è una soluzione temporanea che verrà sostituita da una soluzione piu moderna e in linea con le logiche llm
 const CONVERSATIONS: Record<string, any> = {};
 
-const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
+const conversationFolder = process.env.PATH_CONVERSATION || 'src/datasets/conversations';
 
 
 export async function commitConversation(noappendchat: boolean | undefined, keyconversation: string, conversation: string) {

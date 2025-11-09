@@ -16,7 +16,7 @@ services:
     networks:
       - network-chainprompt-docker
     volumes:
-      - ./src/datasets/conversations:/app/datasets/conversations
+      - ./src/datasets/conversations:/src/datasets/conversations
       - ./:/usr/app
       - /usr/app/node_modules      
     entrypoint: ./entry-point.sh 
