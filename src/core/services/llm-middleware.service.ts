@@ -23,10 +23,11 @@ import { Tool } from 'langchain';
 const executeByProvider = async (
     config: ConfigChainPrompt,
     prompt: ChainPromptBaseTemplate,
-    provider: LLMProvider
-
+    provider: LLMProvider,
+    sessionId: string,
+    noappendchat?: boolean
 ) => {
-    return await invokeChain(getInstanceLLM(provider, config), prompt);
+    return await invokeChain(getInstanceLLM(provider, config), prompt, sessionId, noappendchat);
 };
 
 
@@ -59,18 +60,21 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         temperature: temperature, modelname, maxTokens, numCtx, format
     };
     let prompt: ChainPromptBaseTemplate = {
-        systemprompt: resultSystemPrompt, question: question as any
+        systemprompt: systemPrompt as any, question: question as any
     };
 
     const assistantResponse = await executeByProvider
         (  config,
            prompt,
-           provider);
+           provider,
+           keyconversation,
+           noappendchat
+        );
 
 
-    let conversation = tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
+    tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
 
-    await commitConversation(noappendchat, keyconversation, conversation);
+    //await commitConversation(noappendchat, keyconversation, conversation);
 
     //Fase applicative che o reiterano le fasi precedenti.
 
@@ -89,15 +93,15 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
     const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
     
-    const agent = await getAgent(inputData, provider, resultSystemPrompt, tools);
+    const agent = await getAgent(inputData, provider, systemPrompt, tools);
     const result = await invokeAgent(agent, question!);
 
     const answer = result.messages[result.messages.length - 1].content;
     
     //si casta in string la risposta ricevuta dal content
-    let conversation = tailConversation(answer as string, resultQuestionPrompt, resultSystemPrompt);
+    tailConversation(answer as string, resultQuestionPrompt, resultSystemPrompt);
 
-    await commitConversation(noappendchat, keyconversation, conversation);
+    //await commitConversation(noappendchat, keyconversation, conversation);
     
     return answer;
 }

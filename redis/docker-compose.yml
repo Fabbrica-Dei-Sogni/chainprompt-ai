@@ -25,7 +25,7 @@ services:
       --bind 0.0.0.0
       --port 6379
     volumes:
-      - redis-data:/data
+      - chainprompt-ai-redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - chainprompt-support
@@ -48,7 +48,7 @@ services:
     ports:
       - "127.0.0.1:5640:5540"  # Porta web di RedisInsight accessibile su localhost:5540
     volumes:
-      - redisinsight-data:/db
+      - chainprompt-ai-redisinsight-data:/db
     networks:
       - chainprompt-support
     depends_on:
@@ -72,9 +72,9 @@ services:
         condition: service_healthy
 
 volumes:
-  redisinsight-data: 
+  chainprompt-ai-redisinsight-data: 
     driver: local
-  redis-data:
+  chainprompt-ai-redis-data:
     driver: local
     driver_opts:
       type: none

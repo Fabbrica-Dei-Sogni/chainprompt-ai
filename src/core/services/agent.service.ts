@@ -1,9 +1,7 @@
-import { ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate } from "@langchain/core/prompts";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "./llm-chain.service.js";
 import { DataRequest } from "../interfaces/datarequest.js";
-import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
 import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, providerStrategy, ReactAgent, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../logger.js';
