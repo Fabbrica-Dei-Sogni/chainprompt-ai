@@ -76,7 +76,7 @@ const handleToolErrors = createMiddleware({
  * @param tools 
  * @returns 
  */
-export async function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [new CybersecurityAPITool()]) {
+export async function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = []) {
 
     const { temperature, modelname, maxTokens, numCtx }: DataRequest = inputData;
 
