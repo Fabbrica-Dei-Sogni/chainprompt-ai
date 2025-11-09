@@ -53,7 +53,7 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
         
         console.log("Identificativo chiamante: ", identifier);
 
-        const inputData: DataRequest = extractDataFromRequest(data, context, identifier);
+        const inputData: DataRequest = extractDataFromRequest(data, context, identifier, true);
         //Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt dell'agente: " + systemPrompt);
@@ -94,7 +94,7 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
     const sessionchat = body.sessionchat;
     const session = sessionchat ? sessionchat : "defaultsession";
     let keyconversation = identifier + "_" + context + "_" + session;
-    
+
     if (isAgent)
         keyconversation = "agent" + "_" + keyconversation;
 
