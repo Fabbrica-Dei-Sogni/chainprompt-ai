@@ -8,7 +8,9 @@ import { handle, handleAgent } from '../services/llm-request-handler.service.js'
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../interfaces/requestbody.js";
 import '../../logger.js';
-import { getAnswerByClickbaitscore, getAnswerByThreatIntel } from "../agents/discovery-agent.js";
+import { Tool } from "@langchain/core/tools";
+import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
+import { ScrapingTool } from "../tools/scraping.tool.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -51,7 +53,7 @@ async function agentHandler(
   next: any,
   provider: LLMProvider,
   preprocessor: Preprocessor,
-  answerCallback: any,
+  tools: Tool[],
   contextchat: string,
   defaultParams?: Partial<DataRequest>
 ) {
@@ -70,7 +72,7 @@ async function agentHandler(
     //recupero del requestbody 
     let body = req.body as RequestBody;
 
-    const answer = await handleAgent(identifier, body, contextchat, provider, answerCallback);
+    const answer = await handleAgent(identifier, body, contextchat, provider, tools);
 
     res.json(answer);
   } catch (err) {
@@ -85,7 +87,7 @@ export const handleCyberSecurityAgent = (
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => agentHandler(req, res, next, provider, cyberSecurityPreprocessor, getAnswerByThreatIntel, 'threatintel');
+) => agentHandler(req, res, next, provider, cyberSecurityPreprocessor, [new CybersecurityAPITool()], 'threatintel');
 
 
 const cyberSecurityPreprocessor: Preprocessor = async (req) => {
@@ -103,7 +105,7 @@ export const handleClickbaitAgent = (
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, getAnswerByClickbaitscore, 'clickbaitscore');
+) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, [new ScrapingTool()], 'clickbaitscore');
 
 const clickbaitAgentPreprocessor: Preprocessor = async (req) => {
   try {

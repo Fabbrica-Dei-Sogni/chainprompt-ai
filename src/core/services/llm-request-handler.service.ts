@@ -7,6 +7,8 @@ import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToLLM } from './llm-middleware.service.js';
+import { getAgent, invokeAgent } from './agent.service.js';
+import { Tool } from '@langchain/core/tools';
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
@@ -47,7 +49,7 @@ export const handle = async (identifier: string, data: RequestBody, context: str
     }
 };
 
-export const handleAgent = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider, getAnswerByAgent: any): Promise<any> => {
+export const handleAgent = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider, tools: Tool[]): Promise<any> => {
     try {
         
         console.log("Identificativo chiamante: ", identifier);
@@ -56,7 +58,7 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
         //Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt dell'agente: " + systemPrompt);
-        const answer = getAnswerByAgent(inputData, systemPrompt, provider);
+        const answer = getAnswerByAgent(inputData, systemPrompt, provider, tools);
         
         return answer;
     } catch (err) {
@@ -65,6 +67,18 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 };
+
+export async function getAnswerByAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
+
+    const { question }: DataRequest = inputData;
+
+    const agent = await getAgent(inputData, provider, systemPrompt, tools);
+    const result = await invokeAgent(agent, question!);
+
+    const answer = result.messages[result.messages.length - 1].content;
+    console.log("Risposta dell'agente: " + answer);
+    return answer;
+}
 
 /**
  * Il metodo ha lo scopo di estrapolare dalla request entrante applicativa i valori di input tra cui il prompt utente, il nome del modello, la temperatura e altre informazioni peculiari,
@@ -110,7 +124,7 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
  * @param {string} contesto The context for which to retrieve the prompts.
  * @returns {Promise<string>} A Promise that resolves with the framework prompts as a string.
  */
-export const getFrameworkPrompts = async (contesto: string): Promise<string> => {
+const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };

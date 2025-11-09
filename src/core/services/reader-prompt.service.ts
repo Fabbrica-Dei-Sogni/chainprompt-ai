@@ -7,7 +7,7 @@ import '../../logger.js';
  * @returns {Promise<string>} A Promise that resolves with the file content as a string,
  * or rejects with an error if there's an issue reading the file.
  */
-export const readFileOrigin: (file: string) => Promise<string> = async (file: string) => {
+const readFileOrigin: (file: string) => Promise<string> = async (file: string) => {
     const content = await fsPromises.readFile(file, 'utf8');
     return content;
 };
@@ -19,7 +19,7 @@ export const readFileOrigin: (file: string) => Promise<string> = async (file: st
  * @returns {Promise<string>} A Promise that resolves with the text file content as a string,
  * or rejects with an error if there's an issue reading the file.
  */
-export const readFileAndSend: (fileToRead: string) => Promise<string> = async (
+const readFileAndSend: (fileToRead: string) => Promise<string> = async (
     fileToRead: string
 ) => {
     try {
