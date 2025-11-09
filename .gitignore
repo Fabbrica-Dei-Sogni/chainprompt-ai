@@ -5,3 +5,4 @@ conversations
 langsmith-apikey
 .npmrc
 dist
+redis/redis-data/dump.rdb
