@@ -21,8 +21,10 @@ export async function getAnswerByClickbaitscore(inputData: DataRequest, systemPr
     const agent = await getAgent(inputData, provider, systemPrompt, [new ScrapingTool()]);
     const result = await invokeAgent(agent, question!);
 
-    //return result.messages[result.messages.length - 1].content;
-    return result;
+    const answer = result.messages[result.messages.length - 1].content;
+    console.log("Risposta dell'agente: " + answer);
+    return answer;
+    //return result;
 }
 
 

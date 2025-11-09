@@ -68,19 +68,9 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
             provider);
 
 
-    const resultAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
-    console.log(`Risposta assistente:\n`, resultAssistantResponse);
+    let conversation = tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
 
-    //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
-    let conversation = `${resultQuestionPrompt}\n${resultAssistantResponse}\n`;
-    console.log(resultSystemPrompt + "\n" + conversation);
-    if (!noappendchat) {
-        appendAnswerHistoryConversation(keyconversation, conversation);
-    }
-
-
-    //Fase applicativa di salvataggio della conversazione corrente su un file system.
-    await writeObjectToFile(conversations, keyconversation);
+    await commitConversation(noappendchat, keyconversation, conversation);
 
     //Fase applicative che o reiterano le fasi precedenti.
 
@@ -90,6 +80,23 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return assistantResponse;
+}
+
+async function commitConversation(noappendchat: boolean | undefined, keyconversation: string, conversation: string) {
+    if (!noappendchat) {
+        appendAnswerHistoryConversation(keyconversation, conversation);
+    }
+    //Fase applicativa di salvataggio della conversazione corrente su un file system.
+    await writeObjectToFile(conversations, keyconversation);
+}
+
+function tailConversation(assistantResponse: string, resultQuestionPrompt: string, resultSystemPrompt: any) {
+    const formattedAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
+    console.log(`Risposta assistente:\n`, formattedAssistantResponse);
+    //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
+    let conversation = `${resultQuestionPrompt}\n${formattedAssistantResponse}\n`;
+    console.log(resultSystemPrompt + "\n" + conversation);
+    return conversation;
 }
 
 export function buildConversation(inputData: DataRequest, systemPrompt: string) {
