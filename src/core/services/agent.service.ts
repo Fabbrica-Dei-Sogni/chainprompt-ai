@@ -2,9 +2,10 @@ import { LLMProvider } from "../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "./llm-chain.service.js";
 import { DataRequest } from "../interfaces/datarequest.js";
-import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, providerStrategy, ReactAgent, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
+import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, providerStrategy, ReactAgent, summarizationMiddleware, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../logger.js';
+import { MemorySaver } from "@langchain/langgraph";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -67,6 +68,25 @@ const handleToolErrors = createMiddleware({
 });
 
 /**
+ * Metodo per eseguire un summary nativamente usando il modello supportato dal provider (lo stesso ma in futuro parametrizzabile)
+ * @param modelname 
+ * @returns 
+ */
+function createSummaryMemoryMiddleware(modelname: string, maxTokensBeforeSummary: number = 4000, messagesToKeep: number = 20) { 
+    const result = summarizationMiddleware({
+    model: modelname,
+    maxTokensBeforeSummary,
+    messagesToKeep,
+    });
+    
+    return result;
+};
+
+//https://docs.langchain.com/oss/javascript/langchain/short-term-memory
+//il checkpointer piu semplice definito in memory
+export const checkpointer = new MemorySaver();
+
+/**
  * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
  * @param inputData 
  * @param provider 
@@ -84,6 +104,7 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
 
     const llm = getInstanceLLM(provider, config);
     
+
     // Strategia per output strutturato generico
     const responseFormat = providerStrategy(genericAgentOutputSchema);
     
@@ -92,8 +113,13 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
         model: llm,
         tools,
         //contextSchema: contextSchema,
-        middleware: [handleToolErrors/*, dynamicSystemPrompt*/] as const,
+        middleware: [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/] as const,
         systemPrompt: systemPrompt,
+
+        //XXX: serve per inserire una short memory
+        //studiarne meglio il suo funzionamento e integrazione
+        checkpointer
+
         //solo su llm supportati
         //responseFormat
     });
@@ -101,11 +127,15 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
     return agent;
 }
 
-export async function invokeAgent(agent: ReactAgent, question: string) {
+export async function invokeAgent(agent: ReactAgent, question: string, sessionId : string) {
     try {
+
+        console.info("Identificativo " + sessionId + " sta interagendo con l'agente...");
         console.info("Invio richiesta all'agente: " + question);
+        
         const result = await agent.invoke(
             { messages: [{ role: "user", content: question }] },
+            { configurable: { thread_id: sessionId } }
             //{ context: { userRole: "expert" } }
         );
         

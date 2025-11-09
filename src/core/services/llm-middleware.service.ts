@@ -2,7 +2,7 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { buildConversation, commitConversation, tailConversation } from './conversation-storage.js';
+import { buildConversation, tailConversation } from './conversation-storage.js';
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { DataRequest } from "../interfaces/datarequest.js";
@@ -60,7 +60,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         temperature: temperature, modelname, maxTokens, numCtx, format
     };
     let prompt: ChainPromptBaseTemplate = {
-        systemprompt: systemPrompt as any, question: question as any
+        systemPrompt: systemPrompt as any, question: question as any
     };
 
     const assistantResponse = await executeByProvider
@@ -94,7 +94,7 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
 
     
     const agent = await getAgent(inputData, provider, systemPrompt, tools);
-    const result = await invokeAgent(agent, question!);
+    const result = await invokeAgent(agent, question!, keyconversation);
 
     const answer = result.messages[result.messages.length - 1].content;
     

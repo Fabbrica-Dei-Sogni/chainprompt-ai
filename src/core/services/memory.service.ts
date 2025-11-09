@@ -1,10 +1,9 @@
-import dotenv from "dotenv";
 import { Runnable, RunnableSequence, RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
-import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import { ChainPromptBaseTemplate, getPromptTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RedisChatMessageHistory } from "@langchain/redis";
 import { createClient, RedisClientType } from "redis";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -66,11 +65,9 @@ export async function logConversationHistory(sessionId: string) {
 }
 
 export async function getChainWithHistory(prompt: ChainPromptBaseTemplate, llm: Runnable, noappendchat: boolean | undefined, sessionId: string) {
-  const promptTemplate = ChatPromptTemplate.fromMessages([
-    ["system", prompt.systemprompt as any],
-    new MessagesPlaceholder("history"),
-    new MessagesPlaceholder("input"),
-  ]);
+  
+  const promptTemplate = getPromptTemplate(prompt.systemPrompt as any);
+  
   // Chain base: prompt | LLM | parser (sostituisce invokeChain)
   const baseChain = RunnableSequence.from([
     promptTemplate,
