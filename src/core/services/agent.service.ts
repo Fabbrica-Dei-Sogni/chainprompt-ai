@@ -128,8 +128,10 @@ export async function getAgent(inputData: DataRequest, provider: LLMProvider, sy
         //XXX: serve per inserire una short memory
         //studiarne meglio il suo funzionamento e integrazione
         checkpointer,
+        includeAgentName: "inline",
+        
 
-        stateSchema: customAgentState
+        //stateSchema: customAgentState
 
         //solo su llm supportati
         //responseFormat
