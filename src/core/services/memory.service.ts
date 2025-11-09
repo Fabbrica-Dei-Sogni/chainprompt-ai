@@ -1,11 +1,6 @@
 import dotenv from "dotenv";
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatOllama, Ollama } from "@langchain/ollama";
 import { Runnable, RunnableSequence, RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { ChainPromptBaseTemplate, CHAT_PROMPT } from "../interfaces/chainpromptbasetemplate.js";
-import { LLMProvider } from "../models/llmprovider.enum.js";
-import '../../logger.js';
+import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RedisChatMessageHistory } from "@langchain/redis";

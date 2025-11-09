@@ -54,7 +54,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
-    const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
+    //const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx, format
@@ -72,7 +72,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         );
 
 
-    tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
+    //tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
 
     //await commitConversation(noappendchat, keyconversation, conversation);
 
