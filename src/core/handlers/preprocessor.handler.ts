@@ -4,7 +4,7 @@ import { removeCheshireCatText } from "../agents/cheshire.agent.js";
 import { decodeBase64, scrapeArticle } from "../agents/clickbaitscore.agent.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { handle, handleAgent } from '../services/llm-request-handler.service.js';
+import { handleLLM, handleAgent } from '../services/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../interfaces/requestbody.js";
 import '../../logger.js';
@@ -14,7 +14,7 @@ import { ScrapingTool } from "../tools/scraping.tool.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
-async function genericHandler(
+async function llmHandler(
   req: any,
   res: any,
   next: any,
@@ -38,7 +38,7 @@ async function genericHandler(
     //recupero del requestbody 
     let body = req.body as RequestBody;
 
-    const answer = await handle(identifier, body, contextchat, provider);
+    const answer = await handleLLM(identifier, body, contextchat, provider);
 
     res.json(answer);
   } catch (err) {
@@ -214,28 +214,28 @@ export const handleClickbaitRequest = (
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => genericHandler(req, res, next, provider, clickbaitPreprocessor, 'clickbaitscore');
+) => llmHandler(req, res, next, provider, clickbaitPreprocessor, 'clickbaitscore');
 
 export const handleCheshireRequest = (
   req: any,
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => genericHandler(req, res, next, provider, cheshirePreprocessor, 'cheshirecat');
+) => llmHandler(req, res, next, provider, cheshirePreprocessor, 'cheshirecat');
 
 export const handleAnalisiCommentiRequest = (
   req: any,
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => genericHandler(req, res, next, provider, analisiCommentiPreprocessor, 'analisicommenti');
+) => llmHandler(req, res, next, provider, analisiCommentiPreprocessor, 'analisicommenti');
 
 export const handleCommonRequest = (
   req: any,
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => genericHandler(
+) => llmHandler(
   req,
   res,
   next,
