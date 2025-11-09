@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { DataRequest } from '../interfaces/datarequest.js';
 dotenv.config();
 
-export const CONVERSATIONS: Record<string, any> = {};
+const CONVERSATIONS: Record<string, any> = {};
 
 const conversationFolder = process.env.PATH_CONVERSATION || 'datasets/fileset/conversations';
 

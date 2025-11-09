@@ -89,7 +89,7 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
     const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
     
-    const agent = await getAgent(inputData, provider, systemPrompt, tools);
+    const agent = await getAgent(inputData, provider, resultSystemPrompt, tools);
     const result = await invokeAgent(agent, question!);
 
     const answer = result.messages[result.messages.length - 1].content;
