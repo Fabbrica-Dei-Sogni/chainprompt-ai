@@ -99,7 +99,5 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
 
     await commitConversation(noappendchat, keyconversation, conversation);
     
-    console.log("Risposta dell'agente: " + JSON.stringify(result));
-
     return answer;
 }
