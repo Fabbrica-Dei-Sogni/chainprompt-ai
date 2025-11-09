@@ -6,8 +6,7 @@ import { contextFolder } from './common.services.js';
 import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
-import { senderToLLM } from './llm-middleware.service.js';
-import { getAgent, invokeAgent } from './agent.service.js';
+import { senderToAgent, senderToLLM } from './llm-middleware.service.js';
 import { Tool } from '@langchain/core/tools';
 
 /**
@@ -68,17 +67,7 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
     }
 };
 
-export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
 
-    const { question }: DataRequest = inputData;
-
-    const agent = await getAgent(inputData, provider, systemPrompt, tools);
-    const result = await invokeAgent(agent, question!);
-
-    const answer = result.messages[result.messages.length - 1].content;
-    console.log("Risposta dell'agente: " + answer);
-    return answer;
-}
 
 /**
  * Il metodo ha lo scopo di estrapolare dalla request entrante applicativa i valori di input tra cui il prompt utente, il nome del modello, la temperatura e altre informazioni peculiari,
@@ -92,7 +81,7 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
  * @param context 
  * @returns 
  */
-function extractDataFromRequest(body: RequestBody, context: string, identifier: string): DataRequest {
+function extractDataFromRequest(body: RequestBody, context: string, identifier: string, isAgent: boolean = false): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     //Recupero della domanda dal campo question o dal campo text (standard cheshire)
@@ -104,7 +93,11 @@ function extractDataFromRequest(body: RequestBody, context: string, identifier: 
 
     const sessionchat = body.sessionchat;
     const session = sessionchat ? sessionchat : "defaultsession";
-    const keyconversation = identifier + "_" + context + "_" + session;
+    let keyconversation = identifier + "_" + context + "_" + session;
+    
+    if (isAgent)
+        keyconversation = "agent" + "_" + keyconversation;
+
     console.log("Avviata conversione con chiave : " + keyconversation);
 
     //    const keyconversation = ipAddress + "_" + context;

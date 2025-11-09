@@ -9,6 +9,8 @@ import { DataRequest } from "../interfaces/datarequest.js";
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../logger.js';
+import { getAgent, invokeAgent } from './agent.service.js';
+import { Tool } from 'langchain';
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
@@ -47,23 +49,23 @@ const executeByProvider = async (
 export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider,) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
-    const { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+    const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
     //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
     // Crea una nuova conversazione per questo indirizzo IP
     const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
     let config: ConfigChainPrompt = {
-        temperature: temperature, modelname, maxTokens, numCtx
+        temperature: temperature, modelname, maxTokens, numCtx, format
     };
     let prompt: ChainPromptBaseTemplate = {
         systemprompt: resultSystemPrompt, question: question as any
     };
 
     const assistantResponse = await executeByProvider
-        (config,
-            prompt,
-            provider);
+        (  config,
+           prompt,
+           provider);
 
 
     let conversation = tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
@@ -78,4 +80,26 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return assistantResponse;
+}
+
+export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
+
+    const { question, keyconversation, noappendchat }: DataRequest = inputData;
+
+    const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
+
+    
+    const agent = await getAgent(inputData, provider, systemPrompt, tools);
+    const result = await invokeAgent(agent, question!);
+
+    const answer = result.messages[result.messages.length - 1].content;
+    
+    //si casta in string la risposta ricevuta dal content
+    let conversation = tailConversation(answer as string, resultQuestionPrompt, resultSystemPrompt);
+
+    await commitConversation(noappendchat, keyconversation, conversation);
+    
+    console.log("Risposta dell'agente: " + JSON.stringify(result));
+
+    return answer;
 }

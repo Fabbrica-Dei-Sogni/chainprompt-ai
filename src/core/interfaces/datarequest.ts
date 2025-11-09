@@ -11,6 +11,8 @@ export interface DataRequest {
     temperature?: number;
     maxTokens?: number;
     numCtx?: number;
+    //parametro valido solo per il provider Ollama e ChatOllama
+    format?: string;
     //parametro introdotto per disabilitare l'append della conversazione.
     //cheshire ad esempio gestisce nativamente le conversazioni e non e' necessario, anzi sconsigliato, gestire l'append da chainprompt
     noappendchat?: boolean;

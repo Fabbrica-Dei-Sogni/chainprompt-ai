@@ -78,10 +78,10 @@ const handleToolErrors = createMiddleware({
  */
 export async function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = []) {
 
-    const { temperature, modelname, maxTokens, numCtx }: DataRequest = inputData;
+    const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
 
     let config: ConfigChainPrompt = {
-        temperature: temperature, modelname, maxTokens, numCtx
+        temperature: temperature, modelname, maxTokens, numCtx, format
     };
 
     const llm = getInstanceLLM(provider, config);

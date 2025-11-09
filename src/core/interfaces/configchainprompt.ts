@@ -13,6 +13,9 @@ export interface ConfigChainPrompt {
     repeatPenalty?: number;
     topP?: number;
 
+    //parametro valido solo per il provider Ollama e ChatOllama
+    format?: string;
+
     //XXX: parametri da capire e sperimentare
     keepAlive?: String;
     logitsAll?: boolean;

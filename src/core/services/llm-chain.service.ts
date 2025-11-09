@@ -130,6 +130,7 @@ const getChatOllamaLLM = (config: ConfigChainPrompt) => {
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
     model: config.modelname || process.env.LOCAL_MODEL_NAME,
     numCtx: config.numCtx,
+    format: config.format
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
     //numBatch: 512,
     //topK: 40,
@@ -152,6 +153,7 @@ const getOllamaLLM = (config: ConfigChainPrompt) => {
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
     model: config.modelname || process.env.LOCAL_MODEL_NAME,
     numCtx: config.numCtx,
+    format: config.format
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
     //numBatch: 512,
     //topK: 40,
