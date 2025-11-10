@@ -1,7 +1,7 @@
 import { NextFunction } from "express";
 import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { handleLLM } from '../../services/reasoning/llm-request-handler.service.js';
+import { extractDataFromRequest, handleLLM } from '../../services/reasoning/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../../interfaces/requestbody.js";
 import '../../../logger.js';
@@ -40,8 +40,9 @@ async function llmHandler(
     const identifier = requestIp.getClientIp(req)!;
     //recupero del requestbody 
     let body = req.body as RequestBody;
-
-    const answer = await handleLLM(identifier, body, context, provider);
+    const inputData: DataRequest = extractDataFromRequest(body, context, identifier, true);
+    
+    const answer = await handleLLM(identifier, inputData, context, provider);
 
     res.json(answer);
   } catch (err) {

@@ -2,13 +2,14 @@ import '../../../logger.js';
 import { NextFunction } from "express";
 import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { handleAgent } from '../../services/reasoning/llm-request-handler.service.js';
+import { extractDataFromRequest, handleAgent } from '../../services/reasoning/llm-request-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../../interfaces/requestbody.js";
 import { Tool } from "@langchain/core/tools";
 import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { ScrapingTool } from "../../tools/scraping.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor, defaultPreprocessor } from './preprocessor.js';
+import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -51,8 +52,15 @@ async function agentHandler(
     const identifier = requestIp.getClientIp(req)!;
     //recupero del requestbody 
     let body = req.body as RequestBody;
+    const inputData: DataRequest = extractDataFromRequest(body, context, identifier, true);
 
-    const answer = await handleAgent(identifier, body, context, provider, tools);
+    const { modelname }: DataRequest = inputData;
+    //middleware istanziato dall'handler.
+    //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
+    //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
+    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
+    
+    const answer = await handleAgent(identifier, inputData, context, provider, tools, middleware);
 
     res.json(answer);
   } catch (err) {

@@ -8,7 +8,7 @@ import '../../../logger.js';
 import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './llm-middleware.service.js';
 import { Tool } from '@langchain/core/tools';
-import { handleToolErrors, createSummaryMemoryMiddleware } from '../agents/middleware.service.js';
+import { AgentMiddleware } from 'langchain';
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
@@ -32,12 +32,11 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handleLLM = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider): Promise<any> => {
+export const handleLLM = async (identifier: string, inputData: DataRequest, context: string, provider: LLMProvider): Promise<any> => {
     try {
         
         console.log("Identificativo chiamante: ", identifier);
 
-        const inputData: DataRequest = extractDataFromRequest(data, context, identifier);
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         let answer = await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
         
@@ -59,22 +58,15 @@ export const handleLLM = async (identifier: string, data: RequestBody, context: 
  * @param tools 
  * @returns 
  */
-export const handleAgent = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider, tools: Tool[]): Promise<any> => {
+export const handleAgent = async (identifier: string, inputData: DataRequest, context: string, provider: LLMProvider, tools: Tool[], middleware : AgentMiddleware[]): Promise<any> => {
     try {
         
         console.log("Identificativo chiamante: ", identifier);
 
-        const inputData: DataRequest = extractDataFromRequest(data, context, identifier, true);
         //Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt dell'agente: " + systemPrompt);
         
-        const { modelname }: DataRequest = inputData;
-        //middleware istanziato dall'handler.
-        //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
-        //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-        const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
-
         const answer = senderToAgent(context, inputData, systemPrompt, provider, tools, middleware);
         
         return answer;
@@ -99,7 +91,7 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
  * @param context 
  * @returns 
  */
-function extractDataFromRequest(body: RequestBody, context: string, identifier: string, isAgent: boolean = false): DataRequest {
+export function extractDataFromRequest(body: RequestBody, context: string, identifier: string, isAgent: boolean = false): DataRequest {
     console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     //Recupero della domanda dal campo question o dal campo text (standard cheshire)
