@@ -1,7 +1,7 @@
-name: "suite-ai"
+name: "suite-ai-local"
 
 services:
-  chainprompt-ai-local:
+  chainprompt-ai:
     image: chainprompt-ai-local:${IMG_VERSION:-latest}
     container_name: chainprompt-ai-local
     build:
@@ -13,7 +13,7 @@ services:
     env_file:
       - ./.env.dev
     networks:
-      - network-chainprompt-docker-local
+      - network-chainprompt
     volumes:
       - ./:/usr/app
       - /usr/app/node_modules      
@@ -25,15 +25,15 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.plugins
-    #ports:
-      #- "5600:80"
+    ports:
+      - "5510:80"
     networks:
-      - network-chainprompt-docker-local      
+      - network-chainprompt      
     volumes:
       # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
       - ./plugins:/usr/share/nginx/html/plugins
     restart: always
 
 networks:
-  network-chainprompt-docker-local:
+  network-chainprompt:
     driver: bridge

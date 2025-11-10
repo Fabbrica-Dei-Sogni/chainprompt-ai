@@ -1,7 +1,7 @@
-name: "suite-ai"
+name: "suite-ai-collaudo"
 
 services:
-  chainprompt-ai-collaudo:
+  chainprompt-ai:
     image: chainprompt-ai-collaudo:${IMG_VERSION:-latest}
     container_name: chainprompt-ai-collaudo
     build:
@@ -12,7 +12,7 @@ services:
     env_file:
       - ./.env.collaudo
     networks:
-      - network-chainprompt-docker-collaudo
+      - network-chainprompt
     volumes:
       - ./:/usr/app
       - /usr/app/node_modules      
@@ -24,15 +24,15 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.plugins
-    #ports:
-      #- "127.0.0.1:5600:80"
+    ports:
+      - "127.0.0.1:5513:80"
     networks:
-      - network-chainprompt-docker-collaudo      
+      - network-chainprompt      
     volumes:
       # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
       - ./plugins:/usr/share/nginx/html/plugins
     restart: always
 
 networks:
-  network-chainprompt-docker-collaudo:
+  network-chainprompt:
     driver: bridge

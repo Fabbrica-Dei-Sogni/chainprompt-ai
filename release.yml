@@ -1,7 +1,7 @@
-name: "suite-ai"
+name: "suite-ai-release"
 
 services:
-  chainprompt-ai-release:
+  chainprompt-ai:
     image: chainprompt-ai-release:${IMG_VERSION:-latest}
     container_name: chainprompt-ai-release
     build:
@@ -12,27 +12,27 @@ services:
     env_file:
       - ./.env.release
     networks:
-      - network-chainprompt-docker-release
+      - network-chainprompt
     volumes:
       - ./:/usr/app
       - /usr/app/node_modules      
     entrypoint: ./entry-point.sh 
 
   chainprompt-plugins:
-    image: chainprompt-plugins:${IMG_VERSION:-latest}
+    image: chainprompt-plugins-release:${IMG_VERSION:-latest}
     container_name: chainprompt-plugins-release
     build:
       context: ./
       dockerfile: Dockerfile.plugins
-    #ports:
-      #- "127.0.0.1:5600:80"
+    ports:
+      - "127.0.0.1:5512:80"
     networks:
-      - network-chainprompt-docker-release      
+      - network-chainprompt      
     volumes:
       # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
       - ./plugins:/usr/share/nginx/html/plugins
     restart: always
 
 networks:
-  network-chainprompt-docker-release:
+  network-chainprompt:
     driver: bridge
