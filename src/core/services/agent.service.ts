@@ -56,7 +56,7 @@ function createSummaryMemoryMiddleware(modelname: string, maxTokensBeforeSummary
  * @param tools 
  * @returns 
  */
-export async function getAgent(context: string, inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = []) {
+export function getAgent(context: string, inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = []) {
 
     //step 0: recupera i dati necessari dal datarequest 
     const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;

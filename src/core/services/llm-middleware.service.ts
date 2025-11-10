@@ -20,7 +20,7 @@ import { Tool } from 'langchain';
  * @param provider 
  * @returns 
  */
-const executeByProvider = async (
+const invokeLLM = async (
     config: ConfigChainPrompt,
     prompt: ChainPromptBaseTemplate,
     provider: LLMProvider,
@@ -52,9 +52,8 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
-    //Fase di tracciamento dello storico di conversazione per uno specifico utente che ora e' identificato dal suo indirizzo ip
-    // Crea una nuova conversazione per questo indirizzo IP
-    //const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
+    console.log(`System prompt contestuale:\n`, systemPrompt);
+    console.log(`Question prompt utente:\n`, question);
 
     let config: ConfigChainPrompt = {
         temperature: temperature, modelname, maxTokens, numCtx, format
@@ -63,45 +62,34 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         systemPrompt: systemPrompt as any, question: question as any
     };
 
-    const assistantResponse = await executeByProvider
+    const answer = await invokeLLM
         (  config,
            prompt,
            provider,
            keyconversation,
            noappendchat
         );
-
-
-    //tailConversation(assistantResponse, resultQuestionPrompt, resultSystemPrompt);
-
-    //await commitConversation(noappendchat, keyconversation, conversation);
-
-    //Fase applicative che o reiterano le fasi precedenti.
-
-    //XXX: ciascuna fase dopo il recupero della risposta è a discrezione delle scelte progettuali applicative in cui scegliere lo strumento migliore per manipolare la risposta.
-    //Questi aspetti saranno cruciali e potrebbero evolversi in componenti che potrebbero essere di dominio ad altre componenti.
+    console.log(`Risposta assistente:\n`, answer);
 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
-    return assistantResponse;
+    return answer;
 }
 
 export async function senderToAgent(context: string, inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
 
     const { question, keyconversation }: DataRequest = inputData;
 
-    const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
+    console.log(`System prompt contestuale:\n`, systemPrompt);
+    console.log(`Question prompt utente:\n`, question);
 
     //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
-    const agent = await getAgent(context, inputData, provider, systemPrompt, tools);
-    const result = await invokeAgent(agent, question!, keyconversation);
+    const result = await invokeAgent(
+        getAgent(context, inputData, provider, systemPrompt, tools),
+        question!, keyconversation);
 
     const answer = result.messages[result.messages.length - 1].content;
-    
-    //si casta in string la risposta ricevuta dal content
-    tailConversation(answer as string, resultQuestionPrompt, resultSystemPrompt);
+    console.log(`Risposta agente:\n`, answer);
 
-    //await commitConversation(noappendchat, keyconversation, conversation);
-    
     return answer;
 }
