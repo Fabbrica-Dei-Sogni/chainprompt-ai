@@ -15,7 +15,8 @@ services:
     networks:
       - network-chainprompt-docker
     volumes:
-      - ./src/datasets/conversations:/app/datasets/conversations
+      #le conversazioni sono gestite da redis e non piu su file system
+      #- ./src/datasets/conversations:/app/datasets/conversations
       - ./:/usr/app
       - /usr/app/node_modules      
     entrypoint: ./entry-point.sh 
