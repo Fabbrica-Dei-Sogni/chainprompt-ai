@@ -48,7 +48,7 @@ services:
     ports:
       - "127.0.0.1:5640:5540"  # Porta web di RedisInsight accessibile su localhost:5540
     volumes:
-      - chainprompt-ai-redisinsight-data:/db
+      - chainprompt-ai-redisinsight-data:/data/
     networks:
       - chainprompt-support
     depends_on:
@@ -74,6 +74,10 @@ services:
 volumes:
   chainprompt-ai-redisinsight-data: 
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./redisinsight-data    
   chainprompt-ai-redis-data:
     driver: local
     driver_opts:

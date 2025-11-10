@@ -6,3 +6,5 @@ langsmith-apikey
 .npmrc
 dist
 redis/redis-data/dump.rdb
+redis/redisinsight-data/*
+
