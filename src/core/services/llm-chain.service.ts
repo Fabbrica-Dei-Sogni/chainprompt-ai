@@ -1,4 +1,4 @@
-import { ChatOpenAI } from "@langchain/openai";
+import { AzureChatOpenAI, ChatOpenAI } from "@langchain/openai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
 import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
@@ -78,7 +78,7 @@ export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt)
 
   switch (provider) {
     case LLMProvider.OpenAICloud:
-      instance = getCloudLLM(config);
+      instance = getOpenAICloudLLM(config);
       break;
     case LLMProvider.OpenAILocal:
       instance = getLocalLLM(config);
@@ -89,6 +89,9 @@ export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt)
     case LLMProvider.ChatOllama:
       instance = getChatOllamaLLM(config);
       break;
+    case LLMProvider.AzureOpenAiCloud:
+      instance = getAzureOpenAICloudLLM(config);
+      break;
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
@@ -96,7 +99,24 @@ export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt)
 };
 
 
-const getCloudLLM = (config: ConfigChainPrompt) => {
+const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
+
+  const llm = new AzureChatOpenAI({
+    maxTokens: config.maxTokens,
+    apiKey: process.env.OPENAI_API_KEY,
+    temperature: config.temperature,
+    modelName: config.modelname || process.env.LOCAL_MODEL_NAME,    
+    /**
+    il cast forzato a runnable in questa forma
+    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+     */
+  }) as unknown as Runnable;
+
+  return llm;
+
+};
+
+const getOpenAICloudLLM = (config: ConfigChainPrompt) => {
 
   const llm = new ChatOpenAI({
     maxTokens: config.maxTokens,
