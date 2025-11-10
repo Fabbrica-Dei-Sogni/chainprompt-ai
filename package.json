@@ -1,6 +1,6 @@
 {
   "name": "chainprompt-ai",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Un applicazione server scritta in typescript con express e langchain per realizzare interessanti applicazioni prompt oriented.",
   "main": "server.js",
   "type": "module",
