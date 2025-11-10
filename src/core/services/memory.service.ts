@@ -64,9 +64,9 @@ export async function logConversationHistory(sessionId: string) {
   });
 }
 
-export async function getChainWithHistory(prompt: ChainPromptBaseTemplate, llm: Runnable, noappendchat: boolean | undefined, sessionId: string) {
+export async function getChainWithHistory(systemPrompt: any, llm: Runnable, noappendchat: boolean | undefined, sessionId: string) {
   
-  const promptTemplate = getPromptTemplate(prompt.systemPrompt as any);
+  const promptTemplate = getPromptTemplate(systemPrompt);
   
   // Chain base: prompt | LLM | parser (sostituisce invokeChain)
   const baseChain = RunnableSequence.from([

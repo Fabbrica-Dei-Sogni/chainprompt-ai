@@ -30,7 +30,7 @@ export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate
   try {
 
     //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
-    const chainWithHistory = await getChainWithHistory(prompt, llm, noappendchat, sessionId);
+    const chainWithHistory = await getChainWithHistory(prompt.systemPrompt, llm, noappendchat, sessionId);
 
     // Input per invocazione
     const input = { input: prompt.question };
