@@ -1,8 +1,8 @@
 import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { handleCyberSecurityAgent } from "../handlers/preprocessor.handler.js";
 import '../../logger.js';
+import { handleCyberSecurityAgent } from "../handlers/agents/handler.js";
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.

@@ -1,6 +1,5 @@
 import { PromptTemplate } from "@langchain/core/prompts";
 import { OpenAI } from "@langchain/openai";
-import { LLMChain } from "langchain/chains";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -21,7 +20,7 @@ export const generateFunctionWithLanguage = async (params: GenerateFunctionWithL
         apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const llm = new LLMChain({
+    /*const llm = new LLMChain({
         llm: openAi,
         prompt: codePrompt,
         outputKey: "code",
@@ -30,6 +29,6 @@ export const generateFunctionWithLanguage = async (params: GenerateFunctionWithL
     return llm.call({
         language: params.language,
         task: params.task,
-    });
+    });*/
 
 };

@@ -31,9 +31,9 @@ app.use(bodyParser.urlencoded({ limit: '900mb', extended: false }));
 const apiversion = "/api/v1";
 console.log(`Versione api rest : ${apiversion}`);
 app.use(apiversion, api);
-console.log(`Importing api completed!`);
 
 const server: http.Server = http.createServer(app);
 console.log(`HTTP server created!`);
 
-server.listen(port, () => console.log(`${nameAssistant} avviato sulla porta:${port}`));
+server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`);});
+

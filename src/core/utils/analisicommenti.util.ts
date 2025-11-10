@@ -19,7 +19,7 @@ export interface YouTubeComment {
 
 
 // Funzione di formattazione avanzata
-function formatCommentsForPrompt(comments: YouTubeComment[]): string {
+export function formatCommentsForPrompt(comments: YouTubeComment[]): string {
     let prompt = "=== INIZIO COMMENTI YOUTUBE ===\n\n";
 
     comments.forEach((comment, index) => {
@@ -35,7 +35,3 @@ function formatCommentsForPrompt(comments: YouTubeComment[]): string {
     prompt += "=== FINE COMMENTI YOUTUBE ===";
     return prompt;
 }
-
-export {
-    formatCommentsForPrompt
-};

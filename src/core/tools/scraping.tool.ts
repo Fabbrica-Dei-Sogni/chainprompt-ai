@@ -1,5 +1,5 @@
 import { Tool } from "@langchain/core/tools";
-import { scrapeArticle } from "../agents/clickbaitscore.agent.js";
+import { scrapeArticle } from "../utils/clickbaitscore.util.js";
 
 // Tool che usa la funzione di scraping
 export class ScrapingTool extends Tool {

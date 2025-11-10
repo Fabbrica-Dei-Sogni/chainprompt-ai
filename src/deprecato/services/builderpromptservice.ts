@@ -1,4 +1,4 @@
-import { readFileAndConcat } from '../../core/services/reader-prompt.service.js';
+import { readFileAndConcat } from '../../core/services/business/reader-prompt.service.js';
 import { uriFisso, contextFolder } from '../../core/services/common.services.js';
 
 /**

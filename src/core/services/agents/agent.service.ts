@@ -1,10 +1,10 @@
-import { LLMProvider } from "../models/llmprovider.enum.js";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { getInstanceLLM } from "./llm-chain.service.js";
-import { DataRequest } from "../interfaces/datarequest.js";
-import { createAgent, createMiddleware, dynamicSystemPromptMiddleware, ReactAgent, summarizationMiddleware, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
+import { LLMProvider } from "../../models/llmprovider.enum.js";
+import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
+import { getInstanceLLM } from "../reasoning/llm-chain.service.js";
+import { DataRequest } from "../../interfaces/datarequest.js";
+import { AgentMiddleware, createAgent, createMiddleware, dynamicSystemPromptMiddleware, ReactAgent, summarizationMiddleware, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
-import '../../logger.js';
+import '../../../logger.js';
 import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
@@ -15,38 +15,7 @@ import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
 export const checkpointer = new MemorySaver();
 
 
-/**
- * Gestione errore dei tool
- */
-const handleToolErrors = createMiddleware({
-    name: "HandleToolErrors",
-    wrapToolCall: (request, handler) => {
-        try {
-            return handler(request);
-        } catch (error) {
-            // Return a custom error message to the model
-            return new ToolMessage({
-                content: `Tool error: Please check your input and try again. (${error})`,
-                tool_call_id: request.toolCall.id!,
-            });
-        }
-    },
-});
 
-/**
- * Metodo per eseguire un summary nativamente usando il modello supportato dal provider (lo stesso ma in futuro parametrizzabile)
- * @param modelname 
- * @returns 
- */
-function createSummaryMemoryMiddleware(modelname: string, maxTokensBeforeSummary: number = 4000, messagesToKeep: number = 20) {
-    const result = summarizationMiddleware({
-        model: modelname,
-        maxTokensBeforeSummary,
-        messagesToKeep,
-    });
-
-    return result;
-};
 
 /**
  * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
@@ -56,7 +25,7 @@ function createSummaryMemoryMiddleware(modelname: string, maxTokensBeforeSummary
  * @param tools 
  * @returns 
  */
-export function getAgent(context: string, inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = []) {
+export function getAgent(context: string, inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] ) {
 
     //step 0: recupera i dati necessari dal datarequest 
     const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
@@ -77,7 +46,7 @@ export function getAgent(context: string, inputData: DataRequest, provider: LLMP
         tools,
         name,
         description,
-        middleware: [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/] as const,
+        middleware,//: [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/] as const,
         systemPrompt: systemPrompt,
         //XXX: serve per inserire una short memory
         //studiarne meglio il suo funzionamento e integrazione

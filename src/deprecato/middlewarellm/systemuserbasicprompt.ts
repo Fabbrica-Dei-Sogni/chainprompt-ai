@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
 import { Ollama } from "@langchain/ollama";
 import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
-import { retrieveAndAskPrompt } from "./ragtier/documentretrieves.js";
 import { Runnable } from "@langchain/core/runnables";
 dotenv.config();
 
@@ -50,7 +49,7 @@ const generateCloudLLMWithSystemuserBasicPrompt = async (config: ConfigChainProm
     });*/
 
     const answer = await llmChain.invoke({
-        systemprompt: prompt.systemprompt,
+        systemprompt: prompt.systemPrompt,
         question: prompt.question,
     });
     return answer;
@@ -87,7 +86,7 @@ const generateLocalLLMWithSystemuserBasicPrompt = async (config: ConfigChainProm
         prompt: completePrompt,
     });*/
     const answer = await llmChain.invoke({
-        systemprompt: prompt.systemprompt,
+        systemprompt: prompt.systemPrompt,
         question: prompt.question,
     });
     return answer;
@@ -136,37 +135,10 @@ const generateOllamaLLMWithSystemuserBasicPrompt = async (config: ConfigChainPro
     const llmChain = chatprompt.pipe(llm);
 
     const answer = await llmChain.invoke({
-        systemprompt: prompt.systemprompt,
+        systemprompt: prompt.systemPrompt,
         question: prompt.question,
     });
     return answer;
 
 };
-
-/**
- * Metodo per generare la risposta a partire da un retrieve RAG
- * @param context 
- * @param config 
- * @param prompt 
- * @returns
- * @deprecated
-  */
-const generateOllamaByRAG = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
-
-    let answer = await retrieveAndAskPrompt(context, config, prompt);
-    console.log("Risposta generata:", answer);
-    return answer;
-}
-
-/**
- * Metodo per ottenere una risposta attraverso una interrogazione RAG oriented
- * @deprecated
- * @param context 
- * @param config 
- * @param prompt 
- * @returns 
- */
-export const getAnswerRAGOllamaLLM = async (context: string, config: ConfigChainPrompt, prompt: ChainPromptBaseTemplate) => {
-    return await generateOllamaByRAG(context, config, prompt);
-}
 

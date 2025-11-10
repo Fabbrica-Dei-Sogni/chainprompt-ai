@@ -7,7 +7,7 @@ const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
 import fs from 'fs';
 import { providerRoutes } from "../routes/provider.routes.js";
-import { handleCheshireRequest } from "../handlers/preprocessor.handler.js";
+import { handleCheshireRequest } from "../handlers/llms/handler.js";
 import '../../logger.js';
 
 const contexts = fs.readdirSync(contextFolder);

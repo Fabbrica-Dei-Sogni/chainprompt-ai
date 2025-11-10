@@ -1,6 +1,6 @@
 import fs from 'fs';
 import dotenv from "dotenv";
-import { DataRequest } from '../interfaces/datarequest.js';
+import { DataRequest } from '../../core/interfaces/datarequest.js';
 dotenv.config();
 
 //XXX: questo approccio è una soluzione temporanea che verrà sostituita da una soluzione piu moderna e in linea con le logiche llm
@@ -8,8 +8,13 @@ const CONVERSATIONS: Record<string, any> = {};
 
 const conversationFolder = process.env.PATH_CONVERSATION || 'src/datasets/conversations';
 
-
-export async function commitConversation(noappendchat: boolean | undefined, keyconversation: string, conversation: string) {
+/**
+ * @deprecated
+ * @param noappendchat 
+ * @param keyconversation 
+ * @param conversation 
+ */
+async function commitConversation(noappendchat: boolean | undefined, keyconversation: string, conversation: string) {
     if (!noappendchat) {
         appendAnswerHistoryConversation(keyconversation, conversation);
     }
@@ -17,7 +22,14 @@ export async function commitConversation(noappendchat: boolean | undefined, keyc
     await writeObjectToFile(CONVERSATIONS, keyconversation);
 }
 
-export function tailConversation(assistantResponse: string, resultQuestionPrompt: string, resultSystemPrompt: any) {
+/**
+ * @deprecated
+ * @param assistantResponse 
+ * @param resultQuestionPrompt 
+ * @param resultSystemPrompt 
+ * @returns 
+ */
+function tailConversation(assistantResponse: string, resultQuestionPrompt: string, resultSystemPrompt: any) {
     const formattedAssistantResponse = `<| start_header_id |>assistant <| end_header_id |> ${assistantResponse}<| eot_id |>`;
     console.log(`Risposta assistente:\n`, formattedAssistantResponse);
     //Fase in cui si processa la risposta e in questo caso si accoda la risposta allo storico conversazione
@@ -26,7 +38,14 @@ export function tailConversation(assistantResponse: string, resultQuestionPrompt
     return conversation;
 }
 
-export function buildConversation(inputData: DataRequest, systemPrompt: string) {
+/**
+ * 
+ * @deprecated
+ * @param inputData 
+ * @param systemPrompt 
+ * @returns 
+ */
+function buildConversation(inputData: DataRequest, systemPrompt: string) {
     
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);

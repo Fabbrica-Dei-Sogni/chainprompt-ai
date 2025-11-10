@@ -2,15 +2,16 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { buildConversation, tailConversation } from './conversation-storage.js';
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { ChainPromptBaseTemplate } from "../interfaces/chainpromptbasetemplate.js";
-import { DataRequest } from "../interfaces/datarequest.js";
-import { LLMProvider } from '../models/llmprovider.enum.js';
+import { buildConversation, tailConversation } from '../../../deprecato/services/conversation-storage.js';
+import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
+import { ChainPromptBaseTemplate } from "../../interfaces/chainpromptbasetemplate.js";
+import { DataRequest } from "../../interfaces/datarequest.js";
+import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
-import '../../logger.js';
-import { getAgent, invokeAgent } from './agent.service.js';
-import { Tool } from 'langchain';
+import '../../../logger.js';
+import { getAgent, invokeAgent } from '../agents/agent.service.js';
+import { AgentMiddleware, Tool } from 'langchain';
+import { createSummaryMemoryMiddleware, handleToolErrors } from '../agents/middleware.service.js';
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
@@ -76,7 +77,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
-export async function senderToAgent(context: string, inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
+export async function senderToAgent(context: string, inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware : AgentMiddleware[] ) { 
 
     const { question, keyconversation }: DataRequest = inputData;
 
@@ -85,7 +86,7 @@ export async function senderToAgent(context: string, inputData: DataRequest, sys
 
     //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
     const result = await invokeAgent(
-        getAgent(context, inputData, provider, systemPrompt, tools),
+        getAgent(context, inputData, provider, systemPrompt, tools, middleware),
         question!, keyconversation);
 
     const answer = result.messages[result.messages.length - 1].content;

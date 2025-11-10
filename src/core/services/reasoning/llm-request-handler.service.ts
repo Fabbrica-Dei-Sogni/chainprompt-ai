@@ -1,13 +1,14 @@
 
-import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from './common.services.js';
-import { DataRequest } from "../interfaces/datarequest.js";
-import { readFileAndConcat } from './reader-prompt.service.js';
-import { contextFolder } from './common.services.js';
-import { RequestBody } from '../interfaces/requestbody.js';
-import '../../logger.js';
-import { LLMProvider } from '../models/llmprovider.enum.js';
+import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../common.services.js';
+import { DataRequest } from "../../interfaces/datarequest.js";
+import { readFileAndConcat } from '../business/reader-prompt.service.js';
+import { contextFolder } from '../common.services.js';
+import { RequestBody } from '../../interfaces/requestbody.js';
+import '../../../logger.js';
+import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './llm-middleware.service.js';
 import { Tool } from '@langchain/core/tools';
+import { handleToolErrors, createSummaryMemoryMiddleware } from '../agents/middleware.service.js';
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
@@ -48,6 +49,16 @@ export const handleLLM = async (identifier: string, data: RequestBody, context: 
     }
 };
 
+/**
+ * 
+ 
+ * @param identifier 
+ * @param data 
+ * @param context 
+ * @param provider 
+ * @param tools 
+ * @returns 
+ */
 export const handleAgent = async (identifier: string, data: RequestBody, context: string, provider: LLMProvider, tools: Tool[]): Promise<any> => {
     try {
         
@@ -57,7 +68,14 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
         //Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt dell'agente: " + systemPrompt);
-        const answer = senderToAgent(context, inputData, systemPrompt, provider, tools);
+        
+        const { modelname }: DataRequest = inputData;
+        //middleware istanziato dall'handler.
+        //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
+        //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
+        const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
+
+        const answer = senderToAgent(context, inputData, systemPrompt, provider, tools, middleware);
         
         return answer;
     } catch (err) {

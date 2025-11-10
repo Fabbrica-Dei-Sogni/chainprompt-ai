@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { handleAnalisiCommentiRequest } from "../handlers/preprocessor.handler.js";
+import { handleAnalisiCommentiRequest } from "../handlers/llms/handler.js";
 import '../../logger.js';
 
 /**
