@@ -57,7 +57,7 @@ export const handleAgent = async (identifier: string, data: RequestBody, context
         //Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt dell'agente: " + systemPrompt);
-        const answer = senderToAgent(inputData, systemPrompt, provider, tools);
+        const answer = senderToAgent(context, inputData, systemPrompt, provider, tools);
         
         return answer;
     } catch (err) {

@@ -86,14 +86,14 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return assistantResponse;
 }
 
-export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
+export async function senderToAgent(context: string, inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[]) { 
 
-    const { question, keyconversation, noappendchat }: DataRequest = inputData;
+    const { question, keyconversation }: DataRequest = inputData;
 
     const { resultQuestionPrompt, resultSystemPrompt } = buildConversation(inputData, systemPrompt);
 
-    
-    const agent = await getAgent(inputData, provider, systemPrompt, tools);
+    //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
+    const agent = await getAgent(context, inputData, provider, systemPrompt, tools);
     const result = await invokeAgent(agent, question!, keyconversation);
 
     const answer = result.messages[result.messages.length - 1].content;
