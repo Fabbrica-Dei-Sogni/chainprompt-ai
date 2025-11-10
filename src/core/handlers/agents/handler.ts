@@ -2,7 +2,7 @@ import '../../../logger.js';
 import { NextFunction } from "express";
 import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { extractDataFromRequest, handleAgent } from '../../services/reasoning/llm-handler.service.js';
+import { getDataRequest, handleAgent } from '../../services/reasoning/llm-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../../interfaces/requestbody.js";
 import { Tool } from "@langchain/core/tools";
@@ -38,21 +38,19 @@ async function agentHandler(
 ) {
   try {
 
-    if (next)
-      console.log(next);
     //in questa fase il body puo avere parametri che non sono contemplati nel tipo RequestBody, ma che sono utilizzati dalla fase di proprocessing del tema dedicato.
     //si vuole lasciare libertà di input tra le fasi di preparazione del prompt di un chat tematico dalla fase di interrogazione llm
     await preprocessor(req);
-
-    // Applica i parametri di default che mancano
+    // Applica i parametri di default che mancano. attualmente è ininfluente
     Object.assign(req.body, defaultParams);
-
+    let body = req.body as RequestBody;
     //dopo il preprocessing per il tema dedicato vengono recuperati l'identificativo, in questo caso l'ip address del chiamante, e il body ricevuto dagli endpoint applicativi che sono a norma per una interrogazione llm
     //recupero identificativo chiamante, in questo caso l'ip address
     const identifier = requestIp.getClientIp(req)!;
+    console.log("Identificativo chiamante: ", identifier);
     //recupero del requestbody 
-    let body = req.body as RequestBody;
-    const inputData: DataRequest = extractDataFromRequest(body, context, identifier, true);
+    const inputData: DataRequest = getDataRequest(body, context, identifier, true);
+
 
     const { modelname }: DataRequest = inputData;
     //middleware istanziato dall'handler.
@@ -60,7 +58,7 @@ async function agentHandler(
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
     
-    const answer = await handleAgent(identifier, inputData, context, provider, tools, middleware);
+    const answer = await handleAgent(inputData, context, provider, tools, middleware);
 
     res.json(answer);
   } catch (err) {

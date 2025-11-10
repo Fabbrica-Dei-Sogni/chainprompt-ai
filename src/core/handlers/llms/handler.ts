@@ -1,7 +1,7 @@
 import { NextFunction } from "express";
 import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { extractDataFromRequest, handleLLM } from '../../services/reasoning/llm-handler.service.js';
+import { getDataRequest, handleLLM } from '../../services/reasoning/llm-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../../interfaces/requestbody.js";
 import '../../../logger.js';
@@ -25,24 +25,21 @@ async function llmHandler(
 ) {
   try {
 
-    if (next)
-      console.log(next);
-
     //in questa fase il body puo avere parametri che non sono contemplati nel tipo RequestBody, ma che sono utilizzati dalla fase di proprocessing del tema dedicato.
     //si vuole lasciare libertà di input tra le fasi di preparazione del prompt di un chat tematico dalla fase di interrogazione llm
     await preprocessor(req);
-
-    // Applica i parametri di default che mancano
+    // Applica i parametri di default che mancano. attualmente è ininfluente
     Object.assign(req.body, defaultParams);
-
+    let body = req.body as RequestBody;
     //dopo il preprocessing per il tema dedicato vengono recuperati l'identificativo, in questo caso l'ip address del chiamante, e il body ricevuto dagli endpoint applicativi che sono a norma per una interrogazione llm
     //recupero identificativo chiamante, in questo caso l'ip address
     const identifier = requestIp.getClientIp(req)!;
-    //recupero del requestbody 
-    let body = req.body as RequestBody;
-    const inputData: DataRequest = extractDataFromRequest(body, context, identifier, true);
-    
-    const answer = await handleLLM(identifier, inputData, context, provider);
+    console.log("Identificativo chiamante: ", identifier);
+    //recupero del requestbody
+    const inputData: DataRequest = getDataRequest(body, context, identifier, true);
+
+
+    const answer = await handleLLM(inputData, context, provider);
 
     res.json(answer);
   } catch (err) {
