@@ -1,14 +1,16 @@
 
-import { SYSTEMPROMPT_DFL, ENDPOINT_CHATGENERICA } from '../common.services.js';
-import { DataRequest } from "../../interfaces/datarequest.js";
-import { readFileAndConcat } from '../business/reader-prompt.service.js';
-import { contextFolder } from '../common.services.js';
-import { RequestBody } from '../../interfaces/requestbody.js';
-import '../../../logger.js';
-import { LLMProvider } from '../../models/llmprovider.enum.js';
-import { senderToAgent, senderToLLM } from './llm-sender.service.js';
+import { DataRequest } from "../interfaces/datarequest.js";
+import { readFileAndConcat } from './business/reader-prompt.service.js';
+import { contextFolder, ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from './common.services.js';
+import { RequestBody } from '../interfaces/requestbody.js';
+import '../../logger.js';
+import { LLMProvider } from '../models/llmprovider.enum.js';
+import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
 import { Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
+import * as requestIp from 'request-ip';
+
+export type Preprocessor = (req: any) => Promise<void>;
 
 /**
     Handler che estrae i dati dalla request e li prepara per l'invio al wrapper llm
@@ -32,12 +34,9 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handleLLM = async (inputData: DataRequest, context: string, provider: LLMProvider): Promise<any> => {
+export const handleLLM = async (systemPrompt: string, inputData: DataRequest, context: string, provider: LLMProvider): Promise<any> => {
     try {
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        let answer = await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
-
-        return answer;
+        return await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la conversazione:', err);
         throw err;
@@ -55,15 +54,9 @@ export const handleLLM = async (inputData: DataRequest, context: string, provide
  * @param tools 
  * @returns 
  */
-export const handleAgent = async (inputData: DataRequest, context: string, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[]): Promise<any> => {
+export const handleAgent = async (systemPrompt: string, inputData: DataRequest, context: string, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[]): Promise<any> => {
     try {
-        //Recupero del systemprompt dalla logica esistente
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        console.log("System prompt dell'agente: " + systemPrompt);
-
-        const answer = senderToAgent(context, inputData, systemPrompt, provider, tools, middleware);
-
-        return answer;
+        return senderToAgent(context, inputData, systemPrompt, provider, tools, middleware);
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', err);
         throw err;
@@ -72,12 +65,35 @@ export const handleAgent = async (inputData: DataRequest, context: string, provi
 };
 
 /**
+ * Recupera i dati dalla request entrante, l'identificatore della richiesta
+ quindi il system prompt in base al contesto richiesto.
+ fornisce anche la chiave di conversazione usata per l'interazione con l'llm o l'agente
+ * @param req 
+ * @param context 
+ * @returns 
+ */
+export async function getData(req: any, context: string) {
+  let body = req.body as RequestBody;
+  //Recupero del systemprompt dalla logica esistente
+  const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+  console.log("System prompt dell'agente: " + systemPrompt);
+  //dopo il preprocessing per il tema dedicato vengono recuperati l'identificativo, in questo caso l'ip address del chiamante, e il body ricevuto dagli endpoint applicativi che sono a norma per una interrogazione llm
+  //recupero identificativo chiamante, in questo caso l'ip address
+  const identifier = requestIp.getClientIp(req)!;
+  console.log("Identificativo chiamante: ", identifier);
+  //recupero del requestbody
+  const inputData: DataRequest = getDataRequest(body, context, identifier, true);
+  return { systemPrompt, inputData };
+}
+
+/**
  * Retrieves the framework prompts for the specified context.
  *
+ Il system prompt è generato a partire dalla composizione dei file presenti nelle sotto cartelle di dataset/fileset
  * @param {string} contesto The context for which to retrieve the prompts.
  * @returns {Promise<string>} A Promise that resolves with the framework prompts as a string.
  */
-const getFrameworkPrompts = async (contesto: string): Promise<string> => {
+export const getFrameworkPrompts = async (contesto: string): Promise<string> => {
     const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };

@@ -1,8 +1,7 @@
+import { Preprocessor } from "../../services/handler.service.js";
 import { YouTubeComment, formatCommentsForPrompt } from "../../utils/analisicommenti.util.js";
 import { removeCheshireCatText } from "../../utils/cheshire.util.js";
 import { decodeBase64, scrapeArticle } from "../../utils/clickbaitscore.util.js";
-
-export type Preprocessor = (req: any) => Promise<void>;
 
 /**
  * 
