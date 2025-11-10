@@ -6,7 +6,10 @@ services:
     container_name: chainprompt-ai-release
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.release
+      args:
+        NPM_VERSION: ${NPM_VERSION_CHAINPROMPT:-1.0.2}  
+        NPM_REGISTRY_URI: ${NPM_REGISTRY_URI:-http://alessandromodica.com:8081/repository/npm-cloud-pubblico/}       
     ports:
       - "127.0.0.1:5502:5000"
     env_file:

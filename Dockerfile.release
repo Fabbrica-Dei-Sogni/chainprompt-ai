@@ -1,0 +1,33 @@
+### STAGE 1: Build ###
+# Usa un'immagine di Node.js come base
+FROM node:20.11.0-alpine3.18 AS build
+# Setta il work directory all'interno del container
+
+#XXX: bisogna sempre dichiarare l'argomento prima di usarlo
+ARG NPM_VERSION
+ARG NPM_REGISTRY_URI
+
+WORKDIR /usr/src/app
+
+# Upgrade packages
+RUN apk --no-cache --update --available upgrade
+RUN apk --no-cache add --virtual builds-deps build-base python3
+RUN apk add --no-cache make gcc g++
+
+#il file .npmrc e' autogenerato da npm nel momento in cui si fa la login col comando npm login --registry=uriregistry
+#la login scrive l'authtoken in questo file nascosto. se copiato nel docker in questo modo, permette di loggare al registro.
+#tenere in considerazione che questo file non puo essere committato quindi e' ignorato. e bisogna replicare un giro su jenkins senza salvare il token in chiaro
+COPY .npmrc /root/
+
+#procedura standard per fornire una compilazione all'interno del container
+COPY package.json package-lock.json ./
+RUN npm install
+RUN npm install chainprompt-ai@$NPM_VERSION --registry=$NPM_REGISTRY_URI
+RUN cp -fr /usr/src/app/node_modules/chainprompt-ai/* /usr/src/app
+#COPY . /usr/src/app
+#COPY ./.env.release /usr/src/app/.env
+# Expose the port the app runs in
+#EXPOSE 3000
+
+# Serve the app
+#CMD ["npm", "run","start:prod"]
