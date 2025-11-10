@@ -10,5 +10,7 @@ WORKDIR /usr/app
 ADD package*.json ./
 RUN npm install
 
+#TODO: definire il dockerfile specifico per l'avvio da pacchetto rilasciato su nexus
+
 # Copy app to working dir
 COPY . .

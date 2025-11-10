@@ -2,7 +2,7 @@
   "name": "chainprompt-ai",
   "version": "1.0.1",
   "description": "Un applicazione server scritta in typescript con express e langchain per realizzare interessanti applicazioni prompt oriented.",
-  "main": "server.js",
+  "main": "dist/server.js",
   "type": "module",
   "publishConfig": {
     "registry": "http://alessandromodica.com:8081/repository/npm-cloud-pubblico/"
@@ -11,6 +11,7 @@
     "publish:nexus": "npm publish",
     "clean": "rimraf dist",
     "build": "tsc",
+    "start:prod": "node dist/server.js",
     "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/server.ts ./tsconfig.json",
     "start-dev": "nodemon --exec node --inspect=0.0.0.0:9229 --no-warnings=ExperimentalWarning --loader ts-node/esm  src/server.ts ./tsconfig.json",
     "test": "jest",

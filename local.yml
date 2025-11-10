@@ -9,15 +9,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5500:5000"
-      - "6000:6000"      
       - "9339:9229"
     env_file:
       - ./.env.dev
     networks:
-      - network-chainprompt-docker
+      - network-chainprompt-docker-local
     volumes:
-      #le conversazioni sono gestite da redis e non piu su file system
-      #- ./src/datasets/conversations:/src/datasets/conversations
       - ./:/usr/app
       - /usr/app/node_modules      
     entrypoint: ./entry-point.sh 
@@ -28,15 +25,15 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.plugins
-    ports:
-      - "5600:80"
+    #ports:
+      #- "5600:80"
     networks:
-      - network-chainprompt-docker      
+      - network-chainprompt-docker-local      
     volumes:
       # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
       - ./plugins:/usr/share/nginx/html/plugins
     restart: always
 
 networks:
-  network-chainprompt-docker:
+  network-chainprompt-docker-local:
     driver: bridge

@@ -77,13 +77,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./redisinsight-data    
+      device: /mnt/chainprompt-ai/redisinsight-data    
   chainprompt-ai-redis-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./redis-data
+      device: /mnt/chainprompt-ai/redis-data
 
 networks:
   chainprompt-support:
