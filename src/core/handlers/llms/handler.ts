@@ -1,7 +1,7 @@
 import { NextFunction } from "express";
 import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { extractDataFromRequest, handleLLM } from '../../services/reasoning/llm-request-handler.service.js';
+import { extractDataFromRequest, handleLLM } from '../../services/reasoning/llm-handler.service.js';
 import * as requestIp from 'request-ip';
 import { RequestBody } from "../../interfaces/requestbody.js";
 import '../../../logger.js';

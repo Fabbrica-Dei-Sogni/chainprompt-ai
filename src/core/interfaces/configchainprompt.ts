@@ -1,6 +1,10 @@
 /**
  * Interfaccia per configurare i vari modelli llm supportati e usati dall'applicazione chainprompt.
  * I parametri potrebbero aumentare a seconda l'evoluzione applicativa.
+
+ non tutti questi parametri sono previsti da DataRequest. 
+ a seconda l'esigenza e verranno parametrizzati dove opportuno.
+ TODO: gestire una logica di default efficace per questo insieme di parametri
  */
 export interface ConfigChainPrompt {
     temperature?: number;

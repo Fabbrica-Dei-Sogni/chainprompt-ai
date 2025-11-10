@@ -13,10 +13,17 @@ export interface ChainPromptBaseTemplate {
 }
 
 /**
+Template non piu utilizzato, ma potrebbe essere l'ispirazione per futuri template
  * @deprecated
  */
 const CHAT_PROMPT = ChatPromptTemplate.fromTemplate("{systemprompt}\n\n{question}");
 
+/**
+ * Il prompt template utilizzato per memorizzare lo storico delle conversazioni.
+   usato da redis.
+ * @param systemPrompt 
+ * @returns 
+ */
 export function getPromptTemplate(systemPrompt: string) {
 
   const result = ChatPromptTemplate.fromMessages([

@@ -6,7 +6,7 @@ import { contextFolder } from '../common.services.js';
 import { RequestBody } from '../../interfaces/requestbody.js';
 import '../../../logger.js';
 import { LLMProvider } from '../../models/llmprovider.enum.js';
-import { senderToAgent, senderToLLM } from './llm-middleware.service.js';
+import { senderToAgent, senderToLLM } from './llm-sender.service.js';
 import { Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
 
