@@ -45,7 +45,7 @@ async function agentHandler(
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
     
 
-    const answer = await handleAgent(systemPrompt, inputData, context, provider, tools, middleware);
+    const answer = await handleAgent(systemPrompt, inputData, provider, context, tools, middleware);
 
     res.json(answer);
   } catch (err) {

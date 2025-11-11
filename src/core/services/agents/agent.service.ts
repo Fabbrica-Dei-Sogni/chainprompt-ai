@@ -2,7 +2,7 @@ import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "../reasoning/llm-chain.service.js";
 import { DataRequest } from "../../interfaces/datarequest.js";
-import { AgentMiddleware, createAgent, createMiddleware, dynamicSystemPromptMiddleware, ReactAgent, summarizationMiddleware, Tool, ToolMessage } from "langchain"; // Per agent react moderno in 1.0
+import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../../logger.js';
 import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
@@ -12,7 +12,7 @@ import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
 
 //https://docs.langchain.com/oss/javascript/langchain/short-term-memory
 //il checkpointer piu semplice definito in memory
-export const checkpointer = new MemorySaver();
+const checkpointer = new MemorySaver();
 
 
 
@@ -46,11 +46,9 @@ export function getAgent(context: string, inputData: DataRequest, provider: LLMP
         tools,
         name,
         description,
-        middleware,//: [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/] as const,
+        middleware,
         systemPrompt: systemPrompt,
-        //XXX: serve per inserire una short memory
-        //studiarne meglio il suo funzionamento e integrazione
-        checkpointer,
+        checkpointer, //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
         includeAgentName: "inline",
     });
 

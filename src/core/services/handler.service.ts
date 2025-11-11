@@ -34,7 +34,7 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handleLLM = async (systemPrompt: string, inputData: DataRequest, context: string, provider: LLMProvider): Promise<any> => {
+export const handleLLM = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider): Promise<any> => {
     try {
         return await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
     } catch (err) {
@@ -54,9 +54,9 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, co
  * @param tools 
  * @returns 
  */
-export const handleAgent = async (systemPrompt: string, inputData: DataRequest, context: string, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[]): Promise<any> => {
+export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, context: string,  tools: Tool[], middleware: AgentMiddleware[]): Promise<any> => {
     try {
-        return senderToAgent(context, inputData, systemPrompt, provider, tools, middleware);
+        return senderToAgent(inputData, systemPrompt, provider, context, tools, middleware);
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', err);
         throw err;

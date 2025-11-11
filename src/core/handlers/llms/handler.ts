@@ -25,7 +25,7 @@ async function llmHandler(
 
     const { systemPrompt, inputData } = await getData(req, context);
 
-    const answer = await handleLLM(systemPrompt, inputData, context, provider);
+    const answer = await handleLLM(systemPrompt, inputData, provider);
 
     res.json(answer);
   } catch (err) {
