@@ -75,7 +75,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
-export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, context: string, tools: Tool[], middleware : AgentMiddleware[] ) { 
+export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware : AgentMiddleware[], nomeagente: string ) { 
 
     const { question, keyconversation }: DataRequest = inputData;
 
@@ -85,12 +85,12 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
     //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
     const result = await invokeAgent(
         getAgent(
-            context,
             inputData,
             provider,
             systemPrompt,
             tools,
-            middleware),
+            middleware,
+            nomeagente,),
         question!,
         keyconversation);
 

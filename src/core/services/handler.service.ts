@@ -59,17 +59,17 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
 
 /**
  * 
- 
- * @param identifier 
- * @param data 
- * @param context 
+ * @param systemPrompt 
+ * @param inputData 
  * @param provider 
  * @param tools 
+ * @param middleware 
+ * @param nomeagente 
  * @returns 
  */
-export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, context: string, tools: Tool[], middleware: AgentMiddleware[]): Promise<any> => {
+export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
     try {
-        return senderToAgent(inputData, systemPrompt, provider, context, tools, middleware);
+        return senderToAgent(inputData, systemPrompt, provider, tools, middleware, nomeagente);
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', err);
         throw err;

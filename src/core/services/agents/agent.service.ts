@@ -25,7 +25,7 @@ const checkpointer = new MemorySaver();
  * @param tools 
  * @returns 
  */
-export function getAgent(context: string, inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] ) {
+export function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
 
     //step 0: recupera i dati necessari dal datarequest 
     const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
@@ -34,8 +34,7 @@ export function getAgent(context: string, inputData: DataRequest, provider: LLMP
     };
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
-    let name = "Mr." + context;
-    let description = name + " ha lo scopo di soddisfare il tema " + context;
+    let name = "Mr." + nomeagente;
 
     //step 2: istanza llm in base al provider e alla configurazione richiesta
     const llm = getInstanceLLM(provider, config);
@@ -45,7 +44,7 @@ export function getAgent(context: string, inputData: DataRequest, provider: LLMP
         model: llm,
         tools,
         name,
-        description,
+        description : "Un agente autogenerato",
         middleware,
         systemPrompt: systemPrompt,
         checkpointer, //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
@@ -55,15 +54,24 @@ export function getAgent(context: string, inputData: DataRequest, provider: LLMP
     return agent;
 }
 
+/**
+ * Invoca un agente per la sessione id chiamante per rispondere alla domanda
+
+ * @param agent 
+ * @param question 
+ * @param sessionId 
+ * @returns 
+ */
 export async function invokeAgent(agent: ReactAgent, question: string, sessionId: string) {
     try {
 
-        console.info("Identificativo " + sessionId + " sta interagendo con l'agente...");
-        console.info("Invio richiesta all'agente " + agent.graph.name + " " + question);
+        console.info("Identificativo " + sessionId + " sta interagendo con l'agente "+agent.graph.getName());
+        console.info("Invio richiesta " + question);
 
         const result = await agent.invoke(
             { messages: [{ role: "user", content: question }] },
             { configurable: { thread_id: sessionId } }
+            //informazioni come gli schemi sui contesti richiedono un llm che supporta i structured_output
             //{ context: { userRole: "expert" } }
         );
 
@@ -82,6 +90,13 @@ export async function invokeAgent(agent: ReactAgent, question: string, sessionId
     }
 }
 
+/**
+ * Metodo di servizio per monitorare sui log console le operazioni eseguita dall'agente dopo l'invocazione
+
+ * @param agent 
+ * @param sessionId 
+ * @returns 
+ */
 async function logState(agent: ReactAgent, sessionId: string) {
     try {
         // Configurazione con thread_id per identificare la sessione
