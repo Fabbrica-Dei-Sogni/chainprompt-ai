@@ -90,16 +90,3 @@ export const analisiCommentiPreprocessor: Preprocessor = async (req) => {
     throw error;
   }
 };
-
-/**
- Preprocessore di default (nessuna modifica, utile per casi generici)
- * @param req 
- */
-export const defaultPreprocessor: Preprocessor = async (req) => {
-  try {
-    // Nessuna modifica, usato per contesti generici
-  } catch (error) {
-    console.error("Errore nel preprocessore di default:", error);
-    throw error;
-  }
-};

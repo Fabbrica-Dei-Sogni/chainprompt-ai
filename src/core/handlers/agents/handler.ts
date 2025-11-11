@@ -1,13 +1,13 @@
 import '../../../logger.js';
 import { NextFunction } from "express";
-import { DataRequest } from "../../interfaces/datarequest.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { getData, handleAgent, Preprocessor } from '../../services/handler.service.js';
+import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/handler.service.js';
 import { Tool } from "@langchain/core/tools";
 import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { ScrapingTool } from "../../tools/scraping.tool.js";
-import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor, defaultPreprocessor } from './preprocessor.js';
+import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
+import * as requestIp from 'request-ip';
 
 
 /**
@@ -34,20 +34,20 @@ async function agentHandler(
 ) {
   try {
 
-    await preprocessor(req);
+    //step 1. recupero dati da una richiesta http
+    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor);
 
-    const { systemPrompt, inputData } = await getData(req, context);
-
-    const { modelname }: DataRequest = inputData;
     //middleware istanziato dall'handler.
     //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(modelname!) /*, dynamicSystemPrompt*/];
-    
+    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
 
-    const answer = await handleAgent(systemPrompt, inputData, provider, context, tools, middleware);
+    //step 2. istanza e invocazione dell'agente
+    const answer = await handleAgent(systemPrompt, resultData, provider, context, tools, middleware);
 
+    //step 3. ritorno la response http
     res.json(answer);
+
   } catch (err) {
     console.error('Errore durante la conversazione:', err);
     res.status(500).json({ error: "Errore interno" });

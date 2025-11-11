@@ -500,6 +500,7 @@ FORMATO OUTPUT:
 - Filtra: [PAROLE_SENSIBILI] tramite regex
 - Logica di sanitizzazione: Replace con [MASK_TOKEN]
 
+# Revisione readme
 
 ## Debug remoto
 
@@ -514,6 +515,6 @@ FORMATO OUTPUT:
             "remoteRoot": "/usr/app",
             "localRoot": "${workspaceFolder}/chainprompt-ai",
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/chainprompt-ai/dist/**/*.js"]
+            "outFiles": ["${workspaceFolder}/chainprompt-ai/dist/**/*.ts"]
         }
 ```        

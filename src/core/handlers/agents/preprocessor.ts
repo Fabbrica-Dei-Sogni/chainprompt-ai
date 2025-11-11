@@ -27,16 +27,3 @@ export const clickbaitAgentPreprocessor: Preprocessor = async (req) => {
     throw error;  // rilancia per essere gestito centralmente
   }
 };
-
-/**
- Preprocessore di default (nessuna modifica, utile per casi generici)
- * @param req 
- */
-export const defaultPreprocessor: Preprocessor = async (req) => {
-  try {
-    // Nessuna modifica, usato per contesti generici
-  } catch (error) {
-    console.error("Errore nel preprocessore agente di default:", error);
-    throw error;
-  }
-};

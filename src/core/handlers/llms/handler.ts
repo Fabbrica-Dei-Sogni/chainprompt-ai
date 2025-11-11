@@ -1,9 +1,9 @@
 import { NextFunction } from "express";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { getData,  handleLLM, Preprocessor } from '../../services/handler.service.js';
+import { defaultPreprocessor, getDataByResponseHttp,  handleLLM, Preprocessor } from '../../services/handler.service.js';
 import '../../../logger.js';
-import { defaultPreprocessor } from "../agents/preprocessor.js";
 import { clickbaitPreprocessor, cheshirePreprocessor, analisiCommentiPreprocessor } from "./preprocessor.js";
+import * as requestIp from 'request-ip';
 
 //
 // Esportazione degli handler specifici usando la funzione generica
@@ -19,15 +19,15 @@ async function llmHandler(
 ) {
   try {
 
-    //in questa fase il body puo avere parametri che non sono contemplati nel tipo RequestBody, ma che sono utilizzati dalla fase di proprocessing del tema dedicato.
-    //si vuole lasciare libertà di input tra le fasi di preparazione del prompt di un chat tematico dalla fase di interrogazione llm
-    await preprocessor(req);
+    //step 1. recupero dati da una richiesta http
+    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor);
 
-    const { systemPrompt, inputData } = await getData(req, context);
+    //step 2. istanza e invocazione dell'agente
+    const answer = await handleLLM(systemPrompt, resultData, provider);
 
-    const answer = await handleLLM(systemPrompt, inputData, provider);
-
+    //step 3. ritorno la response http
     res.json(answer);
+
   } catch (err) {
     console.error('Errore durante la conversazione:', err);
     res.status(500).json({ error: "Errore interno" });

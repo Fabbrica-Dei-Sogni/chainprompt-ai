@@ -75,7 +75,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
-export async function senderToAgent(context: string, inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware : AgentMiddleware[] ) { 
+export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, context: string, tools: Tool[], middleware : AgentMiddleware[] ) { 
 
     const { question, keyconversation }: DataRequest = inputData;
 
