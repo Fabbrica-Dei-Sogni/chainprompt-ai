@@ -58,7 +58,7 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
 export function getDataRequestDFL(): DataRequest {
     console.log("Estrazione informazioni data input di default ...");
 
-    const format = "json"; //parametro valido solo per ollama consigliato "json"
+    const format = undefined; //parametro valido solo per ollama consigliato "json"
     //Recupero della domanda dal campo question o dal campo text (standard cheshire)
     const question = "Quale è la risposta ?";
     //recupero del modelname o default
