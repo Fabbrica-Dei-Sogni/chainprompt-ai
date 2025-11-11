@@ -1,4 +1,6 @@
 import { AzureChatOpenAI, ChatOpenAI } from "@langchain/openai";
+import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
 import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
@@ -92,6 +94,12 @@ export function getInstanceLLM(provider: LLMProvider, config: ConfigChainPrompt)
     case LLMProvider.AzureOpenAiCloud:
       instance = getAzureOpenAICloudLLM(config);
       break;
+    case LLMProvider.Anthropic:
+      instance = getAnthropicCloudLLM(config);
+      break;
+    case LLMProvider.Google:
+      instance = getGoogleCloudLLM(config);
+      break;
     default:
       throw new Error(`Provider non supportato: ${provider}`);
   }
@@ -105,7 +113,41 @@ const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
     maxTokens: config.maxTokens,
     apiKey: process.env.OPENAI_API_KEY,
     temperature: config.temperature,
-    modelName: config.modelname || process.env.LOCAL_MODEL_NAME,    
+    modelName: config.modelname,    
+    /**
+    il cast forzato a runnable in questa forma
+    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+     */
+  }) as unknown as Runnable;
+
+  return llm;
+
+};
+
+const getAnthropicCloudLLM = (config: ConfigChainPrompt) => {
+
+  const llm = new ChatAnthropic ({
+    maxTokens: config.maxTokens,
+    apiKey: process.env.ANTROPHIC_API_KEY,
+    temperature: config.temperature,
+    modelName: config.modelname
+    /**
+    il cast forzato a runnable in questa forma
+    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+     */
+  }) as unknown as Runnable;
+
+  return llm;
+
+};
+
+const getGoogleCloudLLM = (config: ConfigChainPrompt) => {
+
+  const llm = new ChatGoogleGenerativeAI ({
+    //maxTokens: config.maxTokens,
+    apiKey: process.env.ANTROPHIC_API_KEY,
+    temperature: config.temperature,
+    model: config.modelname!
     /**
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
@@ -122,7 +164,7 @@ const getOpenAICloudLLM = (config: ConfigChainPrompt) => {
     maxTokens: config.maxTokens,
     apiKey: process.env.OPENAI_API_KEY,
     temperature: config.temperature,
-    modelName: config.modelname || process.env.LOCAL_MODEL_NAME
+    modelName: config.modelname
     /**
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
@@ -142,7 +184,7 @@ const getLocalLLM = (config: ConfigChainPrompt) => {
     },
     maxTokens: config.maxTokens,
     temperature: config.temperature,
-    modelName: config.modelname || process.env.LOCAL_MODEL_NAME
+    modelName: config.modelname
     /**
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
@@ -159,7 +201,7 @@ const getChatOllamaLLM = (config: ConfigChainPrompt) => {
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
     temperature: config.temperature,
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
-    model: config.modelname || process.env.LOCAL_MODEL_NAME,
+    model: config.modelname,
     numCtx: config.numCtx,
     format: config.format
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
@@ -182,7 +224,7 @@ const getOllamaLLM = (config: ConfigChainPrompt) => {
     baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
     temperature: config.temperature,
     //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
-    model: config.modelname || process.env.LOCAL_MODEL_NAME,
+    model: config.modelname,
     numCtx: config.numCtx,
     format: config.format
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
