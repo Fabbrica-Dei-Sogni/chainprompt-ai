@@ -6,7 +6,7 @@ import express from "express";
 const router = express.Router();
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../services/common.services.js';
 import fs from 'fs';
-import { providerRoutes } from "../routes/provider.routes.js";
+import { providerRoutes } from "../models/llmprovider.enum.js";
 import { handleCheshireRequest } from "../handlers/llms/handler.js";
 import '../../logger.js';
 
