@@ -36,9 +36,9 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     //identificativo indirizzato a un agente piuttosto che a una chat conversazionale 
     //(capire se in futuro ha senso questa distinzione)
     if (isAgent)
-        keyconversation = keyconversation + "agent";
+        keyconversation = keyconversation + "_agent";
     else
-        keyconversation = keyconversation + "chat";
+        keyconversation = keyconversation + "_chat";
 
 
     console.log("Avviata conversione con chiave : " + keyconversation);
