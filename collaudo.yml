@@ -19,7 +19,7 @@ services:
     entrypoint: ./entry-point.sh 
 
   chainprompt-plugins:
-    image: chainprompt-plugins:${IMG_VERSION:-latest}
+    image: chainprompt-plugins-collaudo:${IMG_VERSION:-latest}
     container_name: chainprompt-plugins-collaudo
     build:
       context: ./

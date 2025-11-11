@@ -24,10 +24,3 @@ COPY package.json package-lock.json ./
 RUN npm install
 RUN npm install chainprompt-ai@$NPM_VERSION --registry=$NPM_REGISTRY_URI
 RUN cp -fr /usr/src/app/node_modules/chainprompt-ai/* /usr/src/app
-#COPY . /usr/src/app
-#COPY ./.env.release /usr/src/app/.env
-# Expose the port the app runs in
-#EXPOSE 3000
-
-# Serve the app
-#CMD ["npm", "run","start:prod"]
