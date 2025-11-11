@@ -1,3 +1,4 @@
+
 # Chatbot collegato a un server LLM
 
 Questo progetto è un'applicazione Express.js che implementa una chatbot collegata a un server LLM (Large Language Model). 
@@ -12,6 +13,11 @@ mentre per il server llmstudio è il seguente
 `http://%HOSTNAME%:1234/v1/chat/completions'`
 
 La chiave API KEY è necessaria nel caso in cui si accede ad un LLM di terze parti a pagamento come openai
+
+Nota importante:
+Il seguente readme contiene informazioni obsolete in relazione allo sviluppo che ha avuto il progetto.
+Pertanto verrà al piu presto aggiornato con a corredo una documentazione il piu semplice e lineare possibile.
+
 
 ## Configurazione
 
@@ -494,4 +500,20 @@ FORMATO OUTPUT:
 - Filtra: [PAROLE_SENSIBILI] tramite regex
 - Logica di sanitizzazione: Replace con [MASK_TOKEN]
 
-// END TEMPLATE //
+
+## Debug remoto
+
+```
+        {
+            "name": "Chain prompt AI",
+            "type": "node",
+            "request": "attach",
+            "address": "localhost",
+            "port": 9339,
+            "restart": true,
+            "remoteRoot": "/usr/app",
+            "localRoot": "${workspaceFolder}/chainprompt-ai",
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/chainprompt-ai/dist/**/*.js"]
+        }
+```        
