@@ -35,7 +35,7 @@ async function agentHandler(
   try {
 
     //step 1. recupero dati da una richiesta http
-    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor);
+    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
     //middleware istanziato dall'handler.
     //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato

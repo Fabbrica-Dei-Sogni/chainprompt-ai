@@ -20,7 +20,7 @@ async function llmHandler(
   try {
 
     //step 1. recupero dati da una richiesta http
-    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor);
+    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
 
     //step 2. istanza e invocazione dell'agente
     const answer = await handleLLM(systemPrompt, resultData, provider);

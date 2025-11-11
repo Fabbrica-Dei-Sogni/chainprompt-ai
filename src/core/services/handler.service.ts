@@ -85,7 +85,7 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
  * @param context 
  * @returns 
  */
-export async function getDataByResponseHttp(req: any, context: string, identifier: string, preprocessor: Preprocessor) {
+export async function getDataByResponseHttp(req: any, context: string, identifier: string, preprocessor: Preprocessor, isAgent: boolean = false) {
     
     await preprocessor(req);
 
@@ -97,12 +97,12 @@ export async function getDataByResponseHttp(req: any, context: string, identifie
 
     //step 2. Recupero del systemprompt dalla logica esistente
     const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-    console.log("System prompt dell'agente: " + systemPrompt);
+    console.log("System prompt : " + systemPrompt);
 
     console.log("Identificativo chiamante: ", identifier);
 
     //recupero del requestbody
-    let updateData: DataRequest = getDataRequest(body, context, identifier, true);
+    let updateData: DataRequest = getDataRequest(body, context, identifier, isAgent);
 
     // Merge di inputData con updatedData (updatedData sovrascrive in caso di conflitti)
     const resultData: DataRequest = {
