@@ -1,7 +1,6 @@
 
 import { DataRequest } from "../interfaces/datarequest.js";
-import { readFileAndConcat } from './business/reader-prompt.service.js';
-import { contextFolder, ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from './common.services.js';
+import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from './common.services.js';
 import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
@@ -9,6 +8,7 @@ import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
 import { Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
 import { getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
+import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -113,14 +113,3 @@ export async function getDataByResponseHttp(req: any, context: string, identifie
     return { systemPrompt, resultData };
 }
 
-/**
- * Retrieves the framework prompts for the specified context.
- *
- Il system prompt è generato a partire dalla composizione dei file presenti nelle sotto cartelle di dataset/fileset
- * @param {string} contesto The context for which to retrieve the prompts.
- * @returns {Promise<string>} A Promise that resolves with the framework prompts as a string.
- */
-export const getFrameworkPrompts = async (contesto: string): Promise<string> => {
-    const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
-    return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
-};
