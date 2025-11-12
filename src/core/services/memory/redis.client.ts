@@ -1,5 +1,4 @@
 import { createClient, RedisClientType } from "redis";
-import dotenv from "dotenv";
 import '../../../logger.js';
 /**
 
@@ -10,7 +9,6 @@ con l'ausilio della classe RedisChatMessageHistory
 
  */
 
-dotenv.config();
 
 //XXX: dedicare una classe ad hoc per gestire gli accessi a redis e alla memoria in generale
 // Connessione Redis singleton configurata una volta
