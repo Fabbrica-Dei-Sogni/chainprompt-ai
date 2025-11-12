@@ -11,27 +11,27 @@ import { handleClickbaitAgent } from "../handlers/agents/handler.js";
  */
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
-router.post('/features/localai/clickbaitscore', (req, res, next) =>
+router.post('/features/'+LLMProvider.OpenAILocal+'/clickbaitscore', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/features/cloud/clickbaitscore/', (req, res, next) =>
+router.post('/features/'+LLMProvider.OpenAICloud+'/clickbaitscore/', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/features/ollama/clickbaitscore/', (req, res, next) =>
+router.post('/features/'+LLMProvider.Ollama+'/clickbaitscore/', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.Ollama)
 );
 
-router.post('/agent/features/localai/clickbaitscore', (req, res, next) =>
+router.post('/agent/features/'+LLMProvider.OpenAILocal+'/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/agent/features/cloud/clickbaitscore', (req, res, next) =>
+router.post('/agent/features/'+LLMProvider.OpenAICloud+'/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/agent/features/chatollama/clickbaitscore', (req, res, next) =>
+router.post('/agent/features/'+LLMProvider.ChatOllama+'/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.ChatOllama)
 );
 

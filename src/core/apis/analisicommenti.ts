@@ -10,15 +10,15 @@ import '../../logger.js';
  */
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
-router.post('/features/analisicommenti/local', (req, res, next) =>
+router.post('/features/'+LLMProvider.OpenAILocal+'/analisicommenti', (req, res, next) =>
   handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/features/analisicommenti/cloud', (req, res, next) =>
+router.post('/features/'+LLMProvider.OpenAICloud+'/analisicommenti', (req, res, next) =>
   handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/features/analisicommenti/ollama', (req, res, next) =>
+router.post('/features/'+LLMProvider.Ollama+'/analisicommenti', (req, res, next) =>
   handleAnalisiCommentiRequest(req, res, next, LLMProvider.Ollama)
 );
 
