@@ -5,14 +5,15 @@ import { DataRequest } from "../../interfaces/datarequest.js";
 import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../../logger.js';
-import { MemorySaver, MessagesZodState } from "@langchain/langgraph";
+import { MessagesZodState } from "@langchain/langgraph";
+import { getCheckpointer } from "../memory/postgresql.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
 
 //https://docs.langchain.com/oss/javascript/langchain/short-term-memory
 //il checkpointer piu semplice definito in memory
-const checkpointer = new MemorySaver();
+//const checkpointer = getCheckpointer();//new MemorySaver();
 
 
 
@@ -47,7 +48,7 @@ export function getAgent(inputData: DataRequest, provider: LLMProvider, systemPr
         description : "Un agente autogenerato",
         middleware,
         systemPrompt: systemPrompt,
-        checkpointer, //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
+        checkpointer: getCheckpointer(), //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
         includeAgentName: "inline",
     });
 

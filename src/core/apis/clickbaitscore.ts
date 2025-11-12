@@ -11,27 +11,27 @@ import { handleClickbaitAgent } from "../handlers/agents/handler.js";
  */
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
-router.post('/features/clickbaitscore/localai', (req, res, next) =>
+router.post('/features/localai/clickbaitscore', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/features/clickbaitscore/cloud', (req, res, next) =>
+router.post('/features/cloud/clickbaitscore/', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/features/clickbaitscore/ollama', (req, res, next) =>
+router.post('/features/ollama/clickbaitscore/', (req, res, next) =>
   handleClickbaitRequest(req, res, next, LLMProvider.Ollama)
 );
 
-router.post('/features/clickbaitscore/agent/localai', (req, res, next) =>
+router.post('/agent/features/localai/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/features/clickbaitscore/agent/cloud', (req, res, next) =>
+router.post('/agent/features/cloud/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/features/clickbaitscore/agent/ollama', (req, res, next) =>
+router.post('/agent/features/chatollama/clickbaitscore', (req, res, next) =>
   handleClickbaitAgent(req, res, next, LLMProvider.ChatOllama)
 );
 

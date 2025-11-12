@@ -6,6 +6,7 @@ import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
 import './logger.js';
+import { initPostgresql } from './core/services/memory/postgresql.service.js';
 dotenv.config();
 
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
@@ -34,6 +35,9 @@ app.use(apiversion, api);
 
 const server: http.Server = http.createServer(app);
 console.log(`HTTP server created!`);
+
+// Inizializza checkpointer PostgreSQL una sola volta
+await initPostgresql();
 
 server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`);});
 

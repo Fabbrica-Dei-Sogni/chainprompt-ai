@@ -22,7 +22,7 @@ const allContext: Record<string, boolean> = {};
 // Per ogni provider e suo prefisso, genera le route dinamiche usando l'handler generico
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
-    let route = `/agent/${prefix}/prompt/${context}`;
+    let route = `/agent/${prefix}/${context}`;
     if (!allContext[context]) {
       console.log("Mr."+context);   // Logga solo alla prima occorrenza
       allContext[context] = true;
@@ -31,7 +31,7 @@ providerRoutes.forEach(({ prefix, provider }) => {
       handleCommonAgentRequest(req, res, next, provider)
     );
   });
-  let genericRoute = `/agent/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`;
+  let genericRoute = `/agent/${prefix}/${ENDPOINT_CHATGENERICA}`;
   if (!allContext[ENDPOINT_CHATGENERICA]) {
     console.log("Mr."+ENDPOINT_CHATGENERICA);  // Logga solo alla prima occorrenza
     allContext[ENDPOINT_CHATGENERICA] = true;
