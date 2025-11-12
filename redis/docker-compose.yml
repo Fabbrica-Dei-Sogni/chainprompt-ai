@@ -28,7 +28,7 @@ services:
       - chainprompt-ai-redis-data:/data
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
-      - chainprompt-support
+      - network-chainprompt  
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
@@ -50,7 +50,7 @@ services:
     volumes:
       - chainprompt-ai-redisinsight-data:/data/
     networks:
-      - chainprompt-support
+      - network-chainprompt  
     depends_on:
       chainprompt-ai-storage:
         condition: service_healthy
@@ -66,7 +66,7 @@ services:
     ports:
       - "127.0.0.1:9221:9121"
     networks:
-      - chainprompt-support
+      - network-chainprompt  
     depends_on:
       chainprompt-ai-storage:
         condition: service_healthy
@@ -86,10 +86,6 @@ volumes:
       device: /mnt/chainprompt-ai/redis-data
 
 networks:
-  chainprompt-support:
+  network-chainprompt:
+    external: true    
     driver: bridge
-    name: chainprompt-support-net
-    ipam:
-      config:
-        - subnet: 172.30.0.0/16
-          gateway: 172.30.0.1

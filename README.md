@@ -502,6 +502,18 @@ FORMATO OUTPUT:
 
 # Revisione readme
 
+
+## La rete docker condivisa da postgresql, redis e l'applicazione si chiama
+
+network-chainprompt    
+
+Deve essere creata la prima volta col comando
+
+```
+docker network create network-chainprompt    
+```
+
+
 ## Debug remoto
 
 ```

@@ -14,6 +14,8 @@ services:
       - ./.env.dev
     networks:
       - network-chainprompt
+      #usato per test interni accedendo a ollama passando per la rete docker
+      - aiassistant_ollama_network        
     volumes:
       - ./:/usr/app
       - /usr/app/node_modules      
@@ -28,7 +30,7 @@ services:
     ports:
       - "5510:80"
     networks:
-      - network-chainprompt      
+      - network-chainprompt
     volumes:
       # Monta la cartella plugins locale nel container in modo da poter aggiornare i plugin in tempo reale
       - ./plugins:/usr/share/nginx/html/plugins
@@ -36,4 +38,8 @@ services:
 
 networks:
   network-chainprompt:
+    external: true
     driver: bridge
+
+  aiassistant_ollama_network:
+    external: true    

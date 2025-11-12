@@ -14,7 +14,7 @@ services:
       #Volume dedicato a postgresql
       - postgres_data:/var/lib/postgresql/data 
     networks:
-      - chainprompt-ai-postgresql_network
+      - network-chainprompt  
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin_user -d chainprompt_db"]
       interval: 10s
@@ -34,12 +34,13 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - chainprompt-ai-postgresql_network
+      - network-chainprompt  
 
 volumes:
   postgres_data:
   pgadmin_data:
 
 networks:
-  chainprompt-ai-postgresql_network:
+  network-chainprompt:
+    external: true 
     driver: bridge

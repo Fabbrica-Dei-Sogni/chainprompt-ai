@@ -35,4 +35,5 @@ services:
 
 networks:
   network-chainprompt:
+    external: true 
     driver: bridge
