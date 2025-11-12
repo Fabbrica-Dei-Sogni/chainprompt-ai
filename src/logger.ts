@@ -24,9 +24,9 @@ const logger = createLogger({
 });
 
 // Sovrascrittura globale dei metodi console per usare Winston
-/*console.log = (...args: unknown[]) => {
+console.log = (...args: unknown[]) => {
   logger.info(args.map(String).join(" "));
-};*/
+};
 console.info = (...args: unknown[]) => {
   logger.info(args.map(String).join(" "));
 };

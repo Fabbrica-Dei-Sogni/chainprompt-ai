@@ -6,7 +6,7 @@ import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent
 import * as z from "zod";
 import '../../../logger.js';
 import { MessagesZodState } from "@langchain/langgraph";
-import { getCheckpointer } from "../memory/postgresql.service.js";
+import { POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -48,7 +48,7 @@ export function getAgent(inputData: DataRequest, provider: LLMProvider, systemPr
         description : "Un agente autogenerato",
         middleware,
         systemPrompt: systemPrompt,
-        checkpointer: getCheckpointer(), //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
+        checkpointer: POSTGRESQL_CLIENT_INSTANCE.getCheckpointer(), //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
         includeAgentName: "inline",
     });
 

@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from "redis";
 import dotenv from "dotenv";
-
+import '../../../logger.js';
 /**
 
 Servizio dedicato a operazioni di storage redis.
@@ -43,7 +43,6 @@ class RedisClient {
   async connectRedis(): Promise<void> {
     await this.client.connect();
       console.log('[REDIS] Connected.');
-      console.log(`Tutto fila liscio!! Rock on babe!!`);
   }
 }
 
