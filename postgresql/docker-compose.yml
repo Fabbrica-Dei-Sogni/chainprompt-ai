@@ -1,0 +1,45 @@
+name: suite-ai-postgresql
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: chainprompt-ai-postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin_user       # Utente amministrativo principale
+      POSTGRES_PASSWORD: admin   # Password amministrativa principale
+      POSTGRES_DB: chainprompt_db  # Database principale
+    ports:
+      - "5432:5432"
+    volumes:
+      #Volume dedicato a postgresql
+      - postgres_data:/var/lib/postgresql/data 
+    networks:
+      - chainprompt-ai-postgresql_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_user -d chainprompt_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: chainprompt-ai-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com  # Email per login
+      PGADMIN_DEFAULT_PASSWORD: admin           # Password per pgAdmin
+    ports:
+      - "5580:80"  # Porta per accedere all'interfaccia web di pgAdmin
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - chainprompt-ai-postgresql_network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  chainprompt-ai-postgresql_network:
+    driver: bridge
