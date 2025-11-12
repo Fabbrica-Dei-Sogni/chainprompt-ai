@@ -5,9 +5,9 @@ services:
     container_name: chainprompt-ai-postgresql
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin_user       # Utente amministrativo principale
-      POSTGRES_PASSWORD: admin   # Password amministrativa principale
-      POSTGRES_DB: chainprompt_db  # Database principale
+      POSTGRES_USER: ${POSTGRES_USER:-admin_user}       # Utente amministrativo principale
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}   # Password amministrativa principale
+      POSTGRES_DB: ${POSTGRES_DB:-chainprompt_db}  # Database principale
     ports:
       - "5432:5432"
     volumes:
@@ -16,7 +16,7 @@ services:
     networks:
       - network-chainprompt  
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin_user -d chainprompt_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin_user} -d ${POSTGRES_DB:-chainprompt_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,6 +38,11 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/chainprompt-ai/postgres-data  
   pgadmin_data:
 
 networks:
