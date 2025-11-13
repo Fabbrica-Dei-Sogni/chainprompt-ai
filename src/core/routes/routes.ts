@@ -5,6 +5,7 @@ import clickbaitscore from "../apis/clickbaitscore.js"
 import analisicommenti from "../apis/analisicommenti.js"
 import threatintel from "../apis/threatintel.js"
 import agentbot from "../apis/agentbot.js"
+import manager from "../apis/manager.js"
 import cheshirecat from "../apis/cheshirecat.js"
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use(classicbot);
  */
 
 // Utilizza le rotte definite nel modulo "chatbot"
+router.use(manager);
 router.use(chainbot);
 router.use(agentbot);
 router.use(analisicommenti);
