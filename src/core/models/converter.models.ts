@@ -25,9 +25,9 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     //recupero della sessione o default
     const session = body.sessionchat;
     //recupero maxTokens o default
-    const maxTokens = body.maxTokens;
+    const maxTokens = body.maxTokens ? body.maxTokens : 8032;
     //recupero numCtx o default
-    const numCtx = body.numCtx;
+    const numCtx = body.numCtx ? body.numCtx : 8032;
     //recupero richiesta storico o default
     const noappendchat = body.noappendchat;
 

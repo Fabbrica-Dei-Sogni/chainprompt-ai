@@ -9,7 +9,8 @@ import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preproc
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { getFormattedSystemPrompt } from '../../interfaces/chainpromptbasetemplate.js';
-
+import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
+import { DataRequest } from '../../interfaces/datarequest.js';
 
 /**
  * Gestione degli handler http rest per invocare un agente associato a un contesto
@@ -43,9 +44,13 @@ async function agentHandler(
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
 
+    const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = resultData;
+    let config: ConfigChainPrompt = {
+      temperature, modelname, maxTokens, numCtx, format
+    };
+    const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, config, systemPrompt);
     //step 2. istanza e invocazione dell'agente
-    const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, resultData.modelname!, systemPrompt);
-
+    //const formattedSystemPrompt = systemPrompt;
     const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
 
     //step 3. ritorno la response http

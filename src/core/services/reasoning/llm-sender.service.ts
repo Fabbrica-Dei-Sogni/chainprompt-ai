@@ -62,11 +62,11 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     };
 
     const answer = await invokeLLM
-        (  config,
-           prompt,
-           provider,
-           keyconversation,
-           noappendchat
+        (config,
+            prompt,
+            provider,
+            keyconversation,
+            noappendchat
         );
     console.log(`Risposta assistente:\n`, answer);
 
@@ -75,9 +75,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
-export async function senderToAgent(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware : AgentMiddleware[], nomeagente: string ) { 
-
-    const { question, keyconversation }: DataRequest = inputData;
+export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[], nomeagente: string) {
 
     console.log(`System prompt contestuale:\n`, systemPrompt);
     console.log(`Question prompt utente:\n`, question);
@@ -85,7 +83,7 @@ export async function senderToAgent(inputData: DataRequest, systemPrompt: string
     //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
     const result = await invokeAgent(
         getAgent(
-            inputData,
+            config,
             provider,
             systemPrompt,
             tools,

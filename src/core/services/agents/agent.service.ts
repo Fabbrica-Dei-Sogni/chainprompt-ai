@@ -1,7 +1,6 @@
 import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "../reasoning/llm-chain.service.js";
-import { DataRequest } from "../../interfaces/datarequest.js";
 import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../../logger.js';
@@ -20,19 +19,13 @@ import { POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql/postgresql.serv
 
 /**
  * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
- * @param inputData 
+ * @param config 
  * @param provider 
  * @param context 
  * @param tools 
  * @returns 
  */
-export function getAgent(inputData: DataRequest, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
-
-    //step 0: recupera i dati necessari dal datarequest 
-    const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
-    let config: ConfigChainPrompt = {
-        temperature, modelname, maxTokens, numCtx, format
-    };
+export function getAgent(config: ConfigChainPrompt, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
     let name = "Mr." + nomeagente;

@@ -1,7 +1,7 @@
 import { HumanMessageFields, SystemMessageFields } from "@langchain/core/messages";
 import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { DataRequest } from "./datarequest.js";
+import { ConfigChainPrompt } from "./configchainprompt.js";
 
 /**
  * Interfaccia che rappresenta il template prompt base dell'applicazione in cui si esplicitano il system e user prompt.
@@ -30,22 +30,31 @@ export function getPromptTemplate(systemPrompt: string) {
   return result;
 };
 
-export async function getFormattedSystemPrompt(context : string, provider : LLMProvider,modelname : string , systemPrompt: string) { 
+export async function getFormattedSystemPrompt(context: string, provider: LLMProvider, config: ConfigChainPrompt, systemPrompt: string) {
 
   const result = await promptTemplate.format({
-  context,
-  provider,
-  modelname,
-  basePrompt: systemPrompt // oppure il prompt generato dinamicamente
-});
-  
+    context,
+    provider,
+    modelname: config.modelname,
+    temperature: config.temperature,
+    maxTokens: config.maxTokens,
+    numCtx: config.numCtx,
+    basePrompt: systemPrompt // oppure il prompt generato dinamicamente
+  });
+
   return result;
 
 }
 
 
 const systemPromptTemplate = `
-Sei un agente tematico incaricato di gestire il contesto "{context}" usando il provider "{provider}" e il modelname "{modelname}".
+Sei un agente tematico incaricato di gestire il contesto "{context}" usando
+il provider "{provider}"
+il modelname "{modelname}"
+temperature "{temperature}"
+maxTokens "{maxTokens}"
+numCtx "{numCtx}".
+
 Tutte le risposte devono attenersi alle policy definite per questo dominio.
 
 {basePrompt}
@@ -53,72 +62,8 @@ Tutte le risposte devono attenersi alle policy definite per questo dominio.
 
 const promptTemplate = new PromptTemplate({
   template: systemPromptTemplate,
-  inputVariables: ["context", "provider", "modelname", "basePrompt"]
+  inputVariables: ["context", "provider", "modelname", "temperature", "maxTokens", "numCtx", "basePrompt"]
 });
-
-export async function getFormattedSystemPromptAdvanced(systemPrompt: string, resultData: DataRequest, includeJson = true) { 
-
-  const promptVars = buildSystemPrompt(resultData, systemPrompt, includeJson);
-
-  const result = await promptTemplateAdvanced.format(promptVars);
-  
-  return result;
-
-}
-
-const systemPromptTemplateAdvanced = `
-Sei un agente tematico incaricato di gestire la seguente richiesta.
-Dati principali della conversazione:
-- Chiave conversazione: {keyconversation}
-- Modello LLM: {modelname}
-- Temperatura: {temperature}
-- Max tokens: {maxTokens}
-- numCtx: {numCtx}
-
-# Se e solo se il tool lo richiede, includi TUTTI questi dati serializzati in JSON: #
-{dataRequestJson}
-
-Istruzioni:
-- Usa SEMPRE questi dati per ragionare o generare risposte.
-- Se chiami un tool che richiede argomenti di configurazione, ALLEGA il JSON completo di sopra come input.
-- Altrimenti, non includere il JSON nella risposta.
-
-
-{basePrompt}
-`.trim();
-
-const promptTemplateAdvanced = new PromptTemplate({
-  template: systemPromptTemplateAdvanced,
-  inputVariables: [
-    "keyconversation", "modelname", "temperature", "maxTokens", "numCtx", "dataRequestJson", "basePrompt"
-  ]
-});
-
-function buildSystemPrompt(dataRequest: DataRequest, systemPrompt: string, includeJson: boolean) {
-  const {
-    keyconversation,
-    modelname = "",
-    temperature = "",
-    maxTokens = "",
-    numCtx = ""
-  } = dataRequest;
-
-  // Serializzazione JSON, solo se richiesto
-  const dataRequestJson = includeJson
-    ? JSON.stringify(dataRequest, null, 2)
-    : "";
-
-  return {
-    keyconversation,
-    modelname,
-    temperature,
-    maxTokens,
-    numCtx,
-    dataRequestJson,
-    basePrompt: systemPrompt
-  };
-}
-
 
 /**
 Template non piu utilizzato, ma potrebbe essere l'ispirazione per futuri template

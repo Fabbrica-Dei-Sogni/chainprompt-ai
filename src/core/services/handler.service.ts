@@ -9,6 +9,7 @@ import { Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
 import { getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
 import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -17,12 +18,12 @@ export type Preprocessor = (req: any) => Promise<void>;
  * @param req 
  */
 export const defaultPreprocessor: Preprocessor = async (req) => {
-  try {
-    // Nessuna modifica, usato per contesti generici
-  } catch (error) {
-    console.error("Errore nel preprocessore di default:", error);
-    throw error;
-  }
+    try {
+        // Nessuna modifica, usato per contesti generici
+    } catch (error) {
+        console.error("Errore nel preprocessore di default:", error);
+        throw error;
+    }
 };
 
 /**
@@ -69,7 +70,13 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
  */
 export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
     try {
-        return senderToAgent(inputData, systemPrompt, provider, tools, middleware, nomeagente);
+        
+        const { question, keyconversation, temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
+        let config: ConfigChainPrompt = {
+            temperature, modelname, maxTokens, numCtx, format
+        };
+        return senderToAgent(question!, keyconversation, config, systemPrompt, provider, tools, middleware, nomeagente);
+
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', err);
         throw err;
@@ -86,7 +93,7 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
  * @returns 
  */
 export async function getDataByResponseHttp(req: any, context: string, identifier: string, preprocessor: Preprocessor, isAgent: boolean = false) {
-    
+
     await preprocessor(req);
 
     //step 0. Recupero body in formato RequestBody
