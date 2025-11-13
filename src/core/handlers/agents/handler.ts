@@ -9,14 +9,72 @@ import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/
 import * as requestIp from 'request-ip';
 import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
 import { DataRequest } from '../../interfaces/datarequest.js';
-import { ENDPOINT_CHATGENERICA } from '../../services/common.services.js';
+import { contextFolder, ENDPOINT_CHATGENERICA } from '../../services/common.services.js';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getFrameworkPrompts } from '../../services/business/reader-prompt.service.js';
+import fs from 'fs';
+const contexts = fs.readdirSync(contextFolder);
+
+
+/**
+ * 
+ * @param req Handler sperimentale per invocare agenti manager supervisor .
+ Questo handler invoca un agente a cui sono agganciati come tool tutti gli agenti tematici riconosciuti dal sistema
+ * @param res 
+ * @param next 
+ * @param provider 
+ * @param tools 
+ */
+export async function agentManagerHandler(
+  req: any,
+  res: any,
+  next: any,
+  provider: LLMProvider,
+  tools: any[] = []
+) {
+  try {
+
+    let context = ENDPOINT_CHATGENERICA;
+    //step 1. recupero dati da una richiesta http
+    const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
+
+    //middleware istanziato dall'handler.
+    //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
+    //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
+    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
+
+    const { temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = resultData;
+    let config: ConfigChainPrompt = {
+      temperature, modelname, maxTokens, numCtx, format
+    };
+    //const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, config, systemPrompt);
+    //step 2. istanza e invocazione dell'agente
+    const formattedSystemPrompt = systemPrompt;
+
+    //XXX: inserimento di tutti gli agenti tematici idonei
+    for (const context of contexts) {
+      const subNameAgent = "Sub Agente " + context;
+      const subContext = context;
+      const promptsubAgent = await getFrameworkPrompts(subContext);
+      //console.log("System prompt subcontext: " + promptsubAgent);
+      let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, promptsubAgent, provider, keyconversation, config);
+      tools.push(subagenttool);
+    }
+
+    const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
+
+    //step 3. ritorno la response http
+    res.json(answer);
+
+  } catch (err) {
+    console.error('Errore durante la conversazione:', err);
+    res.status(500).json({ error: "Errore interno ", err });
+  }
+};
 
 /**
  * Gestione degli handler http rest per invocare un agente associato a un contesto
  Ciascun contesto puo avere un handle personalizzato, altrimenti viene gestito dall'handler comune (autogenera un endpoint rest dedicato).
-
  * @param req 
  * @param res 
  * @param next 
@@ -59,7 +117,7 @@ async function agentHandler(
 
   } catch (err) {
     console.error('Errore durante la conversazione:', err);
-    res.status(500).json({ error: "Errore interno" });
+    res.status(500).json({ error: "Errore interno", err });
   }
 };
 
@@ -115,51 +173,7 @@ export const handleCommonAgentRequest = (
     const originalUriTokens = req.originalUrl.split('/');
     return originalUriTokens[originalUriTokens.length - 1];
   })()
-  );
+);
 
 
 
-
-export async function agentManagerHandler(
-  req: any,
-  res: any,
-  next: any,
-  provider: LLMProvider,
-  tools: any[] = []
-) {
-  try {
-    
-    let context = ENDPOINT_CHATGENERICA;
-    //step 1. recupero dati da una richiesta http
-    const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
-
-    //middleware istanziato dall'handler.
-    //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
-    //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
-
-    const { temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = resultData;
-    let config: ConfigChainPrompt = {
-      temperature, modelname, maxTokens, numCtx, format
-    };
-    //const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, config, systemPrompt);
-    //step 2. istanza e invocazione dell'agente
-    const formattedSystemPrompt = systemPrompt;
-
-    const subContext = "whatif";
-    const promptsubAgent = await getFrameworkPrompts(subContext); // Ottieni il prompt di sistema per il contesto
-    console.log("System prompt subcontext: " + promptsubAgent);
-    //const formattedPromptsubAgent = await getFormattedSystemPrompt(subContext, provider, config, systemPrompt);
-    let subagenttool: SubAgentTool = new SubAgentTool("Mr Distopia","whatif",promptsubAgent, provider,keyconversation,config);
-
-    tools.push(subagenttool);
-    const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
-
-    //step 3. ritorno la response http
-    res.json(answer);
-
-  } catch (err) {
-    console.error('Errore durante la conversazione:', err);
-    res.status(500).json({ error: "Errore interno" });
-  }
-};

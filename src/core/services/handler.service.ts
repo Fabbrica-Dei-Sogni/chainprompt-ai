@@ -80,7 +80,6 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', err);
         throw err;
-        //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
 };
 
