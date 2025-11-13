@@ -26,8 +26,8 @@ export const handleToolErrors = createMiddleware({
 export function createSummaryMemoryMiddleware(modelname: string, maxTokensBeforeSummary: number = 4000, messagesToKeep: number = 20) {
     const result = summarizationMiddleware({
         model: modelname,
-        maxTokensBeforeSummary,
-        messagesToKeep,
+        trigger: { tokens: maxTokensBeforeSummary },
+        keep : {messages : messagesToKeep}
     });
 
     return result;

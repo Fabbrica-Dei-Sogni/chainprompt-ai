@@ -8,6 +8,7 @@ import { ScrapingTool } from "../../tools/scraping.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
+import { getFormattedSystemPrompt } from '../../interfaces/chainpromptbasetemplate.js';
 
 
 /**
@@ -35,7 +36,7 @@ async function agentHandler(
   try {
 
     //step 1. recupero dati da una richiesta http
-    const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
+    const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
     //middleware istanziato dall'handler.
     //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
@@ -43,7 +44,9 @@ async function agentHandler(
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
 
     //step 2. istanza e invocazione dell'agente
-    const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, resultData.modelname!, systemPrompt);
+
+    const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
 
     //step 3. ritorno la response http
     res.json(answer);
