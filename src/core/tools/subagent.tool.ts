@@ -1,4 +1,4 @@
-import { StructuredTool, Tool } from "@langchain/core/tools";
+import { StructuredTool } from "@langchain/core/tools";
 import { getAgent, invokeAgent } from "../services/agents/agent.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../services/common.services.js";
 import { getFrameworkPrompts } from "../services/business/reader-prompt.service.js";
