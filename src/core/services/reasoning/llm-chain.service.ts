@@ -7,7 +7,7 @@ import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
 import { ChainPromptBaseTemplate } from "../../interfaces/chainpromptbasetemplate.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
 import '../../../logger.js';
-import { getChainWithHistory, logConversationHistory } from "../memory/redis.service.js";
+import { getChainWithHistory, logConversationHistory } from "../memory/redis/redis.service.js";
 
 /*
  * La seguente implementazione raccoglie metodi per interrogare modelli LLM con la libreria Langchain configurandone i parametri peculiari di ciascun modello usato processandone il prompt seguendo il pattern base:

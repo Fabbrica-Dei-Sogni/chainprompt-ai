@@ -1,5 +1,5 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
-import '../../../logger.js';
+import '../../../../logger.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 
 /**

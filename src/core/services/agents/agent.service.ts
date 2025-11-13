@@ -6,7 +6,7 @@ import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent
 import * as z from "zod";
 import '../../../logger.js';
 import { MessagesZodState } from "@langchain/langgraph";
-import { POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql.service.js";
+import { POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql/postgresql.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
