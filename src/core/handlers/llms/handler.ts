@@ -29,7 +29,7 @@ async function llmHandler(
     res.json(answer);
 
   } catch (err) {
-    console.error('Errore durante la conversazione:', err);
+    console.error('Errore durante la esecuzione di una conversazione llm:', JSON.stringify(err));
     res.status(500).json({ error: "Errore interno" });
   }
 };

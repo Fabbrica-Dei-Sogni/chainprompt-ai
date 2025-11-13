@@ -67,7 +67,7 @@ export async function agentManagerHandler(
     res.json(answer);
 
   } catch (err) {
-    console.error('Errore durante la conversazione:', err);
+    console.error('Errore di esecuzione di un agente manager:', JSON.stringify(err));
     res.status(500).json({ error: "Errore interno ", err });
   }
 };
@@ -116,7 +116,7 @@ async function agentHandler(
     res.json(answer);
 
   } catch (err) {
-    console.error('Errore durante la conversazione:', err);
+    console.error('Errore durante la esecuzione di un agente:', err);
     res.status(500).json({ error: "Errore interno", err });
   }
 };

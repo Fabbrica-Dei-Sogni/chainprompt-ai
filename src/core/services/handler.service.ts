@@ -5,7 +5,6 @@ import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
-import { StructuredTool, Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
 import { getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
 import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
@@ -52,7 +51,7 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
     try {
         return await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
     } catch (err) {
-        console.error('Errore durante la conversazione:', err);
+        console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
         throw err;
         //res.status(500).json({ error: `Si è verificato un errore interno del server` });
     }
@@ -78,7 +77,7 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
         return senderToAgent(question!, keyconversation, config, systemPrompt, provider, tools, middleware, nomeagente);
 
     } catch (err) {
-        console.error('Errore durante la comunicazione con un agente:', err);
+        console.error('Errore durante la comunicazione con un agente:', JSON.stringify(err));
         throw err;
     }
 };
