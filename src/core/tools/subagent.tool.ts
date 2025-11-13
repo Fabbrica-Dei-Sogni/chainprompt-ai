@@ -40,15 +40,8 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
         this.name = nomeagente;
 
         let description = `
-        Sei un sub agente di nome ${nomeagente}, che deve avere le informazioni di context, provider, temperature, modelname, maxTokens, numCtx che il chiamante possiede.
+        Sei un sub agente di nome ${nomeagente}, che deve avere le informazioni di question, context, provider, temperature, modelname, maxTokens, numCtx che il chiamante possiede.
 
-        Per eseguire questo tool devi inviare un json fatto in questo modo
-
-        {
-            context, provider, temperature, modelname, maxTokens, numCtx, question
-        }
-        
-        dove question è una stringa in cui valorizzare la domanda che devi fare per poter questo prompt:
         ${systemprompt}
         `;
 
