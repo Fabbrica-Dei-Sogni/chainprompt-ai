@@ -30,7 +30,16 @@ export function getPromptTemplate(systemPrompt: string) {
   return result;
 };
 
-export async function getFormattedSystemPrompt(context: string, provider: LLMProvider, config: ConfigChainPrompt, systemPrompt: string) {
+
+/**
+ * Utile come template per future composizioni di prompt
+ * @param context 
+ * @param provider 
+ * @param config 
+ * @param systemPrompt 
+ * @returns 
+ */
+async function getFormattedSystemPrompt(context: string, provider: LLMProvider, config: ConfigChainPrompt, systemPrompt: string) {
 
   const result = await promptTemplate.format({
     context,
@@ -45,8 +54,6 @@ export async function getFormattedSystemPrompt(context: string, provider: LLMPro
   return result;
 
 }
-
-
 const systemPromptTemplate = `
 Sei un agente tematico incaricato di gestire il context "{context}" usando
 provider "{provider}"

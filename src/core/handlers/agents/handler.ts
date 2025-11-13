@@ -47,9 +47,7 @@ export async function agentManagerHandler(
     let config: ConfigChainPrompt = {
       temperature, modelname, maxTokens, numCtx, format
     };
-    //const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, config, systemPrompt);
     //step 2. istanza e invocazione dell'agente
-    const formattedSystemPrompt = systemPrompt;
 
     //XXX: inserimento di tutti gli agenti tematici idonei
     for (const context of contexts) {
@@ -61,7 +59,7 @@ export async function agentManagerHandler(
       tools.push(subagenttool);
     }
 
-    const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
+    const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
 
     //step 3. ritorno la response http
     res.json(answer);
@@ -103,14 +101,8 @@ async function agentHandler(
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
 
-    const { temperature, modelname, maxTokens, numCtx, format }: DataRequest = resultData;
-    let config: ConfigChainPrompt = {
-      temperature, modelname, maxTokens, numCtx, format
-    };
-    //const formattedSystemPrompt = await getFormattedSystemPrompt(context, provider, config, systemPrompt);
     //step 2. istanza e invocazione dell'agente
-    const formattedSystemPrompt = systemPrompt;
-    const answer = await handleAgent(formattedSystemPrompt, resultData, provider, tools, middleware, context);
+    const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
 
     //step 3. ritorno la response http
     res.json(answer);
