@@ -1,0 +1,55 @@
+name: suite-ai-mongodb
+services:
+
+  chainprompt-ai-mongodb:
+    image: mongo:4.4.6
+    container_name: chainprompt-ai-mongodb
+    restart: unless-stopped #always valutare un alternativa
+    ports:
+      - "127.0.0.1:27117:27017"
+    environment:
+      #parametri per inizializzare i database al primo avvio
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-cambiapwd}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-admin}
+
+      #credenziali per creare il database applicativo al primo avvio
+      MONGODB_USERNAME: ${MONGODB_USERNAME:-basicuser}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD:-basicuser}
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-chainprompt_db}
+    volumes:
+      - mongodb_storage-chainprompt:/data/db
+      - ./mongo-init/:/docker-entrypoint-initdb.d/:ro
+    networks:
+      - network-chainprompt 
+
+  chainprompt-ai-mongo-express:
+    image: mongo-express
+    container_name: chainprompt-ai-mongo-express
+    ports:
+      - "8083:8081"
+    environment:
+      ME_CONFIG_CONNECT_RETRIES: ${MAX_RETRIES:-1}    
+      ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER:-chainprompt-ai-mongodb}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD:-cambiapwd}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: ${ME_CONFIG_MONGODB_ENABLE_ADMIN:-true}
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: "!!!Chainprompt!!!"      
+      #ME_CONFIG_MONGODB_PORT: ${ME_CONFIG_MONGODB_PORT:-27017}    
+    networks:
+      - network-chainprompt 
+    depends_on:
+      - chainprompt-ai-mongodb
+
+networks:
+  network-chainprompt:
+    external: true
+    driver: bridge
+
+volumes:
+  mongodb_storage-chainprompt:
+    driver_opts:
+      type: local
+      o: bind
+      device: ${MOUNT_STORAGE_DB:-/mnt/chainprompt-ai/mongodb-data}
