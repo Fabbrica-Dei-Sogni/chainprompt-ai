@@ -5,7 +5,7 @@ import { RequestBody } from '../interfaces/requestbody.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
-import { Tool } from '@langchain/core/tools';
+import { StructuredTool, Tool } from '@langchain/core/tools';
 import { AgentMiddleware } from 'langchain';
 import { getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
 import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
@@ -68,7 +68,7 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
  * @param nomeagente 
  * @returns 
  */
-export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
+export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
     try {
         
         const { question, keyconversation, temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;

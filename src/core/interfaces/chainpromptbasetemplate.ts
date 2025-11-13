@@ -48,14 +48,27 @@ export async function getFormattedSystemPrompt(context: string, provider: LLMPro
 
 
 const systemPromptTemplate = `
-Sei un agente tematico incaricato di gestire il contesto "{context}" usando
-il provider "{provider}"
-il modelname "{modelname}"
+Sei un agente tematico incaricato di gestire il context "{context}" usando
+provider "{provider}"
+modelname "{modelname}"
 temperature "{temperature}"
 maxTokens "{maxTokens}"
 numCtx "{numCtx}".
 
 Tutte le risposte devono attenersi alle policy definite per questo dominio.
+
+Il json da fornire in input ai tool che lo richiedono è fatto cosi
+{{
+  "config": {{
+    "temperature": {temperature},
+    "modelname": "{modelname}",
+    "maxTokens": {maxTokens},
+    "numCtx": {numCtx}
+  }},
+  "provider": "{provider}",
+  "context": "{context}",
+  "question": "la domanda da porre al tool"
+}}
 
 {basePrompt}
 `.trim();

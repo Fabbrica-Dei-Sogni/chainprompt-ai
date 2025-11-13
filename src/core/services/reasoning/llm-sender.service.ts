@@ -9,7 +9,7 @@ import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../../logger.js';
 import { getAgent, invokeAgent } from '../agents/agent.service.js';
-import { AgentMiddleware, Tool } from 'langchain';
+import { AgentMiddleware, StructuredTool, Tool } from 'langchain';
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
@@ -75,7 +75,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
-export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: Tool[], middleware: AgentMiddleware[], nomeagente: string) {
+export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
 
     console.log(`System prompt contestuale:\n`, systemPrompt);
     console.log(`Question prompt utente:\n`, question);

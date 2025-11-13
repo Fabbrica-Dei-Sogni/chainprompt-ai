@@ -1,7 +1,7 @@
 import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
 import { getInstanceLLM } from "../reasoning/llm-chain.service.js";
-import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, Tool } from "langchain"; // Per agent react moderno in 1.0
+import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, StructuredTool, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
 import '../../../logger.js';
 import { MessagesZodState } from "@langchain/langgraph";
@@ -25,7 +25,7 @@ import { POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql/postgresql.serv
  * @param tools 
  * @returns 
  */
-export function getAgent(config: ConfigChainPrompt, provider: LLMProvider, systemPrompt: string, tools: Tool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
+export function getAgent(config: ConfigChainPrompt, provider: LLMProvider, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
     let name = "Mr." + nomeagente;
