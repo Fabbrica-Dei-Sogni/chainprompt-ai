@@ -33,6 +33,18 @@ export class SubAgentTool extends Tool {
     description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
 
     protected async _call(arg: string | undefined): Promise<string> {
+
+        console.info(
+        `Argomenti : "${arg}":\n` +    
+        `SubAgent Info:\n` +
+        `name: ${this.name}\n` +
+        `description: ${this.description}\n` +
+        `context: ${this.context}\n` +
+        `provider: ${this.provider}\n` +
+        `keyConversation: ${this.keyConversation}\n` +
+        `config: ${JSON.stringify(this.config)}`
+        );  
+        
         if (!arg) {
             console.log("Argument risulta vuoto");
             return "fail";
