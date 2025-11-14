@@ -121,6 +121,12 @@ const getGoogleVertexAIEmbeddings = (config: ConfigEmbeddings) => {
   return embeddings;
 };
 
+/**
+ * Metodo di servizio per sincronizzare i systemprompt degli agenti sul vectorstore tool_embeddings
+ Approfondire il flusso per riutilizzarlo e capire come gestire lo store con un orm al posto di sql cablate a codice
+ * @param contexts 
+ * @param provider 
+ */
 export async function syncToolAgentEmbeddings(contexts: string[], provider: EmbeddingProvider = EmbeddingProvider.Ollama) {
     //XXX: inserimento di tutti gli agenti tematici idonei
     let docs: {
