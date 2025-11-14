@@ -9,7 +9,7 @@ import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/
 import * as requestIp from 'request-ip';
 import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
 import { DataRequest } from '../../interfaces/datarequest.js';
-import { contextFolder, ENDPOINT_CHATGENERICA } from '../../services/common.services.js';
+import { CONTEXT_MANAGER, contextFolder } from '../../services/common.services.js';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
@@ -35,7 +35,7 @@ export async function agentManagerHandler(
 ) {
   try {
 
-    let context = ENDPOINT_CHATGENERICA;
+    let context = CONTEXT_MANAGER;
     //step 1. recupero dati da una richiesta http
     const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
 
