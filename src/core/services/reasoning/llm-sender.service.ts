@@ -92,7 +92,7 @@ export async function senderToAgent(question: string, keyconversation: string, c
         question!,
         keyconversation);
 
-    const answer = result.messages[result.messages.length - 1].content;
+    const answer = result;//.messages[result.messages.length - 1].content;
     console.log(`Risposta agente:\n`, answer);
 
     return answer;
