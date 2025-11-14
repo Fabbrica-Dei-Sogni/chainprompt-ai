@@ -14,3 +14,15 @@ export const getFrameworkPrompts = async (contesto: string): Promise<string> => 
     const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
     return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
 };
+
+/**
+ * 
+ * @param contesto Recupera da un systemprompt di contesto una sua sezione.
+ Per ora le sezioni riconosciute sono: ruolo, azione, obiettivo, contesto
+ * @param section 
+ * @returns 
+ */
+export const getSectionsPrompts = async (contesto: string, section: string): Promise<string> => {
+    const systemPrompt = [section];
+    return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
+};

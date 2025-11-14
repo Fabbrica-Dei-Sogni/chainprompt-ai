@@ -118,7 +118,7 @@ const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
      */
-  }) as unknown as Runnable;
+  });
 
   return llm;
 
@@ -135,7 +135,7 @@ const getAnthropicCloudLLM = (config: ConfigChainPrompt) => {
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
      */
-  }) as unknown as Runnable;
+  });
 
   return llm;
 
@@ -152,7 +152,7 @@ const getGoogleCloudLLM = (config: ConfigChainPrompt) => {
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
      */
-  }) as unknown as Runnable;
+  });
 
   return llm;
 
@@ -169,7 +169,7 @@ const getOpenAICloudLLM = (config: ConfigChainPrompt) => {
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
      */
-  }) as unknown as Runnable;
+  });
 
   return llm;
 
@@ -189,7 +189,7 @@ const getLocalLLM = (config: ConfigChainPrompt) => {
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
      */
-  }) as unknown as Runnable;
+  });
 
   return llm;
 

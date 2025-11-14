@@ -11,7 +11,7 @@ import { ConfigChainPrompt } from '../../interfaces/configchainprompt.js';
 import { DataRequest } from '../../interfaces/datarequest.js';
 import { contextFolder, ENDPOINT_CHATGENERICA } from '../../services/common.services.js';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
-import { getFrameworkPrompts } from '../../services/business/reader-prompt.service.js';
+import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
 const contexts = fs.readdirSync(contextFolder);
 
@@ -53,9 +53,13 @@ export async function agentManagerHandler(
     for (const context of contexts) {
       const subNameAgent = "Sub Agente " + context;
       const subContext = context;
-      const promptsubAgent = await getFrameworkPrompts(subContext);
+
+      //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
+      let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
+      let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
+      const descriptionSubAgent = prRuolo + "\n" + prAzione;//await getFrameworkPrompts(subContext);
       //console.log("System prompt subcontext: " + promptsubAgent);
-      let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, promptsubAgent, provider, keyconversation, config);
+      let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, descriptionSubAgent, provider, keyconversation, config);
       tools.push(subagenttool);
     }
 

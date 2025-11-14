@@ -9,7 +9,7 @@ import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../../logger.js';
 import { getAgent, invokeAgent } from '../agents/agent.service.js';
-import { AgentMiddleware, StructuredTool, Tool } from 'langchain';
+import { AgentMiddleware } from 'langchain';
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
