@@ -14,6 +14,8 @@ import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
 import { getConfigChainpromptDFL } from '../../models/converter.models.js';
+
+//XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);
 
 
@@ -50,8 +52,11 @@ export async function agentManagerHandler(
     };
     //step 2. istanza e invocazione dell'agente
 
+    let subContexts: string[] = [
+      'docentelinux','regexp','whatif','whenudie'
+    ];
     //XXX: inserimento di tutti gli agenti tematici idonei
-    for (const context of contexts) {
+    for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
       const subContext = context;
 
