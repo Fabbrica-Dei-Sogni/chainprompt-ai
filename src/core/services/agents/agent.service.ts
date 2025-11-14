@@ -113,8 +113,8 @@ async function logState(agent: ReactAgent, sessionId: string) {
             return;
         }
         for (const [key, value] of Object.entries(state.values)) {
-            console.log(`  - Key: ${key}`);
-            console.log("    Value:", value);
+            console.log(`  - Key: ${JSON.stringify(key)}`);
+            console.log("    Value:", JSON.stringify(value));
         }
 
         console.log("Next nodes to execute:");
