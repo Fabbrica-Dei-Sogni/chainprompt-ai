@@ -12,6 +12,11 @@ import type {
 } from "@langchain/langgraph-checkpoint";
 import type pg from "pg";
 import type { RunnableConfig } from "@langchain/core/runnables";
+import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
+import { getInstanceEmbeddings } from "../../reasoning/llm-embeddings.service.js";
+import { EmbeddingProvider } from "../../../models/embeddingprovider.enum.js";
+import { ConfigEmbeddings } from "../../../interfaces/configembeddings.interface.js";
+import { Embeddings } from "@langchain/core/embeddings";
 
 // Logger generico, personalizzabile
 type LoggerLike = { error: (...args: any[]) => void; warn?: (...args: any[]) => void, info?: (...args: any[]) => void, log?: (...args: any[]) => void };
@@ -123,11 +128,63 @@ export function getCheckpointer(): PostgresSaver {
     return POSTGRESQL_CLIENT_INSTANCE.getCheckpointer();
 }
 
+
+
 /**
  * Informazioni diagnostiche sul pool (utile per monitoraggio)
  */
 function getPoolStats(): { totalCount: number; idleCount: number; waitingCount: number } {
 
     return POSTGRESQL_CLIENT_INSTANCE.getPoolStats();
+};
+
+
+// Configurazione tabella e colonne: può essere parametrica se vuoi multi-store
+export interface VectorStoreConfig {
+  tableName: string;
+  idColumnName: string;
+  vectorColumnName: string;
+  contentColumnName: string;
+  metadataColumnName?: string;
 }
 
+const DEFAULT_VECTORSTORE_CONFIG: VectorStoreConfig = {
+  tableName: "tool_embeddings",
+  idColumnName: "id",
+  vectorColumnName: "embedding",
+  contentColumnName: "description",
+  metadataColumnName: "metadata",
+};
+
+let VECTORSTORE_INSTANCE: PGVectorStore | null = null;
+
+/**
+ * Inizializza il vector store singleton con il provider embedding specificato.
+ * @param provider - enum (OpenAI, Ollama, ecc)
+ * @param config   - configurazione embedding
+ * @param pool     - pg.Pool centralizzato
+ * @param vectorStoreConfig - configurazione tabella/colonne (opzionale)
+ * @returns {Promise<PGVectorStore>}
+ */
+export async function getVectorStoreSingleton(
+  provider: EmbeddingProvider,
+  config: ConfigEmbeddings,
+  vectorStoreConfig: VectorStoreConfig = DEFAULT_VECTORSTORE_CONFIG
+): Promise<PGVectorStore> {
+  if (VECTORSTORE_INSTANCE) return VECTORSTORE_INSTANCE;
+
+  const embeddings: Embeddings = getInstanceEmbeddings(provider, config);
+  let pool = POSTGRESQL_CLIENT_INSTANCE.getOrCreatePool();
+
+  VECTORSTORE_INSTANCE = await PGVectorStore.initialize(embeddings, {
+    postgresConnectionOptions: pool.options, // usa quello che hai già istanziato
+    tableName: vectorStoreConfig.tableName,
+    columns: {
+      idColumnName: vectorStoreConfig.idColumnName,
+      vectorColumnName: vectorStoreConfig.vectorColumnName,
+      contentColumnName: vectorStoreConfig.contentColumnName,
+      metadataColumnName: vectorStoreConfig.metadataColumnName,
+    },
+  });
+  return VECTORSTORE_INSTANCE;
+};

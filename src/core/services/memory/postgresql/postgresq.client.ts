@@ -39,7 +39,7 @@ export class PostgresqlClient {
     /**
      * Crea e restituisce il pool PostgreSQL (singleton)
      */
-    getOrCreatePool(): pg.Pool {
+    public getOrCreatePool(): pg.Pool {
         if (!this.pool) {
             this.pool = new pg.Pool({
                 connectionString: this.DB_URI,

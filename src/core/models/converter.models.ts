@@ -1,4 +1,5 @@
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
+import { ConfigEmbeddings } from "../interfaces/configembeddings.interface.js";
 import { DataRequest } from "../interfaces/datarequest.interface.js";
 import { RequestBody } from "../interfaces/requestbody.interface.js";
 
@@ -33,7 +34,7 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     const noappendchat = body.noappendchat;
 
     //XXX: costruzione dell'identificativo di sessione
-    let keyconversation = session+"_"+identifier + "_" + context;
+    let keyconversation = session + "_" + identifier + "_" + context;
     //identificativo indirizzato a un agente piuttosto che a una chat conversazionale 
     //(capire se in futuro ha senso questa distinzione)
     if (isAgent)
@@ -51,9 +52,9 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat };
 }
 
-export function getConfigChainpromptDFL(): ConfigChainPrompt { 
-    
-    return { timeout: 120000};
+export function getConfigChainpromptDFL(): ConfigChainPrompt {
+
+    return { timeout: 120000 };
 }
 /**
  * Definisce un data request con valori di default.
@@ -84,4 +85,12 @@ export function getDataRequestDFL(): DataRequest {
 
 
     return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat, format };
+}
+
+export function getConfigEmbeddingsDFL(): ConfigEmbeddings {
+
+    return {
+        modelname: 'mxbai-embed-large',
+        baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+    }
 }

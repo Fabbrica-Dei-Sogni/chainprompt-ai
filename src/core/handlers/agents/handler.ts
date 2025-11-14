@@ -13,7 +13,11 @@ import { CONTEXT_MANAGER, contextFolder } from '../../services/common.services.j
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getConfigChainpromptDFL } from '../../models/converter.models.js';
+import { getConfigChainpromptDFL, getConfigEmbeddingsDFL } from '../../models/converter.models.js';
+import { RelevantTool } from '../../tools/relevant.tool.js';
+import { getVectorStoreSingleton } from '../../services/memory/postgresql/postgresql.service.js';
+import { EmbeddingProvider } from '../../models/embeddingprovider.enum.js';
+import { syncToolAgentEmbeddings } from '../../services/reasoning/llm-embeddings.service.js';
 
 //XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);
@@ -55,6 +59,8 @@ export async function agentManagerHandler(
     let subContexts: string[] = [
       'docentelinux','regexp','whatif','whenudie'
     ];
+    //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
+    await syncToolAgentEmbeddings(subContexts);
     //XXX: inserimento di tutti gli agenti tematici idonei
     for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
@@ -68,6 +74,9 @@ export async function agentManagerHandler(
       let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, descriptionSubAgent, provider, keyconversation, config);
       tools.push(subagenttool);
     }
+    //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
+    let vectorStore = await getVectorStoreSingleton(EmbeddingProvider.Ollama, getConfigEmbeddingsDFL());
+    tools.push(new RelevantTool(vectorStore));
 
     const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
 
