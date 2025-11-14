@@ -12,9 +12,10 @@ import { ConfigEmbeddings } from "../../interfaces/configembeddings.interface.js
 import { EmbeddingProvider } from "../../models/embeddingprovider.enum.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { Pool } from "pg";
-import { getVectorStoreSingleton, POSTGRESQL_CLIENT_INSTANCE } from "../memory/postgresql/postgresql.service.js";
+import { getVectorStoreSingleton, KYSELY_DATABASE } from "../memory/postgresql/postgresql.service.js";
 import { getConfigEmbeddingsDFL } from "../../models/converter.models.js";
 import { getSectionsPrompts } from "../business/reader-prompt.service.js";
+import { ToolEmbedding } from "../memory/postgresql/model/toolembedding.js";
 
 
 /**
@@ -147,6 +148,15 @@ export async function syncToolAgentEmbeddings(contexts: string[], provider: Embe
     syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
 }
 
+export async function getExistingToolDocs(): Promise<ToolEmbedding[]> {
+  return KYSELY_DATABASE.selectFrom('tool_embeddings').selectAll().execute();
+}
+export async function deleteToolDocByName(name: string): Promise<void> {
+  await KYSELY_DATABASE
+    .deleteFrom('tool_embeddings')
+    .where('metadata', '@>', { name }) // match JSON per nome
+    .execute();
+}
 /**
  * Sincronizza i documenti tools: aggiunge nuovi, aggiorna changed,
  * cancella obsoleti se necessario.
@@ -158,16 +168,16 @@ async function syncDocsPgvectorStore(
   config: ConfigEmbeddings,
   toolDocs: { pageContent: string, metadata: any }[]
 ): Promise<{ added: number; updated: number; deleted: number }> {
-  let pool: Pool | undefined;
+
   let vectorStore: PGVectorStore | undefined;
 
   let added = 0, updated = 0, deleted = 0;
   try {
-    pool = POSTGRESQL_CLIENT_INSTANCE.getOrCreatePool();
+
     vectorStore = await getVectorStoreSingleton(provider, config);
 
     // Recupero dei documenti esistenti
-    const existingDocs = await getExistingToolDocs(pool, "tool_embeddings");
+    const existingDocs = await getExistingToolDocs();
     const existingNames = new Set(existingDocs.map(d => d.metadata?.name));
     const newNames = new Set(toolDocs.map(d => d.metadata?.name));
 
@@ -182,7 +192,7 @@ async function syncDocsPgvectorStore(
     // Cancellazione tool obsoleti
     for (const name of namesToDelete) {
       try {
-        await deleteToolDoc(pool, "tool_embeddings", name);
+        await deleteToolDocByName(name);
         deleted++;
       } catch (error) {
         console.error(`[syncDocsPgvectorStore] Errore cancellando tool '${name}':`, error);
@@ -193,7 +203,7 @@ async function syncDocsPgvectorStore(
     // Aggiornamento embedding modificati
     for (const doc of docsToUpdate) {
       try {
-        await deleteToolDoc(pool, "tool_embeddings", doc.metadata?.name);
+        await deleteToolDocByName(doc.metadata?.name);
         await vectorStore.addDocuments([doc]);
         updated++;
       } catch (error) {
@@ -219,13 +229,4 @@ async function syncDocsPgvectorStore(
     console.error("[syncDocsPgvectorStore] Errore globale:", err);
     throw err; // Propaga per gestioni superiori, se serve
   }
-}
-
-export async function getExistingToolDocs(pool: Pool, tableName: string) {
-  const { rows } = await pool.query(`SELECT id, description, metadata FROM ${tableName}`);
-  return rows; // Array di documenti embeddati
-}
-
-export async function deleteToolDoc(pool: Pool, tableName: string, toolName: string) {
-  await pool.query(`DELETE FROM ${tableName} WHERE metadata->>'name' = $1`, [toolName]);
-}
+};

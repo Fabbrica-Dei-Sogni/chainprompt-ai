@@ -63,6 +63,9 @@ export async function agentManagerHandler(
     //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
 
     //XXX: inserimento di tutti gli agenti tematici idonei
+    //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
+    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
+    tools.push(new RelevantTool(vectorStore));
     for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
       const subContext = context;
@@ -75,9 +78,6 @@ export async function agentManagerHandler(
       let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, descriptionSubAgent, provider, keyconversation, config);
       tools.push(subagenttool);
     }
-    //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
-    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
-    tools.push(new RelevantTool(vectorStore));
 
     const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
 

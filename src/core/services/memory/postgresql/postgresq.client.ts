@@ -1,7 +1,7 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import pg from "pg";
 import '../../../../logger.js';
-import { SafePostgresSaver } from "./postgresql.service.js";
+import { SafePostgresSaver } from "./safepostgres.saver.js";
 
 /**
  * Istanza client per accedere al checkpointer degli agenti su postgresql 
