@@ -2,9 +2,9 @@
 /**
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
-import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
-import { ChainPromptBaseTemplate } from "../../interfaces/chainpromptbasetemplate.js";
-import { DataRequest } from "../../interfaces/datarequest.js";
+import { ConfigChainPrompt } from "../../interfaces/configchainprompt.interface.js";
+import { ChainPromptBaseTemplate } from "../../templates/chainpromptbase.template.js";
+import { DataRequest } from "../../interfaces/datarequest.interface.js";
 import { LLMProvider } from '../../models/llmprovider.enum.js';
 import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../../logger.js';

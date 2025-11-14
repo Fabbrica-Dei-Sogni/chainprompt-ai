@@ -2,9 +2,9 @@ import { OpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
-import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.js";
+import { ConfigChainPrompt } from "../../core/interfaces/configchainprompt.interface.js";
 import { Ollama } from "@langchain/ollama";
-import { ChainPromptBaseTemplate } from "../../core/interfaces/chainpromptbasetemplate.js";
+import { ChainPromptBaseTemplate } from "../../core/templates/chainpromptbase.template.js";
 import { Runnable } from "@langchain/core/runnables";
 dotenv.config();
 

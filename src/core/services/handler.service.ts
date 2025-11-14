@@ -1,14 +1,14 @@
 
-import { DataRequest } from "../interfaces/datarequest.js";
+import { DataRequest } from "../interfaces/datarequest.interface.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from './common.services.js';
-import { RequestBody } from '../interfaces/requestbody.js';
+import { RequestBody } from '../interfaces/requestbody.interface.js';
 import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
 import { AgentMiddleware } from 'langchain';
 import { getConfigChainpromptDFL, getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
 import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 

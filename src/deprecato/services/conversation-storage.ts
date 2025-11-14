@@ -1,6 +1,6 @@
 import fs from 'fs';
 import dotenv from "dotenv";
-import { DataRequest } from '../../core/interfaces/datarequest.js';
+import { DataRequest } from '../../core/interfaces/datarequest.interface.js';
 dotenv.config();
 
 //XXX: questo approccio è una soluzione temporanea che verrà sostituita da una soluzione piu moderna e in linea con le logiche llm

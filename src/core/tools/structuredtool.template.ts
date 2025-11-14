@@ -3,7 +3,7 @@ import { getAgent, invokeAgent } from "../services/agents/agent.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../services/common.services.js";
 import { getFrameworkPrompts } from "../services/business/reader-prompt.service.js";
 import { handleToolErrors, createSummaryMemoryMiddleware } from "../services/agents/middleware.service.js";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
 

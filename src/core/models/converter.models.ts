@@ -1,6 +1,6 @@
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
-import { DataRequest } from "../interfaces/datarequest.js";
-import { RequestBody } from "../interfaces/requestbody.js";
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
+import { DataRequest } from "../interfaces/datarequest.interface.js";
+import { RequestBody } from "../interfaces/requestbody.interface.js";
 
 /**
 * Il metodo ha lo scopo di estrapolare dalla request entrante applicativa i valori di input tra cui il prompt utente, il nome del modello, la temperatura e altre informazioni peculiari,

@@ -1,5 +1,5 @@
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { ConfigChainPrompt } from "../../interfaces/configchainprompt.js";
+import { ConfigChainPrompt } from "../../interfaces/configchainprompt.interface.js";
 import { getInstanceLLM } from "../reasoning/llm-chain.service.js";
 import { AgentMiddleware, createAgent, dynamicSystemPromptMiddleware, ReactAgent, StructuredTool, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";

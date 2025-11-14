@@ -1,7 +1,7 @@
 import { HumanMessageFields, SystemMessageFields } from "@langchain/core/messages";
 import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { ConfigChainPrompt } from "./configchainprompt.js";
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 
 /**
  * Interfaccia che rappresenta il template prompt base dell'applicazione in cui si esplicitano il system e user prompt.

@@ -1,5 +1,5 @@
 import { Runnable, RunnableSequence, RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { getPromptTemplate } from "../../../interfaces/chainpromptbasetemplate.js";
+import { getPromptTemplate } from "../../../templates/chainpromptbase.template.js";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RedisChatMessageHistory } from "@langchain/redis";
 import { REDIS_CLIENT_INSTANCE } from "./redis.client.js";
