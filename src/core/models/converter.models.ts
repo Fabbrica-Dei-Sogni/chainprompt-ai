@@ -1,3 +1,4 @@
+import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 import { DataRequest } from "../interfaces/datarequest.js";
 import { RequestBody } from "../interfaces/requestbody.js";
 
@@ -50,6 +51,10 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat };
 }
 
+export function getConfigChainpromptDFL(): ConfigChainPrompt { 
+    
+    return { timeout: 120000};
+}
 /**
  * Definisce un data request con valori di default.
  In futuro i valori saranno persistiti su un database come mongodb per personalizzare i default in base alle tematiche. next soon

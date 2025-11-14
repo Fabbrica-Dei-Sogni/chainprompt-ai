@@ -55,7 +55,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     console.log(`Question prompt utente:\n`, question);
 
     let config: ConfigChainPrompt = {
-        temperature: temperature, modelname, maxTokens, numCtx, format
+        temperature, modelname, maxTokens, numCtx, format
     };
     let prompt: ChainPromptBaseTemplate = {
         systemPrompt: systemPrompt as any, question: question as any

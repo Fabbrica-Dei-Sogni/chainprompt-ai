@@ -13,6 +13,7 @@ export interface ConfigChainPrompt {
     maxTokens?: number;
     numCtx?: number;
     format?: string;    //parametro valido solo per il provider Ollama e ChatOllama
+    timeout?: number;
 
     //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
     numBatch?: number;

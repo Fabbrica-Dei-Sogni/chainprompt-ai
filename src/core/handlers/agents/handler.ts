@@ -13,6 +13,7 @@ import { contextFolder, ENDPOINT_CHATGENERICA } from '../../services/common.serv
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
+import { getConfigChainpromptDFL } from '../../models/converter.models.js';
 const contexts = fs.readdirSync(contextFolder);
 
 
@@ -45,7 +46,7 @@ export async function agentManagerHandler(
 
     const { temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = resultData;
     let config: ConfigChainPrompt = {
-      temperature, modelname, maxTokens, numCtx, format
+     ...getConfigChainpromptDFL(),  temperature, modelname, maxTokens, numCtx, format
     };
     //step 2. istanza e invocazione dell'agente
 

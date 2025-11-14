@@ -6,7 +6,7 @@ import '../../logger.js';
 import { LLMProvider } from '../models/llmprovider.enum.js';
 import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
 import { AgentMiddleware } from 'langchain';
-import { getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
+import { getConfigChainpromptDFL, getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
 import { getFrameworkPrompts } from "./business/reader-prompt.service.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.js";
 
@@ -72,7 +72,7 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
         
         const { question, keyconversation, temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
         let config: ConfigChainPrompt = {
-            temperature, modelname, maxTokens, numCtx, format
+          ...getConfigChainpromptDFL(),  temperature, modelname, maxTokens, numCtx, format
         };
         return senderToAgent(question!, keyconversation, config, systemPrompt, provider, tools, middleware, nomeagente);
 
