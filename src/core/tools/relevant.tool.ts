@@ -20,6 +20,15 @@ export class RelevantTool extends Tool {
     }
 
     protected async _call(arg: string | undefined): Promise<string> {
+
+        //TODO: mettere a fattor comune una implementazione per tutti i _call
+        console.info(
+        `Argomenti : "${arg}":\n` +    
+        `SubAgent Info:\n` +
+        `name: ${this.name}\n` +
+        `description: ${this.description}\n`
+        );  
+        
         if (!arg) throw new Error("Serve un URL in input.");
         // Decodifica URI da base64
         const url = arg.trim();

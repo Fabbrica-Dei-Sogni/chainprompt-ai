@@ -7,6 +7,14 @@ export class ScrapingTool extends Tool {
     description = "Effettua scraping di articoli da URL e restituisce titolo e contenuto pulito.";
 
     protected async _call(arg: string | undefined): Promise<string> {
+
+        console.info(
+        `Argomenti : "${arg}":\n` +    
+        `SubAgent Info:\n` +
+        `name: ${this.name}\n` +
+        `description: ${this.description}\n`
+        ); 
+        
         if (!arg) throw new Error("Serve un URL in input.");
         // Decodifica URI da base64
             const url = arg.trim();

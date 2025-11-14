@@ -17,6 +17,13 @@ export class CybersecurityAPITool extends Tool {
     // Implementa il metodo _call (protetto) richiesto da Tool base
     protected async _call(arg: string | undefined): Promise<string> {
 
+        console.info(
+        `Argomenti : "${arg}":\n` +    
+        `SubAgent Info:\n` +
+        `name: ${this.name}\n` +
+        `description: ${this.description}\n`
+        ); 
+        
         // Parse JSON input da stringa a oggetto tipizzato
         let input: CyberInput;
         try {

@@ -37,7 +37,8 @@ export async function agentManagerHandler(
   res: any,
   next: any,
   provider: LLMProvider,
-  tools: any[] = []
+  tools: any[] = [],
+  providerEmbeddings: EmbeddingProvider = EmbeddingProvider.Ollama,
 ) {
   try {
 
@@ -60,7 +61,7 @@ export async function agentManagerHandler(
       'docentelinux','regexp','whatif','whenudie'
     ];
     //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
-    await syncToolAgentEmbeddings(subContexts);
+
     //XXX: inserimento di tutti gli agenti tematici idonei
     for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
@@ -75,7 +76,7 @@ export async function agentManagerHandler(
       tools.push(subagenttool);
     }
     //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
-    let vectorStore = await getVectorStoreSingleton(EmbeddingProvider.Ollama, getConfigEmbeddingsDFL());
+    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
     tools.push(new RelevantTool(vectorStore));
 
     const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);

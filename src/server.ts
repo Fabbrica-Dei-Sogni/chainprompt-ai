@@ -6,8 +6,11 @@ import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './core/endpoint.js';
 import './logger.js';
+import fs from 'fs';
+import { contextFolder } from './core/services/common.services.js';
+import { syncToolAgentEmbeddings } from './core/services/reasoning/llm-embeddings.service.js';
 dotenv.config();
-
+const contexts = fs.readdirSync(contextFolder);
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
 //l'obiettivo e' impostare a livello globale un agente che istruisce qualsiasi fetch under the wood l'ecosistema langchain a non terminare mai la richiesta per una mancata ricezione di un header
 //per lunghe richieste a un llm come ollama, puo accadere che venga generato l'errore UND_ERR_HEADERS_TIMEOUT
@@ -35,5 +38,8 @@ app.use(apiversion, api);
 const server: http.Server = http.createServer(app);
 console.log(`HTTP server created!`);
 
-server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`);});
+//salvataggio a primo avvio dei systemprompt degli agenti e quindi dei tool agent
+await syncToolAgentEmbeddings(contexts);
+
+server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`); });
 

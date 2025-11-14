@@ -17,6 +17,7 @@ import { getInstanceEmbeddings } from "../../reasoning/llm-embeddings.service.js
 import { EmbeddingProvider } from "../../../models/embeddingprovider.enum.js";
 import { ConfigEmbeddings } from "../../../interfaces/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
+import { getConfigEmbeddingsDFL } from "../../../models/converter.models.js";
 
 // Logger generico, personalizzabile
 type LoggerLike = { error: (...args: any[]) => void; warn?: (...args: any[]) => void, info?: (...args: any[]) => void, log?: (...args: any[]) => void };
@@ -167,8 +168,8 @@ let VECTORSTORE_INSTANCE: PGVectorStore | null = null;
  * @returns {Promise<PGVectorStore>}
  */
 export async function getVectorStoreSingleton(
-  provider: EmbeddingProvider,
-  config: ConfigEmbeddings,
+  provider: EmbeddingProvider = EmbeddingProvider.Ollama,
+  config: ConfigEmbeddings = getConfigEmbeddingsDFL(),
   vectorStoreConfig: VectorStoreConfig = DEFAULT_VECTORSTORE_CONFIG
 ): Promise<PGVectorStore> {
   if (VECTORSTORE_INSTANCE) return VECTORSTORE_INSTANCE;

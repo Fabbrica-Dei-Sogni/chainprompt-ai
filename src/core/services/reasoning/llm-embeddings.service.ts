@@ -121,7 +121,7 @@ const getGoogleVertexAIEmbeddings = (config: ConfigEmbeddings) => {
   return embeddings;
 };
 
-export async function syncToolAgentEmbeddings(contexts: string[]) {
+export async function syncToolAgentEmbeddings(contexts: string[], provider: EmbeddingProvider = EmbeddingProvider.Ollama) {
     //XXX: inserimento di tutti gli agenti tematici idonei
     let docs: {
         pageContent: string;
@@ -138,7 +138,7 @@ export async function syncToolAgentEmbeddings(contexts: string[]) {
         //console.log("System prompt subcontext: " + promptsubAgent);
         docs.push({ pageContent: prRuolo, metadata: null });
     }
-    syncDocsPgvectorStore(EmbeddingProvider.Ollama, getConfigEmbeddingsDFL(), docs);
+    syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
 }
 
 /**
