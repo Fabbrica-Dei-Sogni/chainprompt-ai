@@ -1,6 +1,7 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import pg from "pg";
 import '../../../../logger.js';
+import { SafePostgresSaver } from "./postgresql.service.js";
 
 /**
  * Istanza client per accedere al checkpointer degli agenti su postgresql 
@@ -16,7 +17,7 @@ export class PostgresqlClient {
     // Pool globale (singleton pattern)
     private pool: pg.Pool | null = null;
 
-    private checkpointer: PostgresSaver | null = null;
+    private checkpointer: SafePostgresSaver | null = null;
 
     constructor() {
         this.initializeCheckpointer();
@@ -74,7 +75,7 @@ export class PostgresqlClient {
                 if (!this.checkpointer) {
 
                     const pgPool = this.getOrCreatePool();
-                    this.checkpointer = new PostgresSaver(pgPool, undefined, {
+                    this.checkpointer = new SafePostgresSaver(pgPool, undefined, {
                         schema: this.NAME_DB_MEMORY
                     });
                     await this.checkpointer.setup();
