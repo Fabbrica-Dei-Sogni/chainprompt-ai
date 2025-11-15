@@ -39,7 +39,8 @@ const server: http.Server = http.createServer(app);
 console.log(`HTTP server created!`);
 
 //salvataggio a primo avvio dei systemprompt degli agenti e quindi dei tool agent
-await syncToolAgentEmbeddings(contexts);
+//temporaneamente sospeso in quanto richiede maggiori approfondimenti
+//await syncToolAgentEmbeddings(contexts);
 
 server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`); });
 

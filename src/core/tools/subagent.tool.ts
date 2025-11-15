@@ -5,6 +5,8 @@ import { getFrameworkPrompts } from "../services/business/reader-prompt.service.
 import { handleToolErrors, createSummaryMemoryMiddleware } from "../services/agents/middleware.service.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
+import { extractAgentManagerFinalReturn } from "../services/reasoning/llm-sender.service.js";
+import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
 export class SubAgentTool extends Tool {
@@ -32,7 +34,7 @@ export class SubAgentTool extends Tool {
     name = "Mr Scagnozzo";
     description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
 
-    protected async _call(arg: string | undefined): Promise<string> {
+    protected async _call(arg: string | undefined): Promise<AgentOutput> {
 
         console.info(
         `Argomenti : "${arg}":\n` +    
@@ -47,7 +49,7 @@ export class SubAgentTool extends Tool {
         
         if (!arg) {
             console.log("Argument risulta vuoto");
-            return "fail";
+            throw "fail";
             //throw new Error("Argomenti vuoti");
         }
         const question = arg;
@@ -63,9 +65,9 @@ export class SubAgentTool extends Tool {
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
             const result = invokeAgent(agent, question, keyconversation);
-            return JSON.stringify(result);
+            return extractAgentManagerFinalReturn(result);
         } catch {
-            return `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;
+            throw `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;
         }
     }
 }

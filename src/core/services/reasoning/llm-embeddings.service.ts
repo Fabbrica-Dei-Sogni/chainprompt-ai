@@ -140,10 +140,10 @@ export async function syncToolAgentEmbeddings(contexts: string[], provider: Embe
         //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
         let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
         let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
-        const descriptionSubAgent = prRuolo + "\n" + prAzione; //await getFrameworkPrompts(subContext);
+        const descriptionSubAgent = context+"."+prRuolo + "\n"; //await getFrameworkPrompts(subContext);
 
         //console.log("System prompt subcontext: " + promptsubAgent);
-        docs.push({ pageContent: prRuolo, metadata: null });
+        docs.push({ pageContent: descriptionSubAgent, metadata: null });
     }
     syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
 }
@@ -204,7 +204,9 @@ async function syncDocsPgvectorStore(
     for (const doc of docsToUpdate) {
       try {
         await deleteToolDocByName(doc.metadata?.name);
+        //console.log("Aggiunta document embedding " + JSON.stringify(doc))+" ...";
         await vectorStore.addDocuments([doc]);
+        //console.log("Aggiunto con successo!");
         updated++;
       } catch (error) {
         console.error(`[syncDocsPgvectorStore] Errore aggiornando '${doc.metadata?.name}':`, error);

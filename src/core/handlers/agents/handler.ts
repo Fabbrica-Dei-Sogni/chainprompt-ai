@@ -60,12 +60,13 @@ export async function agentManagerHandler(
     let subContexts: string[] = [
       'docentelinux','regexp','whatif','whenudie'
     ];
+    
     //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
 
     //XXX: inserimento di tutti gli agenti tematici idonei
     //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
-    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
-    tools.push(new RelevantTool(vectorStore));
+//    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
+//    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
     for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
       const subContext = context;
@@ -73,7 +74,7 @@ export async function agentManagerHandler(
       //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
       let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
       let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
-      const descriptionSubAgent = prRuolo + "\n" + prAzione;//await getFrameworkPrompts(subContext);
+      const descriptionSubAgent = prRuolo + "\n";//await getFrameworkPrompts(subContext);
       //console.log("System prompt subcontext: " + promptsubAgent);
       let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, descriptionSubAgent, provider, keyconversation, config);
       tools.push(subagenttool);
