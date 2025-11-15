@@ -9,7 +9,7 @@ import { agentManagerHandler } from "../handlers/agents/handler.js";
 
 providerRoutes.forEach(({ prefix, provider }) => {
     router.post(`/agent/${prefix}/manager`, (req, res, next) =>
-    agentManagerHandler(req, res, next, provider)
+    agentManagerHandler(req, res, next, provider, [], ['whatif', 'whenudie'])
     );
 });
 
