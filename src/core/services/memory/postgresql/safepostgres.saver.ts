@@ -2,13 +2,13 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import '../../../../logger.js';
 import type {
-    ChannelVersions,
-    Checkpoint,
-    CheckpointListOptions,
-    CheckpointMetadata,
-    CheckpointTuple,
-    PendingWrite,
-    SerializerProtocol,
+  ChannelVersions,
+  Checkpoint,
+  CheckpointListOptions,
+  CheckpointMetadata,
+  CheckpointTuple,
+  PendingWrite,
+  SerializerProtocol,
 } from "@langchain/langgraph-checkpoint";
 import type pg from "pg";
 import type { RunnableConfig } from "@langchain/core/runnables";
@@ -35,7 +35,7 @@ export class SafePostgresSaver extends PostgresSaver {
       await super.setup();
     } catch (error) {
       this.logger.error("[SafePostgresSaver] setup failed:", error);
-      throw error;
+      //throw error;
     }
   }
 
@@ -50,7 +50,12 @@ export class SafePostgresSaver extends PostgresSaver {
       return await super.put(config, checkpoint, metadata, newVersions);
     } catch (error) {
       this.logger.error("[SafePostgresSaver] put failed:", { error, config, checkpoint, metadata, newVersions });
-      throw error;
+      return {
+        ...config,
+        // campi extra per segnalare l’errore
+        _safeSaverError: true,
+        _safeSaverErrorMessage: error instanceof Error ? error.message : String(error)
+      } as RunnableConfig;
     }
   }
 
@@ -64,7 +69,7 @@ export class SafePostgresSaver extends PostgresSaver {
       await super.putWrites(config, writes, taskId);
     } catch (error) {
       this.logger.error("[SafePostgresSaver] putWrites failed:", { error, config, writes, taskId });
-      throw error;
+      //throw error;
     }
   }
 
@@ -105,7 +110,7 @@ export class SafePostgresSaver extends PostgresSaver {
       await super.deleteThread(threadId);
     } catch (error) {
       this.logger.error("[SafePostgresSaver] deleteThread failed:", { error, threadId });
-      throw error;
+      //throw error;
     }
   }
 }
