@@ -4,8 +4,8 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js"
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { getAgentOutput } from "../services/reasoning/llm-sender.service.js";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
+import { getAgentOutput } from "../models/converter.models.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema

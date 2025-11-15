@@ -12,8 +12,7 @@ import { CONTEXT_MANAGER, contextFolder} from '../../services/common.services.js
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getConfigChainpromptDFL } from '../../models/converter.models.js';
-import { EmbeddingProvider } from '../../models/embeddingprovider.enum.js';
+import { getAgentOutput, getConfigChainpromptDFL } from '../../models/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/agents/agent.service.js';
 
@@ -35,8 +34,7 @@ export async function agentManagerHandler(
   res: any,
   next: any,
   provider: LLMProvider,
-  tools: any[] = [],
-  providerEmbeddings: EmbeddingProvider = EmbeddingProvider.Ollama,
+  tools: any[] = []
 ) {
   try {
 
@@ -66,7 +64,7 @@ export async function agentManagerHandler(
     //    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
     //    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
     for (const context of subContexts) {
-      const subNameAgent = "Sub Agente " + context;
+      const subNameAgent = "Assistente " + context;
       const subContext = context;
 
       //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
@@ -81,7 +79,8 @@ export async function agentManagerHandler(
       tools.push(subagenttool);
     }
 
-    const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    let answer = getAgentOutput(result);
 
     //step 3. ritorno la response http
     res.json(answer);
@@ -124,8 +123,8 @@ async function agentHandler(
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
 
     //step 2. istanza e invocazione dell'agente
-    const answer = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
-
+    const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    let answer = getAgentOutput(result)
     //step 3. ritorno la response http
     res.json(answer);
 

@@ -1,8 +1,8 @@
 import { Tool } from "@langchain/core/tools";
 import { invokeAgent } from "../services/agents/agent.service.js";
-import { getAgentOutput } from "../services/reasoning/llm-sender.service.js";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 import { ReactAgent } from "langchain";
+import { getAgentOutput } from "../models/converter.models.js";
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
 export class SubAgentTool extends Tool {

@@ -37,7 +37,7 @@ export async function buildAgent(
 
   //step 2. Recupero del systemprompt dalla logica esistente
   const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-  console.log("System prompt : " + systemPrompt);
+  //console.log("System prompt : " + systemPrompt);
   const agent = getAgent(config, provider, systemPrompt, tools, middleware, context);
   return agent;
 }

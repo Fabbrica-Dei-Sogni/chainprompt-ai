@@ -102,7 +102,7 @@ export async function getDataByResponseHttp(req: any, context: string, identifie
 
     //step 2. Recupero del systemprompt dalla logica esistente
     const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-    console.log("System prompt : " + systemPrompt);
+    //console.log("System prompt : " + systemPrompt);
 
     console.log("Identificativo chiamante: ", identifier);
 
