@@ -7,6 +7,10 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js"
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
 
+/**
+ * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema
+ */
+
 export interface SubAgentToolInput {
     config: ConfigChainPrompt;
     provider: LLMProvider;
@@ -81,13 +85,23 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
     schema = SubAgentToolInputSchema;
 
     protected async _call(arg: SubAgentToolInput): Promise<string> {
+        
+      //TODO: mettere a fattor comune una implementazione per tutti i _call
+        console.info(
+        `Argomenti : "${arg}":\n` +    
+        `SubAgent Info:\n` +
+        `name: ${this.name}\n` +
+        `description: ${this.description}\n`
+        );  
+        
         if (!arg) {
             console.log("Argument risulta vuoto");
             return "fail";
             //throw new Error("Argomenti vuoti");
         }
-        const { question } = arg;
-
+        
+        let obj = arg;
+      
         const middleware = [handleToolErrors, createSummaryMemoryMiddleware(this.config.modelname!) /*, dynamicSystemPrompt*/];
 
         //step 2. Recupero del systemprompt dalla logica esistente
@@ -98,7 +112,7 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
 
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
-            const result = invokeAgent(agent, question, keyconversation);
+            const result = invokeAgent(agent, obj.question, keyconversation);
             return JSON.stringify(result);
         } catch {
             return `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;

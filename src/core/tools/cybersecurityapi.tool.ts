@@ -17,26 +17,27 @@ export class CybersecurityAPITool extends Tool {
     // Implementa il metodo _call (protetto) richiesto da Tool base
     protected async _call(arg: string | undefined): Promise<string> {
 
+        //TODO: mettere a fattor comune una implementazione per tutti i _call
         console.info(
         `Argomenti : "${arg}":\n` +    
         `SubAgent Info:\n` +
         `name: ${this.name}\n` +
         `description: ${this.description}\n`
-        ); 
+        );  
         
-        // Parse JSON input da stringa a oggetto tipizzato
-        let input: CyberInput;
-        try {
-            input = arg ? JSON.parse(arg) : null;
-        } catch {
-            throw new Error("Input JSON non valido");
+        if (!arg) {
+            console.log("Argument risulta vuoto");
+            return "fail";
+            //throw new Error("Argomenti vuoti");
         }
+        const question = arg;
 
-        const query = new URLSearchParams(input.params as any).toString();
-        const response = await fetch(`${input.url}?${query}`);
-        if (!response.ok) throw new Error("Errore fetching dati da API");
-        const json: CyberOutput = await response.json();
-        return JSON.stringify(json);
+        try {
+            const result = "interroga la api del threatintel con un json ben formato e con i valori presenti nella domanda in input "+question;
+            return JSON.stringify(result);
+        } catch {
+            return `Errore durante l'esecuzione del tool ${this.name}`;
+        }
 
     }
 }

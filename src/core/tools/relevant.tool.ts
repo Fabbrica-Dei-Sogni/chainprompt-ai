@@ -29,14 +29,18 @@ export class RelevantTool extends Tool {
         `description: ${this.description}\n`
         );  
         
-        if (!arg) throw new Error("Serve un URL in input.");
-        // Decodifica URI da base64
-        const url = arg.trim();
+        if (!arg) {
+            console.log("Argument risulta vuoto");
+            return "fail";
+            //throw new Error("Argomenti vuoti");
+        }
+        const question = arg;
+
         try {
-            const result = await this.retrieveRelevantTools(arg);
+            const result = await this.retrieveRelevantTools(question);
             return JSON.stringify(result);
         } catch {
-            return `Errore durante lo scraping del link ${url}`;
+            return `Errore durante l'esecuzione del tool ${this.name}`;
         }
     }
 
