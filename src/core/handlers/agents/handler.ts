@@ -3,21 +3,19 @@ import { NextFunction } from "express";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/handler.service.js';
 import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
-import { ScrapingTool } from "../../tools/scraping.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { ConfigChainPrompt } from '../../interfaces/configchainprompt.interface.js';
 import { DataRequest } from '../../interfaces/datarequest.interface.js';
-import { CONTEXT_MANAGER, contextFolder } from '../../services/common.services.js';
+import { CONTEXT_MANAGER, contextFolder} from '../../services/common.services.js';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getConfigChainpromptDFL, getConfigEmbeddingsDFL } from '../../models/converter.models.js';
-import { RelevantTool } from '../../tools/relevant.tool.js';
-import { getVectorStoreSingleton } from '../../services/memory/postgresql/postgresql.service.js';
+import { getConfigChainpromptDFL } from '../../models/converter.models.js';
 import { EmbeddingProvider } from '../../models/embeddingprovider.enum.js';
-import { syncToolAgentEmbeddings } from '../../services/reasoning/llm-embeddings.service.js';
+import { scrapingTool } from '../../tools/suite.tools.js';
+import { buildAgent } from '../../services/agents/agent.service.js';
 
 //XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);
@@ -53,20 +51,20 @@ export async function agentManagerHandler(
 
     const { temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = resultData;
     let config: ConfigChainPrompt = {
-     ...getConfigChainpromptDFL(),  temperature, modelname, maxTokens, numCtx, format
+      ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format
     };
     //step 2. istanza e invocazione dell'agente
 
     let subContexts: string[] = [
-      'docentelinux','regexp','whatif','whenudie'
+      'docentelinux', 'regexp', 'whatif', 'whenudie'
     ];
-    
+
     //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
 
     //XXX: inserimento di tutti gli agenti tematici idonei
     //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
-//    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
-//    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
+    //    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
+    //    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
     for (const context of subContexts) {
       const subNameAgent = "Sub Agente " + context;
       const subContext = context;
@@ -76,7 +74,10 @@ export async function agentManagerHandler(
       let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
       const descriptionSubAgent = prRuolo + "\n";//await getFrameworkPrompts(subContext);
       //console.log("System prompt subcontext: " + promptsubAgent);
-      let subagenttool: SubAgentTool = new SubAgentTool(subNameAgent, subContext, descriptionSubAgent, provider, keyconversation, config);
+
+      const agent = await buildAgent(subContext, config, provider);
+
+      let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
       tools.push(subagenttool);
     }
 
@@ -167,7 +168,7 @@ export const handleClickbaitAgent = (
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, [new ScrapingTool()], 'clickbaitscore');
+) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, [scrapingTool], 'clickbaitscore');
 
 export const handleCommonAgentRequest = (
   req: any,

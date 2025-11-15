@@ -6,6 +6,9 @@ import * as z from "zod";
 import '../../../logger.js';
 import { MessagesZodState } from "@langchain/langgraph";
 import { getCheckpointer } from "../memory/postgresql/postgresql.service.js";
+import { createSummaryMemoryMiddleware, handleToolErrors } from "./middleware.service.js";
+import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.services.js";
+import { getFrameworkPrompts } from "../business/reader-prompt.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -15,16 +18,41 @@ import { getCheckpointer } from "../memory/postgresql/postgresql.service.js";
 //const checkpointer = getCheckpointer();//new MemorySaver();
 
 
+ /**
+  * 
+  * Costruisce un agente a partire dal contesto, configurazione
+  * @param context 
+  * @param config 
+  * @param provider 
+  * @param modelname 
+  * @param middleware 
+  * @returns 
+  */
+export async function buildAgent(
+    context: string,
+    config: ConfigChainPrompt,
+    provider: LLMProvider,
+    tools: Tool[] | StructuredTool[] = [],
+    middleware: AgentMiddleware[] = [handleToolErrors, createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
 
+  //step 2. Recupero del systemprompt dalla logica esistente
+  const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+  console.log("System prompt : " + systemPrompt);
+  const agent = getAgent(config, provider, systemPrompt, tools, middleware, context);
+  return agent;
+}
 
 /**
- * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
- * @param config 
- * @param provider 
- * @param context 
- * @param tools 
- * @returns 
- */
+  * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
+  * 
+  * @param config 
+  * @param provider 
+  * @param systemPrompt 
+  * @param tools 
+  * @param middleware 
+  * @param nomeagente 
+  * @returns 
+  */
 export function getAgent(config: ConfigChainPrompt, provider: LLMProvider, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.

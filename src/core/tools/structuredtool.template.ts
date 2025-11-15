@@ -1,11 +1,11 @@
 import { StructuredTool } from "@langchain/core/tools";
-import { getAgent, invokeAgent } from "../services/agents/agent.service.js";
-import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../services/common.services.js";
-import { getFrameworkPrompts } from "../services/business/reader-prompt.service.js";
-import { handleToolErrors, createSummaryMemoryMiddleware } from "../services/agents/middleware.service.js";
+import { invokeAgent } from "../services/agents/agent.service.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
+import { ReactAgent } from "langchain";
+import { getAgentOutput } from "../services/reasoning/llm-sender.service.js";
+import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema
@@ -59,63 +59,51 @@ export const SubAgentToolInputSchema = z.object({
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
 export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema> {
 
-    private config: ConfigChainPrompt;
-    private context: string;
-    private provider: LLMProvider;
-    private keyConversation: string;
+    name = "Mr Scagnozzo";
+    description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
 
-    constructor(nomeagente: string, context: string, systemprompt: string, provider: LLMProvider, keyConversation: string, config: ConfigChainPrompt) {
+    private context: string;
+    private keyConversation: string;
+    private agent: ReactAgent;
+
+    constructor(agent: ReactAgent, nomeagente: string, context: string, systemprompt: string, keyConversation: string,) {
         super();
         this.name = nomeagente;
 
         let description = `
-        Sei un sub agente di nome ${nomeagente}, che deve avere le informazioni di question, context, provider, temperature, modelname, maxTokens, numCtx che il chiamante possiede.
-
+        Sei un sub agente di nome ${nomeagente} incaricato di eseguire quanto segue:
         ${systemprompt}
         `;
         this.context = context;
-        this.provider = provider;
         this.description = description;
         this.keyConversation = keyConversation;
-        this.config = config;
+        this.agent = agent;
     }
-
-    name = "Mr Scagnozzo";
-    description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
     schema = SubAgentToolInputSchema;
 
-    protected async _call(arg: SubAgentToolInput): Promise<string> {
+    protected async _call(arg: SubAgentToolInput): Promise<AgentOutput> {
         
-      //TODO: mettere a fattor comune una implementazione per tutti i _call
         console.info(
         `Argomenti : "${arg}":\n` +    
         `SubAgent Info:\n` +
         `name: ${this.name}\n` +
-        `description: ${this.description}\n`
+        `description: ${this.description}\n` +
+        `context: ${this.context}\n` +
+        `keyConversation: ${this.keyConversation}\n` 
         );  
         
         if (!arg) {
             console.log("Argument risulta vuoto");
-            return "fail";
-            //throw new Error("Argomenti vuoti");
+            throw "fail";
         }
-        
-        let obj = arg;
-      
-        const middleware = [handleToolErrors, createSummaryMemoryMiddleware(this.config.modelname!) /*, dynamicSystemPrompt*/];
-
-        //step 2. Recupero del systemprompt dalla logica esistente
-        const systemPrompt = (this.context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(this.context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-        console.log("System prompt : " + systemPrompt);
-
-        const agent = getAgent(this.config, this.provider, systemPrompt, [], middleware, this.context);
+        const question = arg;
 
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
-            const result = invokeAgent(agent, obj.question, keyconversation);
-            return JSON.stringify(result);
+            const result = invokeAgent(this.agent, question.question, keyconversation);
+            return getAgentOutput(result);
         } catch {
-            return `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;
+            throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
         }
     }
 }
