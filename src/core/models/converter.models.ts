@@ -1,3 +1,4 @@
+import { AIMessage } from "langchain";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 import { ConfigEmbeddings } from "../interfaces/configembeddings.interface.js";
@@ -6,17 +7,17 @@ import { RequestBody } from "../interfaces/requestbody.interface.js";
 
 
 // Funzione che estrae in modo robusto i dati finali dall’output dell’agent manager
-export function getAgentOutput(agentResult: any): AgentOutput {
+function getAgentOutput(agentResult: any): AgentOutput {
     // Filtra i messaggi AIMessage (risposta del modello)
     const aiMessages = Array.isArray(agentResult.messages)
-        ? agentResult.messages.filter((m: any) => m.id?.[2] === "AIMessage")
+        ? agentResult.messages.filter((m: AIMessage) => m.type === "ai")
         : [];
     // Prende l’ultimo AIMessage (“risultato finale”)
     const lastAIMessage = aiMessages.length ? aiMessages[aiMessages.length - 1] : null;
-    const finalContent = lastAIMessage?.kwargs?.content ?? "";
+    const finalContent = lastAIMessage?.content ?? "";
 
     // Dati usage (billing/monitoraggio), opzionali
-    const usage = lastAIMessage?.kwargs?.usage_metadata ?? null;
+    const usage = lastAIMessage?.usage_metadata ?? null;
 
     return {
         result: finalContent,
@@ -25,37 +26,8 @@ export function getAgentOutput(agentResult: any): AgentOutput {
     };
 }
 
-function getToolAgentOutput(agentResult: any): AgentOutput {
-    // Filtra i messaggi AIMessage (risposta del modello)
-    const aiMessages = Array.isArray(agentResult.messages)
-        ? agentResult.messages.filter((m: any) => m.id?.[2] === "AIMessage")
-        : [];
-
-    // Cerca l'ultimo AIMessage con tool_calls non vuoto
-    const lastAIMessageWithTools = aiMessages
-        .slice()
-        .reverse()
-        .find((msg: any) => {
-            const toolCalls = msg.kwargs?.tool_calls ?? [];
-            return Array.isArray(toolCalls) && toolCalls.length > 0;
-        });
-
-    // Prende l’ultimo AIMessage (“risultato finale”)
-    const lastAIMessage = aiMessages.length ? aiMessages[aiMessages.length - 1] : null;
-
-    // Usa il messaggio con tool_calls se esiste, altrimenti l'ultimo AIMessage
-    const targetMessage = lastAIMessageWithTools ?? lastAIMessage;
-
-    const finalContent = targetMessage?.kwargs?.content ?? "";
-
-    // Dati usage (billing/monitoraggio), opzionali
-    const usage = targetMessage?.kwargs?.usage_metadata ?? null;
-
-    return {
-        result: finalContent,
-        trace: agentResult.messages ?? [],
-        usage
-    };
+export function getAgentContent(agentResult: any) : string { 
+    return getAgentOutput(agentResult).result;
 }
 
 /**

@@ -1,8 +1,7 @@
 import { Tool } from "@langchain/core/tools";
 import { invokeAgent } from "../services/agents/agent.service.js";
-import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 import { ReactAgent } from "langchain";
-import { getAgentOutput } from "../models/converter.models.js";
+import { getAgentContent } from "../models/converter.models.js";
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
 export class SubAgentTool extends Tool {
@@ -28,7 +27,7 @@ export class SubAgentTool extends Tool {
         this.agent = agent;
     }
 
-    protected async _call(arg: string | undefined): Promise<AgentOutput> {
+    protected async _call(arg: string | undefined): Promise<string> {
 
         console.info(
         `Argomenti : "${arg}":\n` +    
@@ -48,7 +47,7 @@ export class SubAgentTool extends Tool {
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
             const result = invokeAgent(this.agent, question, keyconversation);
-            return getAgentOutput(result);
+            return getAgentContent(result);
         } catch {
             throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
         }

@@ -4,8 +4,7 @@ import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js"
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { AgentOutput } from "../interfaces/agentoutput.interface.js";
-import { getAgentOutput } from "../models/converter.models.js";
+import { getAgentContent } from "../models/converter.models.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema
@@ -81,7 +80,7 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
     }
     schema = SubAgentToolInputSchema;
 
-    protected async _call(arg: SubAgentToolInput): Promise<AgentOutput> {
+    protected async _call(arg: SubAgentToolInput): Promise<string> {
         
         console.info(
         `Argomenti : "${arg}":\n` +    
@@ -101,7 +100,7 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
             const result = invokeAgent(this.agent, question.question, keyconversation);
-            return getAgentOutput(result);
+            return getAgentContent(result);
         } catch {
             throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
         }

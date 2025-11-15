@@ -12,7 +12,7 @@ import { CONTEXT_MANAGER, contextFolder} from '../../services/common.services.js
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getAgentOutput, getConfigChainpromptDFL } from '../../models/converter.models.js';
+import { getAgentContent, getConfigChainpromptDFL } from '../../models/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/agents/agent.service.js';
 
@@ -80,7 +80,7 @@ export async function agentManagerHandler(
     }
 
     const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
-    let answer = getAgentOutput(result);
+    let answer = getAgentContent(result);
 
     //step 3. ritorno la response http
     res.json(answer);
@@ -124,7 +124,7 @@ async function agentHandler(
 
     //step 2. istanza e invocazione dell'agente
     const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
-    let answer = getAgentOutput(result)
+    let answer = getAgentContent(result);
     //step 3. ritorno la response http
     res.json(answer);
 

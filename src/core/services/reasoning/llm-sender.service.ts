@@ -10,7 +10,6 @@ import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../../logger.js';
 import { getAgent, invokeAgent } from '../agents/agent.service.js';
 import { AgentMiddleware } from 'langchain';
-import { getAgentOutput } from "../../models/converter.models.js";
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
