@@ -8,7 +8,6 @@ import api from './core/endpoint.js';
 import './logger.js';
 import fs from 'fs';
 import { contextFolder } from './core/services/common.services.js';
-import { syncToolAgentEmbeddings } from './core/services/reasoning/llm-embeddings.service.js';
 dotenv.config();
 const contexts = fs.readdirSync(contextFolder);
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
