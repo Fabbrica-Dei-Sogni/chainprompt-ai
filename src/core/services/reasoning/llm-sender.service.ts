@@ -10,6 +10,7 @@ import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
 import '../../../logger.js';
 import { getAgent, invokeAgent } from '../agents/agent.service.js';
 import { AgentMiddleware } from 'langchain';
+import { AgentOutput } from "../../interfaces/agentoutput.interface.js";
 
 /**
 * L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
@@ -92,8 +93,26 @@ export async function senderToAgent(question: string, keyconversation: string, c
         question!,
         keyconversation);
 
-    const answer = result;//.messages[result.messages.length - 1].content;
-    console.log(`Risposta agente:\n`, answer);
+    console.log(`Risposta agente:\n`, result);
+    return extractAgentManagerFinalReturn(result);
+}
 
-    return answer;
+// Funzione che estrae in modo robusto i dati finali dall’output dell’agent manager
+export function extractAgentManagerFinalReturn(agentResult: any): AgentOutput {
+  // Filtra i messaggi AIMessage (risposta del modello)
+  const aiMessages = Array.isArray(agentResult.messages)
+    ? agentResult.messages.filter((m: any) => m.id?.[2] === "AIMessage")
+    : [];
+  // Prende l’ultimo AIMessage (“risultato finale”)
+  const lastAIMessage = aiMessages.length ? aiMessages[aiMessages.length - 1] : null;
+  const finalContent = lastAIMessage?.kwargs?.content ?? "";
+
+  // Dati usage (billing/monitoraggio), opzionali
+  const usage = lastAIMessage?.kwargs?.usage_metadata ?? null;
+
+  return {
+    result: finalContent,
+    trace: agentResult.messages ?? [],
+    usage
+  };
 }
