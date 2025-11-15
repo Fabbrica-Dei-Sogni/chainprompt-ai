@@ -4,7 +4,7 @@ import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/handler.service.js';
 import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
-import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/agents/middleware.service.js';
+import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { ConfigChainPrompt } from '../../interfaces/configchainprompt.interface.js';
 import { DataRequest } from '../../interfaces/datarequest.interface.js';
@@ -14,7 +14,7 @@ import { getSectionsPrompts } from '../../services/business/reader-prompt.servic
 import fs from 'fs';
 import { getAgentContent, getConfigChainpromptDFL } from '../../models/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
-import { buildAgent } from '../../services/agents/agent.service.js';
+import { buildAgent } from '../../services/business/agents/agent.service.js';
 
 //XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);
