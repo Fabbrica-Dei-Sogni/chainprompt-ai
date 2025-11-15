@@ -94,11 +94,11 @@ export async function senderToAgent(question: string, keyconversation: string, c
         keyconversation);
 
     console.log(`Risposta agente:\n`, result);
-    return extractAgentManagerFinalReturn(result);
+    return getAgentOutput(result);
 }
 
 // Funzione che estrae in modo robusto i dati finali dall’output dell’agent manager
-export function extractAgentManagerFinalReturn(agentResult: any): AgentOutput {
+export function getAgentOutput(agentResult: any): AgentOutput {
   // Filtra i messaggi AIMessage (risposta del modello)
   const aiMessages = Array.isArray(agentResult.messages)
     ? agentResult.messages.filter((m: any) => m.id?.[2] === "AIMessage")

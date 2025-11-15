@@ -5,7 +5,7 @@ import { getFrameworkPrompts } from "../services/business/reader-prompt.service.
 import { handleToolErrors, createSummaryMemoryMiddleware } from "../services/agents/middleware.service.js";
 import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
-import { extractAgentManagerFinalReturn } from "../services/reasoning/llm-sender.service.js";
+import { getAgentOutput } from "../services/reasoning/llm-sender.service.js";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
@@ -65,7 +65,7 @@ export class SubAgentTool extends Tool {
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
             const result = invokeAgent(agent, question, keyconversation);
-            return extractAgentManagerFinalReturn(result);
+            return getAgentOutput(result);
         } catch {
             throw `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;
         }

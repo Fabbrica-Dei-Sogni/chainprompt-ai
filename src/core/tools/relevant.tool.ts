@@ -7,7 +7,7 @@ import { handleToolErrors, createSummaryMemoryMiddleware } from "../services/age
 import { getFrameworkPrompts } from "../services/business/reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../services/common.services.js";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
-import { extractAgentManagerFinalReturn } from "../services/reasoning/llm-sender.service.js";
+import { getAgentOutput } from "../services/reasoning/llm-sender.service.js";
 
 /**
  * Classe Tool LangChain che effettua similarity search su pgvector,
@@ -67,7 +67,7 @@ export class RelevantTool extends Tool {
             try {
                 let keyconversation = this.keyConversation + "_" + "subAgent" + "_" + context;
                 const result = invokeAgent(agent, question, keyconversation);
-                return extractAgentManagerFinalReturn(result);
+                return getAgentOutput(result);
             } catch {
                 throw `Errore durante l'esecuzione del sub agente ${agent.graph.getName()}`;
             }
