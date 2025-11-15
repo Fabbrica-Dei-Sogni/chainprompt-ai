@@ -8,6 +8,7 @@ import { createSummaryMemoryMiddleware, handleToolErrors } from "./middleware.se
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.services.js";
 import { getFrameworkPrompts } from "../reader-prompt.service.js";
 import { getAgent } from "../../reasoning/llm-agent.service.js";
+import { getInstanceLLM } from "../../reasoning/llm-chain.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -37,7 +38,7 @@ export async function buildAgent(
   //step 2. Recupero del systemprompt dalla logica esistente
   const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
   //console.log("System prompt : " + systemPrompt);
-  const agent = getAgent(config, provider, systemPrompt, tools, middleware, context);
+  const agent = getAgent(getInstanceLLM(provider, config), systemPrompt, tools, middleware, context);
   return agent;
 }
 

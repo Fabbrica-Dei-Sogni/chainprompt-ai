@@ -1,8 +1,6 @@
 import { AgentMiddleware, createAgent, ReactAgent, StructuredTool, Tool } from "langchain";
-import { ConfigChainPrompt } from "../../interfaces/configchainprompt.interface.js";
-import { LLMProvider } from "../../models/llmprovider.enum.js";
 import { getCheckpointer } from "../memory/postgresql/postgresql.service.js";
-import { getInstanceLLM } from "./llm-chain.service.js";
+import { Runnable } from "@langchain/core/runnables";
 
 
 /**
@@ -16,13 +14,10 @@ import { getInstanceLLM } from "./llm-chain.service.js";
   * @param nomeagente 
   * @returns 
   */
-export function getAgent(config: ConfigChainPrompt, provider: LLMProvider, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
+export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
     let name = "Mr." + nomeagente;
-
-    //step 2: istanza llm in base al provider e alla configurazione richiesta
-    const llm = getInstanceLLM(provider, config);
 
     // 3. Crea l'agent con prompt custom
     const agent = createAgent({

@@ -12,25 +12,6 @@ import { AgentMiddleware } from 'langchain';
 import { getAgent, invokeAgent } from "./llm-agent.service.js";
 
 /**
-* L'invocazione llm al momento è definita da un template prompt composto da un systemprompt e una risposta.
- * @param config 
- * @param prompt 
- * @param answerCallback 
- * @param provider 
- * @returns 
- */
-const invokeLLM = async (
-    config: ConfigChainPrompt,
-    prompt: ChainPromptBaseTemplate,
-    provider: LLMProvider,
-    sessionId: string,
-    noappendchat?: boolean
-) => {
-    return await invokeChain(getInstanceLLM(provider, config), prompt, sessionId, noappendchat);
-};
-
-
-/**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
  * istanziare la configurazione del modello llm in ConfigChainPrompt, ciascun parametro è peculiare in base al modello llm scelto per interrogare,
  * impostare il template del prompt in questo caso il prompt è formato da un systemprompt e un userprompt che sono gia preimpostati in modo opportuno a monte.
@@ -61,13 +42,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         systemPrompt: systemPrompt as any, question: question as any
     };
 
-    const answer = await invokeLLM
-        (config,
-            prompt,
-            provider,
-            keyconversation,
-            noappendchat
-        );
+    const answer = await invokeChain(getInstanceLLM(provider, config), prompt, keyconversation, noappendchat);
     console.log(`Risposta assistente:\n`, answer);
 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
@@ -81,8 +56,7 @@ export async function senderToAgent(question: string, keyconversation: string, c
     console.log(`Question prompt utente:\n`, question);
 
     let agent = getAgent(
-        config,
-        provider,
+        getInstanceLLM(provider, config),
         systemPrompt,
         tools,
         middleware,
