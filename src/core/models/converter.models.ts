@@ -3,7 +3,7 @@ import { AgentOutput } from "../interfaces/agentoutput.interface.js";
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { ConfigEmbeddings } from "../interfaces/protocol/configembeddings.interface.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { RequestBody } from "../interfaces/requestbody.interface.js";
+import { RequestBody } from "../interfaces/protocol/requestbody.interface.js";
 
 
 /**

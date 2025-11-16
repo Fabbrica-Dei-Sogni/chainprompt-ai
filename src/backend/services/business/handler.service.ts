@@ -1,14 +1,12 @@
-
-import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from './common.services.js';
-import { RequestBody } from '../interfaces/requestbody.interface.js';
-import '../logger.core.js';
-import { LLMProvider } from '../models/llmprovider.enum.js';
-import { senderToAgent, senderToLLM } from './reasoning/llm-sender.service.js';
-import { AgentMiddleware } from 'langchain';
-import { getConfigChainpromptDFL, getDataRequest, getDataRequestDFL } from "../models/converter.models.js";
-import { getFrameworkPrompts } from "../../backend/services/business/reader-prompt.service.js";
-import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
+import { AgentMiddleware } from "langchain";
+import { ConfigChainPrompt } from "../../../core/interfaces/protocol/configchainprompt.interface.js";
+import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
+import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
+import { getDataRequestDFL, getDataRequest, getConfigChainpromptDFL } from "../../../core/models/converter.models.js";
+import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
+import { senderToLLM, senderToAgent } from "../../../core/services/reasoning/llm-sender.service.js";
+import { getFrameworkPrompts } from "./reader-prompt.service.js";
+import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -82,6 +80,7 @@ export const handleAgent = async (systemPrompt: string, inputData: DataRequest, 
     }
 };
 
+
 /**
  * Recupera i dati dalla request entrante, l'identificatore della richiesta
  quindi il system prompt in base al contesto richiesto.
@@ -117,4 +116,3 @@ export async function getDataByResponseHttp(req: any, context: string, identifie
 
     return { systemPrompt, resultData };
 }
-

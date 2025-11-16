@@ -6,7 +6,6 @@ import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preproc
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { ConfigChainPrompt } from '../../../core/interfaces/protocol/configchainprompt.interface.js';
-import { CONTEXT_MANAGER, contextFolder} from '../../../core/services/common.services.js';
 import { SubAgentTool } from '../../../core/tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
@@ -14,7 +13,8 @@ import { getAgentContent, getConfigChainpromptDFL } from '../../../core/models/c
 import { scrapingTool } from '../../../core/tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
-import { getDataByResponseHttp, defaultPreprocessor, handleAgent, Preprocessor } from '../../../core/services/handler.service.js';
+import { CONTEXT_MANAGER, contextFolder } from '../../services/common.service.js';
+import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/business/handler.service.js';
 
 //XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);

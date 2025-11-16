@@ -3,7 +3,7 @@ import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
 import '../../logger.backend.js';
 import { clickbaitPreprocessor, cheshirePreprocessor, analisiCommentiPreprocessor } from "./preprocessor.js";
 import * as requestIp from 'request-ip';
-import { Preprocessor, getDataByResponseHttp, handleLLM, defaultPreprocessor } from "../../../core/services/handler.service.js";
+import { defaultPreprocessor, getDataByResponseHttp, handleLLM, Preprocessor } from "../../services/business/handler.service.js";
 
 //
 // Esportazione degli handler specifici usando la funzione generica

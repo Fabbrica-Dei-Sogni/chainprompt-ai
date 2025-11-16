@@ -12,7 +12,7 @@
     //cheshire ad esempio gestisce nativamente le conversazioni e non e' necessario, anzi sconsigliato, gestire l'append da chainprompt
     noappendchat?: boolean;
 
-L'interfaccia è gestita internamente dal core , forse in futuro potrebbe essere dismesso. da valutare
+Forse in futuro potrebbe essere dismesso. da valutare
 
  */
 export interface RequestBody {

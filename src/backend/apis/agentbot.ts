@@ -4,12 +4,13 @@
  */
 import express from "express";
 const router = express.Router();
-import { contextFolder, ENDPOINT_CHATGENERICA } from '../../core/services/common.services.js';
 import fs from 'fs';
 import { handleCommonAgentRequest } from "../handlers/agents/handler.js";
-const contexts = fs.readdirSync(contextFolder);
 import '../logger.backend.js';
 import { providerRoutes } from "../../core/models/llmprovider.enum.js";
+import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";
+
+const contexts = fs.readdirSync(contextFolder);
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
  * E' un esempio di dinamismo, seguendo le best practise il tentativo è rendere tale dinamismo piu in linea con le esigenze applicative future, attualmente l'obiettivo è esporre una chatbot tematica
