@@ -1,0 +1,15 @@
+{
+    "name": "chainprompt-platform",
+    "version": "1.0.0",
+    "description": "Libreria core della piattaforma chainprompt",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "publishConfig": {
+        "registry": "http://alessandromodica.com:8081/repository/npm-cloud-pubblico/"
+    },
+    "scripts": {
+        "build": "tsc",
+        "pack": "npm run build && npm pack",
+        "publish:core": "npm run build && npm publish"
+    }
+}
