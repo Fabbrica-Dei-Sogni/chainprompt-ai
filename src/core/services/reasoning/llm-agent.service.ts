@@ -1,20 +1,21 @@
 import { AgentMiddleware, createAgent, ReactAgent, StructuredTool, Tool } from "langchain";
 import { getCheckpointer } from "../memory/postgresql/postgresql.service.js";
 import { Runnable } from "@langchain/core/runnables";
+import { BaseCheckpointSaver } from "@langchain/langgraph";
 
 
 /**
-  * Crea un agente con specifiche caratteristiche dell'llm , il provider di accesso, il contesto tematico, eventuali tools
-  * 
-  * @param config 
-  * @param provider 
-  * @param systemPrompt 
-  * @param tools 
-  * @param middleware 
-  * @param nomeagente 
-  * @returns 
-  */
-export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico" ) {
+   * Crea un agente con un nome, un systemprompt, specifiche caratteristiche dell'llm , lista di tool, middlewar e un checkpointer se quest'ultimo non viene fornito viene gestito con postgresql nativamente.
+   *
+   * @param llm 
+   * @param systemPrompt 
+   * @param tools 
+   * @param middleware 
+   * @param nomeagente 
+   * @param checkpointer 
+   * @returns 
+   */
+export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico", checkpointer : BaseCheckpointSaver = getCheckpointer() ) {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
     let name = "Mr." + nomeagente;
@@ -27,7 +28,7 @@ export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | St
         description : "Un agente autogenerato",
         middleware,
         systemPrompt: systemPrompt,
-        checkpointer: getCheckpointer(), //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
+        checkpointer, //XXX: serve per inserire una short memory .studiarne meglio il suo funzionamento e integrazione
         includeAgentName: "inline",
     });
 

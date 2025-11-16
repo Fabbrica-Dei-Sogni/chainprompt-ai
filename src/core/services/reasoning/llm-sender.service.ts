@@ -6,10 +6,12 @@ import { ConfigChainPrompt } from "../../interfaces/protocol/configchainprompt.i
 import { ChainPromptBaseTemplate } from "../../templates/chainpromptbase.template.js";
 import { DataRequest } from "../../interfaces/protocol/datarequest.interface.js";
 import { LLMProvider } from '../../models/llmprovider.enum.js';
-import { getInstanceLLM, invokeChain } from './llm-chain.service.js';
+import { getInstanceLLM } from './llm-chain.service.js';
 import '../../logger.core.js';
 import { AgentMiddleware } from 'langchain';
 import { getAgent, invokeAgent } from "./llm-agent.service.js";
+import { getChainWithHistory, logConversationHistory } from "../memory/redis/redis.service.js";
+import { RunnableWithMessageHistory } from "@langchain/core/runnables";
 
 /**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
@@ -20,14 +22,13 @@ import { getAgent, invokeAgent } from "./llm-agent.service.js";
  * La risposta viene tracciata nello storico di conversazione e salvato su un file di testo (in futuro ci saranno tecniche piu avanzate)
  * La risposta viene ritornata al chiamante.
  * 
- * @param req 
- * @param res 
- * @param systemPrompt 
- * @param contextchat 
- * @param callbackRequestLLM 
- * @returns 
- */
-export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider,) {
+  * @param inputData 
+  * @param systemPrompt 
+  * @param provider 
+  * @param chainWithHistory 
+  * @returns 
+  */
+export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, chainWithHistory?: RunnableWithMessageHistory<any, any>) {
 
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
@@ -42,7 +43,11 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
         systemPrompt: systemPrompt as any, question: question as any
     };
 
-    const answer = await invokeChain(getInstanceLLM(provider, config), prompt, keyconversation, noappendchat);
+    //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
+    //se il chiamante non fornisce il chain with history, viene utilizzato quello nativo in redis.
+    chainWithHistory = chainWithHistory ?? await getChainWithHistory(prompt.systemPrompt, getInstanceLLM(provider, config), noappendchat, keyconversation);
+
+    const answer = await invokeChainWithHistory(prompt, keyconversation, chainWithHistory);
     console.log(`Risposta assistente:\n`, answer);
 
     //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
@@ -50,6 +55,65 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
     return answer;
 }
 
+/**
+ * Invoca un chain in base al prompt la sessionid e il chain with history.
+ Se non viene fornito in input viene utilizzato l'history nativo su redis
+
+  * @param prompt 
+  * @param sessionId 
+  * @param chainWithHistory 
+  * @returns 
+  */
+export const invokeChainWithHistory = async (prompt: ChainPromptBaseTemplate, sessionId: string, chainWithHistory: RunnableWithMessageHistory<any, any>): Promise<string> => {
+  try {
+
+    // Input per invocazione
+    const input = { input: prompt.question };
+    // Config con sessionId per recovery/save
+    const configWithSession = { configurable: { sessionId } };
+    const answer = await chainWithHistory.invoke(input, configWithSession);
+
+    logConversationHistory(sessionId);
+
+    //XXX: chiamata legacy con semplice chatprompt su llm senza storico
+    //const llmChain = CHAT_PROMPT.pipe(llm);
+    //const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
+    return answer;
+  } catch (error: unknown) {
+
+    //XXX: gestione accurata dell'errore ricevuto da un llm
+
+    // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
+    console.error("Errore durante l'invocazione della chain LLM:", error);
+
+    // Gestione custom errori specifici (opzionale)
+    if (error instanceof Error) {
+      // Puoi controllare messaggi o tipi per retry, rate limit, ...
+      if (error.message.includes("rate limit")) {
+        // eventuale logica retry o backoff
+        console.warn("Rate limit superata. Considera retry o backoff.");
+      }
+    }
+
+    // Rilancia come errore specifico oppure generico per chiamante
+    throw new Error(`Errore invokeChain: ${(error as Error).message || String(error)}`);
+  }
+};
+
+
+/**
+ * Sender per invocare un agente 
+
+ * @param question 
+ * @param keyconversation 
+ * @param config 
+ * @param systemPrompt 
+ * @param provider 
+ * @param tools 
+ * @param middleware 
+ * @param nomeagente 
+ * @returns 
+ */
 export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
 
     //console.log(`System prompt contestuale:\n`, systemPrompt);

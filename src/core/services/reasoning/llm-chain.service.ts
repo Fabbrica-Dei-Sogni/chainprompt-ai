@@ -2,12 +2,9 @@ import { AzureChatOpenAI, ChatOpenAI } from "@langchain/openai";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
-import { Runnable } from "@langchain/core/runnables";
 import { ConfigChainPrompt } from "../../interfaces/protocol/configchainprompt.interface.js";
-import { ChainPromptBaseTemplate } from "../../templates/chainpromptbase.template.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
 import '../../logger.core.js';
-import { getChainWithHistory, logConversationHistory } from "../memory/redis/redis.service.js";
 
 /*
  * La seguente implementazione raccoglie metodi per interrogare modelli LLM con la libreria Langchain configurandone i parametri peculiari di ciascun modello usato processandone il prompt seguendo il pattern base:
@@ -20,53 +17,6 @@ import { getChainWithHistory, logConversationHistory } from "../memory/redis/red
  * 
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
-
-/**
- * Crea un chain llm, lo invoca e attende la risposta.
-
- * @param llm 
- * @param prompt 
- * @returns 
- */
-export const invokeChain = async (llm: Runnable, prompt: ChainPromptBaseTemplate, sessionId: string, noappendchat?: boolean): Promise<string> => {
-  try {
-
-    //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
-    const chainWithHistory = await getChainWithHistory(prompt.systemPrompt, llm, noappendchat, sessionId);
-
-    // Input per invocazione
-    const input = { input: prompt.question };
-    // Config con sessionId per recovery/save
-    const configWithSession = { configurable: { sessionId } };
-
-    const answer = await chainWithHistory.invoke(input, configWithSession);
-
-    logConversationHistory(sessionId);
-
-    //XXX: chiamata legacy con semplice chatprompt su llm senza storico
-    //const llmChain = CHAT_PROMPT.pipe(llm);
-    //const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
-    return answer;
-  } catch (error: unknown) {
-
-    //XXX: gestione accurata dell'errore ricevuto da un llm
-
-    // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
-    console.error("Errore durante l'invocazione della chain LLM:", error);
-
-    // Gestione custom errori specifici (opzionale)
-    if (error instanceof Error) {
-      // Puoi controllare messaggi o tipi per retry, rate limit, ...
-      if (error.message.includes("rate limit")) {
-        // eventuale logica retry o backoff
-        console.warn("Rate limit superata. Considera retry o backoff.");
-      }
-    }
-
-    // Rilancia come errore specifico oppure generico per chiamante
-    throw new Error(`Errore invokeChain: ${(error as Error).message || String(error)}`);
-  }
-};
 
 /**
  * Ritorna l'istanza di un llm in base al provider scelto.
@@ -113,7 +63,7 @@ const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
     maxTokens: config.maxTokens,
     apiKey: process.env.OPENAI_API_KEY,
     temperature: config.temperature,
-    modelName: config.modelname,    
+    modelName: config.modelname,
     /**
     il cast forzato a runnable in questa forma
     è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
@@ -126,7 +76,7 @@ const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
 
 const getAnthropicCloudLLM = (config: ConfigChainPrompt) => {
 
-  const llm = new ChatAnthropic ({
+  const llm = new ChatAnthropic({
     maxTokens: config.maxTokens,
     apiKey: process.env.ANTROPHIC_API_KEY,
     temperature: config.temperature,
@@ -143,7 +93,7 @@ const getAnthropicCloudLLM = (config: ConfigChainPrompt) => {
 
 const getGoogleCloudLLM = (config: ConfigChainPrompt) => {
 
-  const llm = new ChatGoogleGenerativeAI ({
+  const llm = new ChatGoogleGenerativeAI({
     //maxTokens: config.maxTokens,
     apiKey: process.env.ANTROPHIC_API_KEY,
     temperature: config.temperature,
