@@ -1,10 +1,10 @@
 import { StructuredTool } from "@langchain/core/tools";
-import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
-import { LLMProvider } from "../models/llmprovider.enum.js";
+import { ConfigChainPrompt } from "../../core/interfaces/protocol/configchainprompt.interface.js";
+import { LLMProvider } from "../../core/models/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { getAgentContent } from "../models/converter.models.js";
-import { invokeAgent } from "../services/reasoning/llm-agent.service.js";
+import { getAgentContent } from "../../core/models/converter.models.js";
+import { invokeAgent } from "../../core/services/reasoning/llm-agent.service.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema

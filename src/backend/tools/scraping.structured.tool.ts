@@ -1,6 +1,6 @@
 import { StructuredTool } from "@langchain/core/tools";
 import z from "zod";
-import { scrapeArticle } from "../utils/clickbaitscore.util.js";
+import { scrapeArticle } from "../../core/utils/clickbaitscore.util.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema

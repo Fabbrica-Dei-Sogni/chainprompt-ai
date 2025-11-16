@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { scrapeArticle } from "../utils/clickbaitscore.util.js";
+import { scrapeArticle } from "../../core/utils/clickbaitscore.util.js";
 
 export const scrapingTool = tool(
     async ({ url }) => {
