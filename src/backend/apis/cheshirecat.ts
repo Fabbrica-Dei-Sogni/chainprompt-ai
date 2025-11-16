@@ -4,11 +4,11 @@
  */
 import express from "express";
 const router = express.Router();
-import { contextFolder, ENDPOINT_CHATGENERICA } from '../../core/services/common.services.js';
 import fs from 'fs';
 import { providerRoutes } from "../../core/models/llmprovider.enum.js";
 import { handleCheshireRequest } from "../handlers/llms/handler.js";
 import '../logger.backend.js';
+import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";
 
 const contexts = fs.readdirSync(contextFolder);
 

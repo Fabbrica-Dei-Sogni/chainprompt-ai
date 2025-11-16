@@ -1,5 +1,5 @@
-import { Preprocessor } from "../../../core/services/handler.service.js";
 import { decodeBase64 } from "../../../core/utils/clickbaitscore.util.js";
+import { Preprocessor } from "../../services/business/handler.service.js";
 
 export const cyberSecurityPreprocessor: Preprocessor = async (req) => {
   try {
