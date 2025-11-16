@@ -1,12 +1,12 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
-import '../../../logger.core.js';
+import '../../../../core/logger.core.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-import { getInstanceEmbeddings } from "../../reasoning/llm-embeddings.service.js";
-import { EmbeddingProvider } from "../../../models/embeddingprovider.enum.js";
-import { ConfigEmbeddings } from "../../../interfaces/protocol/configembeddings.interface.js";
+import { getInstanceEmbeddings } from "../../../../core/services/llm-embeddings.service.js";
+import { EmbeddingProvider } from "../../../../core/models/embeddingprovider.enum.js";
+import { ConfigEmbeddings } from "../../../../core/interfaces/protocol/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
-import { getConfigEmbeddingsDFL } from "../../../models/converter.models.js";
+import { getConfigEmbeddingsDFL } from "../../../../core/models/converter.models.js";
 import { Kysely, PostgresDialect } from "kysely";
 import { Database } from "./model/database.js";
 import { VectorStoreConfig } from "./model/vectorstoreconfig.js";

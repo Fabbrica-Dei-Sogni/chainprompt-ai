@@ -1,9 +1,9 @@
 import { Runnable, RunnableSequence, RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { getPromptTemplate } from "../../../templates/chainpromptbase.template.js";
+import { getPromptTemplate } from "../../../../core/templates/chainpromptbase.template.js";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RedisChatMessageHistory } from "@langchain/redis";
 import { REDIS_CLIENT_INSTANCE } from "./redis.client.js";
-import '../../../logger.core.js';
+import '../../../../core/logger.core.js';
 /**
 
 Servizio dedicato a operazioni di storage redis.

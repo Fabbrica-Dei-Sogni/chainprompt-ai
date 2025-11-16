@@ -2,9 +2,9 @@ import { AzureChatOpenAI, ChatOpenAI } from "@langchain/openai";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
-import { ConfigChainPrompt } from "../../interfaces/protocol/configchainprompt.interface.js";
-import { LLMProvider } from "../../models/llmprovider.enum.js";
-import '../../logger.core.js';
+import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
+import { LLMProvider } from "../models/llmprovider.enum.js";
+import '../logger.core.js';
 
 /*
  * La seguente implementazione raccoglie metodi per interrogare modelli LLM con la libreria Langchain configurandone i parametri peculiari di ciascun modello usato processandone il prompt seguendo il pattern base:

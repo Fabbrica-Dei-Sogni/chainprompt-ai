@@ -1,6 +1,6 @@
 
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
-import '../../../logger.core.js';
+import '../../../../core/logger.core.js';
 import type {
   ChannelVersions,
   Checkpoint,

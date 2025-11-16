@@ -1,0 +1,157 @@
+
+/**
+ * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
+ */
+import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
+import { ChainPromptBaseTemplate, getPromptTemplate } from "../templates/chainpromptbase.template.js";
+import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
+import { LLMProvider } from '../models/llmprovider.enum.js';
+import { getInstanceLLM } from './llm-chain.service.js';
+import '../logger.core.js';
+import { AgentMiddleware } from 'langchain';
+import { getAgent, invokeAgent } from "./llm-agent.service.js";
+import { Runnable, RunnableSequence } from "@langchain/core/runnables";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+
+/**
+ * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
+ * istanziare la configurazione del modello llm in ConfigChainPrompt, ciascun parametro è peculiare in base al modello llm scelto per interrogare,
+ * impostare il template del prompt in questo caso il prompt è formato da un systemprompt e un userprompt che sono gia preimpostati in modo opportuno a monte.
+ * In futuro potranno esserci prompt template con logiche diverse per assolvere scopi piu dinamici e granulati a seconda l'esigenza applicativa.
+ * Viene interrogato l'llm in base al tipo di accesso (locale, cloud, ollama server, ecc...)
+ * La risposta viene tracciata nello storico di conversazione e salvato su un file di testo (in futuro ci saranno tecniche piu avanzate)
+ * La risposta viene ritornata al chiamante.
+ * 
+  * @param inputData 
+  * @param systemPrompt 
+  * @param provider 
+  * @param chainWithHistory 
+  * @returns 
+  */
+export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, chainWithHistory?: Runnable<any, any>) {
+
+  //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
+  const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+
+  console.log(`System prompt contestuale:\n`, systemPrompt);
+  console.log(`Question prompt utente:\n`, question);
+
+  let config: ConfigChainPrompt = {
+    temperature, modelname, maxTokens, numCtx, format
+  };
+  let prompt: ChainPromptBaseTemplate = {
+    systemPrompt: systemPrompt as any, question: question as any
+  };
+
+  //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
+  //se il chiamante non fornisce il chain with history, viene utilizzato quello nativo in redis.
+  const chainToInvoke = chainWithHistory ?? getChain(systemPrompt, getInstanceLLM(provider, config));
+
+  const answer = await invokeChain(prompt, keyconversation, chainToInvoke);
+  console.log(`Risposta assistente:\n`, answer);
+
+  //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
+  //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
+  return answer;
+}
+
+/**
+ * Ritorna un chain base senza history conversazionale
+ * @param systemPrompt 
+ * @param llm 
+ * @returns 
+ */
+export function getChain(systemPrompt: any, llm: Runnable) {
+
+  const promptTemplate = getPromptTemplate(systemPrompt);
+
+  // Chain base: prompt | LLM | parser (sostituisce invokeChain)
+  const baseChain = RunnableSequence.from([
+    promptTemplate,
+    llm,
+    new StringOutputParser(),
+  ]);
+
+  return baseChain;
+};
+
+/**
+ * Invoca un chain in base al prompt la sessionid e il chain with history.
+ Se non viene fornito in input viene utilizzato l'history nativo su redis
+
+  * @param prompt 
+  * @param sessionId 
+  * @param chainWithHistory 
+  * @returns 
+  */
+export const invokeChain = async (prompt: ChainPromptBaseTemplate, sessionId: string, chain: Runnable<any, any>): Promise<string> => {
+  try {
+
+    // Input per invocazione
+    const input = { input: prompt.question };
+    // Config con sessionId per recovery/save
+    const configWithSession = { configurable: { sessionId } };
+    const answer = await chain.invoke(input, configWithSession);
+
+    //logConversationHistory(sessionId);
+
+    //XXX: chiamata legacy con semplice chatprompt su llm senza storico
+    //const llmChain = CHAT_PROMPT.pipe(llm);
+    //const answer = await llmChain.invoke({ systemprompt: prompt.systemprompt, question: prompt.question });
+    return answer;
+  } catch (error: unknown) {
+
+    //XXX: gestione accurata dell'errore ricevuto da un llm
+
+    // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
+    console.error("Errore durante l'invocazione della chain LLM:", error);
+
+    // Gestione custom errori specifici (opzionale)
+    if (error instanceof Error) {
+      // Puoi controllare messaggi o tipi per retry, rate limit, ...
+      if (error.message.includes("rate limit")) {
+        // eventuale logica retry o backoff
+        console.warn("Rate limit superata. Considera retry o backoff.");
+      }
+    }
+
+    // Rilancia come errore specifico oppure generico per chiamante
+    throw new Error(`Errore invokeChain: ${(error as Error).message || String(error)}`);
+  }
+};
+
+
+/**
+ * Sender per invocare un agente 
+
+ * @param question 
+ * @param keyconversation 
+ * @param config 
+ * @param systemPrompt 
+ * @param provider 
+ * @param tools 
+ * @param middleware 
+ * @param nomeagente 
+ * @returns 
+ */
+export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
+
+  //console.log(`System prompt contestuale:\n`, systemPrompt);
+  console.log(`Question prompt utente:\n`, question);
+
+  let agent = getAgent(
+    getInstanceLLM(provider, config),
+    systemPrompt,
+    tools,
+    middleware,
+    nomeagente);
+
+  //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
+  const result = await invokeAgent(
+    agent,
+    question!,
+    keyconversation);
+
+  console.log(`Risposta agente:\n`, result);
+  return result;
+};

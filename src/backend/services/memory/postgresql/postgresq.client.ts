@@ -1,6 +1,6 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import pg from "pg";
-import '../../../logger.core.js';
+import '../../../../core/logger.core.js';
 import { SafePostgresSaver } from "./safepostgres.saver.js";
 
 /**

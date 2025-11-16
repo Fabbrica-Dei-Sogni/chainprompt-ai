@@ -1,7 +1,6 @@
 import { AgentMiddleware, createAgent, ReactAgent, StructuredTool, Tool } from "langchain";
-import { getCheckpointer } from "../memory/postgresql/postgresql.service.js";
 import { Runnable } from "@langchain/core/runnables";
-import { BaseCheckpointSaver } from "@langchain/langgraph";
+import { BaseCheckpointSaver, MemorySaver } from "@langchain/langgraph";
 
 
 /**
@@ -15,16 +14,14 @@ import { BaseCheckpointSaver } from "@langchain/langgraph";
    * @param checkpointer 
    * @returns 
    */
-export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico", checkpointer : BaseCheckpointSaver = getCheckpointer() ) : ReactAgent {
+export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico", checkpointer : BaseCheckpointSaver = new MemorySaver()) : ReactAgent {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
-    let name = "Mr." + nomeagente;
-
     // 3. Crea l'agent con prompt custom
     const agent = createAgent({
         model: llm,
         tools,
-        name,
+        name: nomeagente,
         description : "Un agente autogenerato",
         middleware,
         systemPrompt: systemPrompt,

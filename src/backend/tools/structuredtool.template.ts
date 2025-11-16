@@ -4,7 +4,7 @@ import { LLMProvider } from "../../core/models/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
 import { getAgentContent } from "../../core/models/converter.models.js";
-import { invokeAgent } from "../../core/services/reasoning/llm-agent.service.js";
+import { invokeAgent } from "../../core/services/llm-agent.service.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema

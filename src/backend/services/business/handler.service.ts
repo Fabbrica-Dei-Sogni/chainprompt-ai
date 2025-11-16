@@ -4,9 +4,11 @@ import { DataRequest } from "../../../core/interfaces/protocol/datarequest.inter
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
 import { getDataRequestDFL, getDataRequest, getConfigChainpromptDFL } from "../../../core/models/converter.models.js";
 import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
-import { senderToLLM, senderToAgent } from "../../../core/services/reasoning/llm-sender.service.js";
+import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.service.js";
 import { getFrameworkPrompts } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
+import { getChainWithHistory } from "../memory/redis/redis.service.js";
+import { getInstanceLLM } from "../../../core/services/llm-chain.service.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -47,7 +49,14 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
  */
 export const handleLLM = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider): Promise<any> => {
     try {
-        return await senderToLLM(inputData, systemPrompt, provider); // Invia il prompt al client
+
+        const { temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+        let config: ConfigChainPrompt = {
+            temperature, modelname, maxTokens, numCtx, format
+        };
+        const chain = await getChainWithHistory(systemPrompt, getInstanceLLM(provider, config), noappendchat, keyconversation)
+
+        return await senderToLLM(inputData, systemPrompt, provider, chain); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
         throw err;
@@ -67,10 +76,10 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
  */
 export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
     try {
-        
+
         const { question, keyconversation, temperature, modelname, maxTokens, numCtx, format }: DataRequest = inputData;
         let config: ConfigChainPrompt = {
-          ...getConfigChainpromptDFL(),  temperature, modelname, maxTokens, numCtx, format
+            ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format
         };
         return senderToAgent(question!, keyconversation, config, systemPrompt, provider, tools, middleware, nomeagente);
 
