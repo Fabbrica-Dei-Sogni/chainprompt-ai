@@ -15,7 +15,7 @@ import { BaseCheckpointSaver } from "@langchain/langgraph";
    * @param checkpointer 
    * @returns 
    */
-export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico", checkpointer : BaseCheckpointSaver = getCheckpointer() ) {
+export function getAgent(llm: Runnable, systemPrompt: string, tools: Tool[] | StructuredTool[] = [], middleware : AgentMiddleware[] , nomeagente: string = "generico", checkpointer : BaseCheckpointSaver = getCheckpointer() ) : ReactAgent {
 
     //step 1: imposta il nome e la descrizione in modo dinamico a seconda il contesto tematico entrante.
     let name = "Mr." + nomeagente;
