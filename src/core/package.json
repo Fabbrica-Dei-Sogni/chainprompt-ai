@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Libreria core della piattaforma chainprompt",
     "main": "index.js",
-    "types": "index.d.ts",
+    "type": "module",
     "publishConfig": {
         "registry": "http://alessandromodica.com:8081/repository/npm-cloud-pubblico/"
     },
