@@ -3,15 +3,16 @@
  * La classe rappresenta l'insieme di endpoint per interagire con i server llm tramite il middleware di langchain
  */
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
-import { ChainPromptBaseTemplate, getPromptTemplate } from "../templates/chainpromptbase.template.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { LLMProvider } from '../models/llmprovider.enum.js';
+import { LLMProvider } from '../enums/llmprovider.enum.js';
 import { getInstanceLLM } from './llm-chain.service.js';
 import '../logger.core.js';
 import { AgentMiddleware } from 'langchain';
 import { getAgent, invokeAgent } from "./llm-agent.service.js";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
 
 /**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
@@ -28,10 +29,10 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
   * @param chainWithHistory 
   * @returns 
   */
-export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, chainWithHistory?: Runnable<any, any>) {
+export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, promptTemplate: ChatPromptTemplate<any, any>, chainWithHistory?: Runnable<any, any>) {
 
   //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
-  const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation, noappendchat }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+  const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
   console.log(`System prompt contestuale:\n`, systemPrompt);
   console.log(`Question prompt utente:\n`, question);
@@ -39,18 +40,12 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
   let config: ConfigChainPrompt = {
     temperature, modelname, maxTokens, numCtx, format
   };
-  let prompt: ChainPromptBaseTemplate = {
-    systemPrompt: systemPrompt as any, question: question as any
-  };
 
-  //parametrizzare e astrarre la gestione tra template entrante e interpolazione con il template associato.
-  //se il chiamante non fornisce il chain with history, viene utilizzato quello nativo in redis.
-  const chainToInvoke = chainWithHistory ?? getChain(systemPrompt, getInstanceLLM(provider, config));
+  const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(provider, config), promptTemplate);
 
-  const answer = await invokeChain(prompt, keyconversation, chainToInvoke);
+  const answer = await invokeChain(question as any, keyconversation, chainToInvoke);
   console.log(`Risposta assistente:\n`, answer);
 
-  //la risposta viene ritorna as is dopo che e' stata tracciata nello storico al chiamante, il quale si aspetta un risultato atteso che non e' per forza una response grezza, ma il risultato di una raffinazione applicativa in base alla response ottenuta.
   //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
   return answer;
 }
@@ -61,9 +56,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
  * @param llm 
  * @returns 
  */
-export function getChain(systemPrompt: any, llm: Runnable) {
-
-  const promptTemplate = getPromptTemplate(systemPrompt);
+export function getChain(llm: Runnable, promptTemplate: ChatPromptTemplate<any, any>) {
 
   // Chain base: prompt | LLM | parser (sostituisce invokeChain)
   const baseChain = RunnableSequence.from([
@@ -84,11 +77,11 @@ export function getChain(systemPrompt: any, llm: Runnable) {
   * @param chainWithHistory 
   * @returns 
   */
-export const invokeChain = async (prompt: ChainPromptBaseTemplate, sessionId: string, chain: Runnable<any, any>): Promise<string> => {
+export const invokeChain = async (question: HumanMessageFields<MessageStructure>, sessionId: string, chain: Runnable<any, any>): Promise<string> => {
   try {
 
     // Input per invocazione
-    const input = { input: prompt.question };
+    const input = { input: question };
     // Config con sessionId per recovery/save
     const configWithSession = { configurable: { sessionId } };
     const answer = await chain.invoke(input, configWithSession);

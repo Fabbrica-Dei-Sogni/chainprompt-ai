@@ -1,9 +1,9 @@
 import { StructuredTool } from "@langchain/core/tools";
 import { ConfigChainPrompt } from "../../core/interfaces/protocol/configchainprompt.interface.js";
-import { LLMProvider } from "../../core/models/llmprovider.enum.js";
+import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { getAgentContent } from "../../core/models/converter.models.js";
+import { getAgentContent } from "../../core/converter.models.js";
 import { invokeAgent } from "../../core/services/llm-agent.service.js";
 
 /**

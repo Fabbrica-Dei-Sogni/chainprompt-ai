@@ -1,4 +1,4 @@
-import { LLMProvider } from "../../../../core/models/llmprovider.enum.js";
+import { LLMProvider } from "../../../../core/enums/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../../../../core/interfaces/protocol/configchainprompt.interface.js";
 import { AgentMiddleware, dynamicSystemPromptMiddleware, StructuredTool, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
@@ -9,7 +9,7 @@ import { getFrameworkPrompts } from "../reader-prompt.service.js";
 import { getAgent } from "../../../../core/services/llm-agent.service.js";
 import { getInstanceLLM } from "../../../../core/services/llm-chain.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
-import { getCheckpointer } from "../../memory/postgresql/postgresql.service.js";
+import { getCheckpointer } from "../../databases/postgresql/postgresql.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents

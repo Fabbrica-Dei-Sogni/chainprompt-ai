@@ -1,6 +1,6 @@
 import '../../logger.backend.js';
 import { NextFunction } from "express";
-import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
@@ -9,7 +9,7 @@ import { ConfigChainPrompt } from '../../../core/interfaces/protocol/configchain
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getAgentContent, getConfigChainpromptDFL } from '../../../core/models/converter.models.js';
+import { getAgentContent, getConfigChainpromptDFL } from '../../../core/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';

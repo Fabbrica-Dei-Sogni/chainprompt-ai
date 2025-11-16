@@ -9,7 +9,7 @@ import { InMemoryStore } from "@langchain/core/stores"; // O RedisStore per il t
 import '../logger.core.js'; // Il tuo logger
 import { OllamaEmbeddings, } from "@langchain/ollama";
 import { ConfigEmbeddings } from "../interfaces/protocol/configembeddings.interface.js";
-import { EmbeddingProvider } from "../models/embeddingprovider.enum.js";
+import { EmbeddingProvider } from "../enums/embeddingprovider.enum.js";
 
 /**
  * Ritorna l'istanza di un embedding model in base al provider scelto.

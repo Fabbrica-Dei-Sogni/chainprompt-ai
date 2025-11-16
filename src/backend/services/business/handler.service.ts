@@ -2,13 +2,14 @@ import { AgentMiddleware } from "langchain";
 import { ConfigChainPrompt } from "../../../core/interfaces/protocol/configchainprompt.interface.js";
 import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
-import { getDataRequestDFL, getDataRequest, getConfigChainpromptDFL } from "../../../core/models/converter.models.js";
-import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
+import { getDataRequestDFL, getDataRequest, getConfigChainpromptDFL } from "../../../core/converter.models.js";
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.service.js";
 import { getFrameworkPrompts } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
-import { getChainWithHistory } from "../memory/redis/redis.service.js";
+import { getChainWithHistory } from "../databases/redis/redis.service.js";
 import { getInstanceLLM } from "../../../core/services/llm-chain.service.js";
+import { getPromptTemplate } from "../../templates/chainpromptbase.template.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -55,8 +56,7 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
             temperature, modelname, maxTokens, numCtx, format
         };
         const chain = await getChainWithHistory(systemPrompt, getInstanceLLM(provider, config), noappendchat, keyconversation)
-
-        return await senderToLLM(inputData, systemPrompt, provider, chain); // Invia il prompt al client
+        return await senderToLLM(inputData, systemPrompt, provider, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
         throw err;

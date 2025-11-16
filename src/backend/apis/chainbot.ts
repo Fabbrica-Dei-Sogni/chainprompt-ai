@@ -7,7 +7,7 @@ const router = express.Router();
 import fs from 'fs';
 import { handleCommonRequest } from "../handlers/llms/handler.js";
 import '../logger.backend.js';
-import { providerRoutes } from "../../core/models/llmprovider.enum.js";
+import { providerRoutes } from "../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";
 
 const contexts = fs.readdirSync(contextFolder);

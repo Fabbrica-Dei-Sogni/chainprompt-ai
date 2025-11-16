@@ -5,7 +5,7 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { providerRoutes } from "../../core/models/llmprovider.enum.js";
+import { providerRoutes } from "../../core/enums/llmprovider.enum.js";
 import { handleCheshireRequest } from "../handlers/llms/handler.js";
 import '../logger.backend.js';
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";

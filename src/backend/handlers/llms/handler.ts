@@ -1,5 +1,5 @@
 import { NextFunction } from "express";
-import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import '../../logger.backend.js';
 import { clickbaitPreprocessor, cheshirePreprocessor, analisiCommentiPreprocessor } from "./preprocessor.js";
 import * as requestIp from 'request-ip';
