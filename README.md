@@ -186,8 +186,8 @@ il package.json deve essere impostato piu o meno cosi, sopratutto sulla definizi
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/server.ts ./tsconfig.json",
-    "start-dev": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/server.ts ./tsconfig.json",
+    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
+    "start-dev": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
