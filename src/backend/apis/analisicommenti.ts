@@ -1,8 +1,9 @@
 import express from "express";
 const router = express.Router();
-import { LLMProvider } from "../models/llmprovider.enum.js";
+import { LLMProvider } from "../../core/models/llmprovider.enum.js";
 import { handleAnalisiCommentiRequest } from "../handlers/llms/handler.js";
-import '../../logger.js';
+import '../logger.backend.js';
+
 
 /**
  * La classe rappresenta l'endpoint della feature analisicommenti.

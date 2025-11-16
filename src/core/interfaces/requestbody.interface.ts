@@ -12,6 +12,8 @@
     //cheshire ad esempio gestisce nativamente le conversazioni e non e' necessario, anzi sconsigliato, gestire l'append da chainprompt
     noappendchat?: boolean;
 
+L'interfaccia è gestita internamente dal core , forse in futuro potrebbe essere dismesso. da valutare
+
  */
 export interface RequestBody {
     text: string;                 //Campo standard usato come input come ad esempio da cheshirecat

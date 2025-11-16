@@ -1,5 +1,5 @@
 import { promises as fsPromises } from 'fs';
-import '../../logger.js';
+import '../../core/logger.core.js';
 
 
 /**

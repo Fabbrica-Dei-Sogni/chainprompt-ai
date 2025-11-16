@@ -4,10 +4,10 @@ import * as http from 'http';
 import cors from 'cors';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
-import api from './core/endpoint.js';
-import './logger.js';
+import api from './endpoint.js';
+import '../core/logger.core.js';
 import fs from 'fs';
-import { contextFolder } from './core/services/common.services.js';
+import { contextFolder } from '../core/services/common.services.js';
 dotenv.config();
 const contexts = fs.readdirSync(contextFolder);
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
@@ -35,11 +35,10 @@ console.log(`Versione api rest : ${apiversion}`);
 app.use(apiversion, api);
 
 const server: http.Server = http.createServer(app);
-console.log(`HTTP server created!`);
 
 //salvataggio a primo avvio dei systemprompt degli agenti e quindi dei tool agent
 //temporaneamente sospeso in quanto richiede maggiori approfondimenti
 //await syncToolAgentEmbeddings(contexts);
 
-server.listen(port, () => { console.log(`${nameAssistant} avviato sulla porta:${port}`); });
+server.listen(port, () => { console.log(`Il server ${nameAssistant} avviato con successo sulla porta:${port}`); });
 

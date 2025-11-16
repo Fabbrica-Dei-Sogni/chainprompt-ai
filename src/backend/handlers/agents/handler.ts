@@ -1,20 +1,20 @@
-import '../../../logger.js';
+import '../../logger.backend.js';
 import { NextFunction } from "express";
-import { LLMProvider } from "../../models/llmprovider.enum.js";
-import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/handler.service.js';
-import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
+import { LLMProvider } from "../../../core/models/llmprovider.enum.js";
+import { CybersecurityAPITool } from "../../../core/tools/cybersecurityapi.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
-import { ConfigChainPrompt } from '../../interfaces/configchainprompt.interface.js';
-import { DataRequest } from '../../interfaces/datarequest.interface.js';
-import { CONTEXT_MANAGER, contextFolder} from '../../services/common.services.js';
-import { SubAgentTool } from '../../tools/subagent.tool.js';
+import { ConfigChainPrompt } from '../../../core/interfaces/protocol/configchainprompt.interface.js';
+import { CONTEXT_MANAGER, contextFolder} from '../../../core/services/common.services.js';
+import { SubAgentTool } from '../../../core/tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getAgentContent, getConfigChainpromptDFL } from '../../models/converter.models.js';
-import { scrapingTool } from '../../tools/suite.tools.js';
+import { getAgentContent, getConfigChainpromptDFL } from '../../../core/models/converter.models.js';
+import { scrapingTool } from '../../../core/tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
+import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
+import { getDataByResponseHttp, defaultPreprocessor, handleAgent, Preprocessor } from '../../../core/services/handler.service.js';
 
 //XXX: tutti i contesti esistenti sul fileset
 const contexts = fs.readdirSync(contextFolder);

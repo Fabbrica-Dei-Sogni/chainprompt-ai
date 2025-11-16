@@ -1,6 +1,6 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import pg from "pg";
-import '../../../../logger.js';
+import '../../../logger.core.js';
 import { SafePostgresSaver } from "./safepostgres.saver.js";
 
 /**
@@ -80,7 +80,6 @@ export class PostgresqlClient {
                     });
                     await this.checkpointer.setup();
                     console.info("PostgreSQL checkpointer inizializzato");
-                    console.log(`Tutto fila liscio!! Rock on babe!!`);
                 }
                 this.checkpointer;
                 break;

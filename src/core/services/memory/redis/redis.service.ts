@@ -3,7 +3,7 @@ import { getPromptTemplate } from "../../../templates/chainpromptbase.template.j
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RedisChatMessageHistory } from "@langchain/redis";
 import { REDIS_CLIENT_INSTANCE } from "./redis.client.js";
-import '../../../../logger.js';
+import '../../../logger.core.js';
 /**
 
 Servizio dedicato a operazioni di storage redis.

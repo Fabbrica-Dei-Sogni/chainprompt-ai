@@ -1,5 +1,5 @@
 import { StructuredTool } from "@langchain/core/tools";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
+import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";

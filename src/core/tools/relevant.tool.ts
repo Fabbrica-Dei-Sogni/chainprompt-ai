@@ -1,6 +1,6 @@
 import { Tool } from "@langchain/core/tools";
 import type { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
+import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { LLMProvider } from "../models/llmprovider.enum.js";
 
 /**

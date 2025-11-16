@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
-import { providerRoutes } from "../models/llmprovider.enum.js";
-import '../../logger.js';
+import { providerRoutes } from "../../core/models/llmprovider.enum.js";
+import '../logger.backend.js';
 import { agentManagerHandler } from "../handlers/agents/handler.js";
 
 

@@ -1,5 +1,5 @@
-import '../../../logger.js';
-import { contextFolder } from '../common.services.js';
+import '../../logger.backend.js';
+import { contextFolder } from '../../../core/services/common.services.js';
 import { readFileAndConcat } from '../filesystem.service.js';
 
 

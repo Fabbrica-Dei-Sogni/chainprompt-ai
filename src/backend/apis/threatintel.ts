@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
-import { LLMProvider } from "../models/llmprovider.enum.js";
-import '../../logger.js';
+import { LLMProvider } from "../../core/models/llmprovider.enum.js";
+import '../logger.backend.js';
 import { handleCyberSecurityAgent } from "../handlers/agents/handler.js";
 
 /**

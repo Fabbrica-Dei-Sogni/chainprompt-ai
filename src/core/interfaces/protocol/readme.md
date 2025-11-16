@@ -1,0 +1,1 @@
+Le interfacce definite nel "package" protocol afferiscono a tipi utilizzati dal backend per tipizzare gli input degli handlers.

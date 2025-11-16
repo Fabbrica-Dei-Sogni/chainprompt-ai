@@ -6,9 +6,9 @@ import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddin
 import { VertexAIEmbeddings } from "@langchain/google-vertexai"; // Per Google
 import { Embeddings } from "@langchain/core/embeddings"; // Base class
 import { InMemoryStore } from "@langchain/core/stores"; // O RedisStore per il tuo setup
-import '../../../logger.js'; // Il tuo logger
+import '../../logger.core.js'; // Il tuo logger
 import { OllamaEmbeddings, } from "@langchain/ollama";
-import { ConfigEmbeddings } from "../../interfaces/configembeddings.interface.js";
+import { ConfigEmbeddings } from "../../interfaces/protocol/configembeddings.interface.js";
 import { EmbeddingProvider } from "../../models/embeddingprovider.enum.js";
 
 /**

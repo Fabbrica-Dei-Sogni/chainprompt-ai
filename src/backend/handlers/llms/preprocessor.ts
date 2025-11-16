@@ -1,7 +1,7 @@
-import { Preprocessor } from "../../services/handler.service.js";
-import { YouTubeComment, formatCommentsForPrompt } from "../../utils/analisicommenti.util.js";
-import { removeCheshireCatText } from "../../utils/cheshire.util.js";
-import { decodeBase64, scrapeArticle } from "../../utils/clickbaitscore.util.js";
+import { Preprocessor } from "../../../core/services/handler.service.js";
+import { YouTubeComment, formatCommentsForPrompt } from "../../../core/utils/analisicommenti.util.js";
+import { removeCheshireCatText } from "../../../core/utils/cheshire.util.js";
+import { decodeBase64, scrapeArticle } from "../../../core/utils/clickbaitscore.util.js";
 
 /**
  * 

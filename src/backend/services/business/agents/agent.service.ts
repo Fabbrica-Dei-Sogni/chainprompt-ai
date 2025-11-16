@@ -1,14 +1,14 @@
-import { LLMProvider } from "../../../models/llmprovider.enum.js";
-import { ConfigChainPrompt } from "../../../interfaces/configchainprompt.interface.js";
+import { LLMProvider } from "../../../../core/models/llmprovider.enum.js";
+import { ConfigChainPrompt } from "../../../../core/interfaces/protocol/configchainprompt.interface.js";
 import { AgentMiddleware, dynamicSystemPromptMiddleware, StructuredTool, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
-import '../../../../logger.js';
+import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
 import { createSummaryMemoryMiddleware, handleToolErrors } from "./middleware.service.js";
-import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.services.js";
+import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../../../core/services/common.services.js";
 import { getFrameworkPrompts } from "../reader-prompt.service.js";
-import { getAgent } from "../../reasoning/llm-agent.service.js";
-import { getInstanceLLM } from "../../reasoning/llm-chain.service.js";
+import { getAgent } from "../../../../core/services/reasoning/llm-agent.service.js";
+import { getInstanceLLM } from "../../../../core/services/reasoning/llm-chain.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents

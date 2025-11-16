@@ -3,10 +3,10 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
 import { Runnable } from "@langchain/core/runnables";
-import { ConfigChainPrompt } from "../../interfaces/configchainprompt.interface.js";
+import { ConfigChainPrompt } from "../../interfaces/protocol/configchainprompt.interface.js";
 import { ChainPromptBaseTemplate } from "../../templates/chainpromptbase.template.js";
 import { LLMProvider } from "../../models/llmprovider.enum.js";
-import '../../../logger.js';
+import '../../logger.core.js';
 import { getChainWithHistory, logConversationHistory } from "../memory/redis/redis.service.js";
 
 /*

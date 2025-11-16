@@ -1,11 +1,17 @@
 import { AIMessage } from "langchain";
 import { AgentOutput } from "../interfaces/agentoutput.interface.js";
-import { ConfigChainPrompt } from "../interfaces/configchainprompt.interface.js";
-import { ConfigEmbeddings } from "../interfaces/configembeddings.interface.js";
-import { DataRequest } from "../interfaces/datarequest.interface.js";
+import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
+import { ConfigEmbeddings } from "../interfaces/protocol/configembeddings.interface.js";
+import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../interfaces/requestbody.interface.js";
 
 
+/**
+ * Recupera l'agent output da un risultato "grezzo" di una risposta ricevuta da un agente
+
+ * @param agentResult 
+ * @returns 
+ */
 // Funzione che estrae in modo robusto i dati finali dall’output dell’agent manager
 function getAgentOutput(agentResult: any): AgentOutput {
     // Filtra i messaggi AIMessage (risposta del modello)
@@ -26,6 +32,11 @@ function getAgentOutput(agentResult: any): AgentOutput {
     };
 }
 
+/**
+ * Metodo getter per recuperare il content stringa da un agent result
+ * @param agentResult 
+ * @returns 
+ */
 export function getAgentContent(agentResult: any) : string { 
     return getAgentOutput(agentResult).result;
 }

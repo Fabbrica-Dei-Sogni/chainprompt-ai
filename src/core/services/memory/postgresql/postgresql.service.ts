@@ -1,10 +1,10 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
-import '../../../../logger.js';
+import '../../../logger.core.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { getInstanceEmbeddings } from "../../reasoning/llm-embeddings.service.js";
 import { EmbeddingProvider } from "../../../models/embeddingprovider.enum.js";
-import { ConfigEmbeddings } from "../../../interfaces/configembeddings.interface.js";
+import { ConfigEmbeddings } from "../../../interfaces/protocol/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
 import { getConfigEmbeddingsDFL } from "../../../models/converter.models.js";
 import { Kysely, PostgresDialect } from "kysely";
