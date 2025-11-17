@@ -24,7 +24,7 @@ export class ScrapingToolStructured extends StructuredTool<typeof scrapingToolSc
   protected async _call(arg: ScrapingTooolInput): Promise<string> {
 
     console.info(
-      `Argomenti : "${arg}":\n` +
+      `Argomenti : "${JSON.stringify(arg)}":\n` +
       `SubAgent Info:\n` +
       `name: ${this.name}\n` +
       `description: ${this.description}\n`

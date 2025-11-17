@@ -12,12 +12,9 @@ import { getAgentContent } from '../../../core/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
-import { CONTEXT_MANAGER, contextFolder } from '../../services/common.service.js';
+import { CONTEXT_MANAGER } from '../../services/common.service.js';
 import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/business/handler.service.js';
-
-//XXX: tutti i contesti esistenti sul fileset
-const contexts = fs.readdirSync(contextFolder);
-
+import { ScrapingToolStructured } from '../../tools/scraping.structured.tool.js';
 
 /**
  * 
@@ -63,7 +60,7 @@ export async function agentManagerHandler(
     //    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
     //    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
     for (const context of subContexts) {
-      const subNameAgent = "Responsabile " + context;
+      const subNameAgent = "Mr. " + context;
       const subContext = context;
 
       //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
@@ -170,7 +167,7 @@ export const handleClickbaitAgent = (
   res: any,
   next: NextFunction,
   provider: LLMProvider
-) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, [scrapingTool], 'clickbaitscore');
+) => agentHandler(req, res, next, provider, clickbaitAgentPreprocessor, [new ScrapingToolStructured()], 'clickbaitscore');
 
 export const handleCommonAgentRequest = (
   req: any,

@@ -1,14 +1,22 @@
-import { Tool } from "@langchain/core/tools";
+import { StructuredTool, Tool } from "@langchain/core/tools";
 import { ReactAgent } from "langchain";
 import { getAgentContent } from "../../core/converter.models.js";
 import { invokeAgent } from "../../core/services/llm-agent.service.js";
+import z from "zod";
+
+export interface SubAgentInput {
+  question: string;
+}
+export const subAgentInputSchema = z.object({
+  question: z.string().describe("La domanda da porre all'agente esperto nel campo"),
+});
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
-export class SubAgentTool extends Tool {
+export class SubAgentTool extends StructuredTool<typeof subAgentInputSchema> {
 
     name = "Mr Scagnozzo";
     description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
-
+    schema = subAgentInputSchema;
     private context: string;
     private keyConversation: string;
     private agent: ReactAgent;
@@ -27,10 +35,10 @@ export class SubAgentTool extends Tool {
         this.agent = agent;
     }
 
-    protected async _call(arg: string | undefined): Promise<string> {
+    protected async _call(arg: SubAgentInput): Promise<string> {
 
         console.info(
-        `Argomenti : "${arg}":\n` +    
+        `Domanda inoltrata : "${JSON.stringify(arg)}":\n` +    
         `SubAgent Info:\n` +
         `name: ${this.name}\n` +
         `description: ${this.description}\n` +
@@ -42,7 +50,7 @@ export class SubAgentTool extends Tool {
             console.log("Argument risulta vuoto");
             throw "fail";
         }
-        const question = arg;
+        const question = arg.question;
 
         try {
             let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
