@@ -94,6 +94,7 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
 
     logger.info("Avviata conversione con chiave : " + keyconversation);
     logger.info("Domanda richiesta: " + question);
+    logger.info("Provider utilizzato " + provider);
     logger.info("Modello llm utilizzato : " + modelname);
     logger.info("temperature impostata a " + temperature);
 
