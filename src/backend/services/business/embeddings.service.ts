@@ -2,7 +2,7 @@ import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { ConfigEmbeddings } from "../../../core/interfaces/protocol/configembeddings.interface.js";
 import { getConfigEmbeddingsDFL } from "../../../core/converter.models.js";
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
-import { ToolEmbedding } from "../databases/postgresql/model/toolembedding.js";
+import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
 import { getVectorStoreSingleton, KYSELY_DATABASE } from "../databases/postgresql/postgresql.service.js";
 import { getSectionsPrompts } from "./reader-prompt.service.js";
 

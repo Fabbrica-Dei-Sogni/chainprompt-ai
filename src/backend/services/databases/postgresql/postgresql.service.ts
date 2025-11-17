@@ -8,8 +8,8 @@ import { ConfigEmbeddings } from "../../../../core/interfaces/protocol/configemb
 import { Embeddings } from "@langchain/core/embeddings";
 import { getConfigEmbeddingsDFL } from "../../../../core/converter.models.js";
 import { Kysely, PostgresDialect } from "kysely";
-import { Database } from "./model/database.js";
-import { VectorStoreConfig } from "./model/vectorstoreconfig.js";
+import { Database } from "./models/database.js";
+import { VectorStoreConfig } from "./models/vectorstoreconfig.js";
 
 /**
  * Istanza singleton oriented per fornire all'applicazione il checkpointer e altre informazioni future sullo schema postgresql
