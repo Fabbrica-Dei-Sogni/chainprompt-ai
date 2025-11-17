@@ -88,9 +88,9 @@ async function logState(agent: ReactAgent, sessionId: string) {
 
         logger.info("Stato corrente recuperato:");
         //usare il logger e definire la stringa nella forma `testo ${variable}`
-        console.info("- Created at:", state.createdAt);   // Timestamp creazione
-        console.info("- Checkpoint ID:", state.config?.configurable?.checkpoint_id ?? "N/A");
-        console.info("- Thread ID:", state.config?.configurable?.thread_id ?? "N/A");
+        logger.info(`- Created at: ${state.createdAt}` );   // Timestamp creazione
+        logger.info(`- Checkpoint ID: ${state.config?.configurable?.checkpoint_id ?? "N/A"}`);
+        logger.info(`- Thread ID: ${state.config?.configurable?.thread_id ?? "N/A"}`);
 
         logger.info("Values in state:");
         if (!state.values) {
@@ -98,8 +98,8 @@ async function logState(agent: ReactAgent, sessionId: string) {
             return;
         }
         for (const [key, value] of Object.entries(state.values)) {
-            console.info(`  - Key: ${JSON.stringify(key)}`);
-            console.info("    Value:", JSON.stringify(value));
+            logger.info(`  - Key: ${JSON.stringify(key)}`);
+            logger.info(`    Value: ${JSON.stringify(value)}` );
         }
 
         logger.info("Next nodes to execute:");
@@ -108,10 +108,10 @@ async function logState(agent: ReactAgent, sessionId: string) {
             return;
         }
         state.next.forEach((node: any, index: number) => {
-            console.info(`  [${index}] Node:`, node);
+            logger.info(`  [${index}] Node: ${JSON.stringify(node)}`,);
         });
 
-        console.info("Checkpoint config:");
+        logger.info("Checkpoint config:");
         if (!state.config) {
             logger.info("  Config non disponibile.");
             return;
@@ -132,7 +132,7 @@ async function logState(agent: ReactAgent, sessionId: string) {
         }
         state.tasks.forEach((task: any, index: number) => {
             logger.info(`  [${index}] Task:`);
-            console.info(JSON.stringify(task, null, 2));
+            logger.info(JSON.stringify(task, null, 2));
         });
 
         logger.info("Parent checkpoint config:");
@@ -140,7 +140,7 @@ async function logState(agent: ReactAgent, sessionId: string) {
             logger.info("  Nessuna configurazione genitore.");
             return;
         }
-        console.info(JSON.stringify(state.parentConfig, null, 2));
+        logger.info(JSON.stringify(state.parentConfig, null, 2));
 
         return state;
     } catch (error) {
