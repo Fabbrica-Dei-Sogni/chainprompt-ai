@@ -24,7 +24,7 @@ export function getPromptTemplate(systemPrompt: string) {
  * 
  @deprecated
  */
-export interface ChainPromptBaseTemplate {
+interface ChainPromptBaseTemplate {
   systemPrompt: SystemMessageFields;
   question: HumanMessageFields;
 }

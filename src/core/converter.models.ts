@@ -37,7 +37,7 @@ function getAgentOutput(agentResult: any): AgentOutput {
  * @param agentResult 
  * @returns 
  */
-export function getAgentContent(agentResult: any) : string { 
+export function getAgentContent(agentResult: any): string {
     return getAgentOutput(agentResult).result;
 }
 
@@ -71,6 +71,10 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     //recupero richiesta storico o default
     const noappendchat = body.noappendchat;
 
+    const format = body.format;
+
+    const timeout = body.timeout;
+
     //XXX: costruzione dell'identificativo di sessione
     let keyconversation = session + "_" + identifier + "_" + context;
     //identificativo indirizzato a un agente piuttosto che a una chat conversazionale 
@@ -80,6 +84,9 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     else
         keyconversation = keyconversation + "_chat";
 
+    let config: ConfigChainPrompt = {
+        ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format, timeout
+    };
 
     console.log("Avviata conversione con chiave : " + keyconversation);
     console.log("Domanda richiesta: " + question);
@@ -87,7 +94,7 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     console.log("temperature impostata a " + temperature);
 
 
-    return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat };
+    return { question, keyconversation, noappendchat, config };
 }
 
 export function getConfigChainpromptDFL(): ConfigChainPrompt {
@@ -121,8 +128,11 @@ export function getDataRequestDFL(): DataRequest {
     //XXX: costruzione dell'identificativo di sessione
     let keyconversation = session;
 
+    let config: ConfigChainPrompt = {
+        ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format
+    };
 
-    return { question, temperature, modelname, maxTokens, numCtx, keyconversation, noappendchat, format };
+    return { question, keyconversation, noappendchat, config };
 }
 
 export function getConfigEmbeddingsDFL(): ConfigEmbeddings {

@@ -5,11 +5,10 @@ import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
-import { ConfigChainPrompt } from '../../../core/interfaces/protocol/configchainprompt.interface.js';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
 import fs from 'fs';
-import { getAgentContent, getConfigChainpromptDFL } from '../../../core/converter.models.js';
+import { getAgentContent } from '../../../core/converter.models.js';
 import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
@@ -46,12 +45,9 @@ export async function agentManagerHandler(
     //middleware istanziato dall'handler.
     //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
+    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
-    const { temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = resultData;
-    let config: ConfigChainPrompt = {
-      ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format
-    };
+    const { keyconversation, config }: DataRequest = resultData;
     //step 2. istanza e invocazione dell'agente
 
 
@@ -117,7 +113,7 @@ async function agentHandler(
     //middleware istanziato dall'handler.
     //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
     //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.modelname!) /*, dynamicSystemPrompt*/];
+    const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
     //step 2. istanza e invocazione dell'agente
     const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);

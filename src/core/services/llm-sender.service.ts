@@ -32,14 +32,10 @@ import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
 export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, promptTemplate: ChatPromptTemplate<any, any>, chainWithHistory?: Runnable<any, any>) {
 
   //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
-  const { question, temperature, modelname, maxTokens, numCtx, format, keyconversation }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
+  const { question, keyconversation, config }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
   console.log(`System prompt contestuale:\n`, systemPrompt);
   console.log(`Question prompt utente:\n`, question);
-
-  let config: ConfigChainPrompt = {
-    temperature, modelname, maxTokens, numCtx, format
-  };
 
   const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(provider, config), promptTemplate);
 

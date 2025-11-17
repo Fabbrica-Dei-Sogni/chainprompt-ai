@@ -27,4 +27,10 @@ export interface RequestBody {
     //cheshire ad esempio gestisce nativamente le conversazioni e non e' necessario, anzi sconsigliato, gestire l'append da chainprompt
     noappendchat?: boolean;
 
+    //fornisce il formato output dell'llm solo se supportato da quest'ultimo
+    format?: string;
+
+    //timeout richiesta http llm
+    timeout?: number;
+
 }
