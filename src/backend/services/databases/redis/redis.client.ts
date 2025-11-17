@@ -1,5 +1,5 @@
 import { createClient, RedisClientType } from "redis";
-import '../../../../core/logger.core.js';
+import '../../../../backend/logger.backend.js';
 /**
 
 Servizio dedicato a operazioni di storage redis.

@@ -1,5 +1,5 @@
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
-import '../../../../core/logger.core.js';
+import '../../../../backend/logger.backend.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { getInstanceEmbeddings } from "../../../../core/services/llm-embeddings.service.js";

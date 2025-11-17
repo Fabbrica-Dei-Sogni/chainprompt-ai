@@ -40,6 +40,11 @@ export async function agentManagerHandler(
 
     let context = CONTEXT_MANAGER;
     //step 1. recupero dati da una richiesta http
+    //valorizzato il provider sul body request dall'handler
+    req.body = {
+      ...req.body,
+      provider
+    };    
     const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
 
     //middleware istanziato dall'handler.
@@ -64,15 +69,15 @@ export async function agentManagerHandler(
       //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
       let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
       let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
-      const descriptionSubAgent = prRuolo + "\n"+prAzione ;
+      const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
-      const agent = await buildAgent(subContext, config, provider);
+      const agent = await buildAgent(subContext, config);
 
       let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
       tools.push(subagenttool);
     }
 
-    const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    const result = await handleAgent(systemPrompt, resultData, tools, middleware, context);
     let answer = getAgentContent(result);
 
     //step 3. ritorno la response http
@@ -87,15 +92,15 @@ export async function agentManagerHandler(
 /**
  * Gestione degli handler http rest per invocare un agente associato a un contesto
  Ciascun contesto puo avere un handle personalizzato, altrimenti viene gestito dall'handler comune (autogenera un endpoint rest dedicato).
- * @param req 
- * @param res 
- * @param next 
- * @param provider 
- * @param preprocessor 
- * @param tools 
- * @param context 
- * @param defaultParams 
- */
+  * 
+  * @param req 
+  * @param res 
+  * @param next 
+  * @param provider 
+  * @param preprocessor 
+  * @param tools 
+  * @param context 
+  */
 async function agentHandler(
   req: any,
   res: any,
@@ -108,6 +113,11 @@ async function agentHandler(
   try {
 
     //step 1. recupero dati da una richiesta http
+    //valorizzato il provider sul body request dall'handler
+    req.body = {
+      ...req.body,
+      provider
+    };
     const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
     //middleware istanziato dall'handler.
@@ -116,7 +126,7 @@ async function agentHandler(
     const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
     //step 2. istanza e invocazione dell'agente
-    const result = await handleAgent(systemPrompt, resultData, provider, tools, middleware, context);
+    const result = await handleAgent(systemPrompt, resultData, tools, middleware, context);
     let answer = getAgentContent(result);
     //step 3. ritorno la response http
     res.json(answer);

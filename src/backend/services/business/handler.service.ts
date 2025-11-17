@@ -2,7 +2,6 @@ import { AgentMiddleware } from "langchain";
 import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
 import { getDataRequestDFL, getDataRequest } from "../../../core/converter.models.js";
-import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.service.js";
 import { getFrameworkPrompts } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
@@ -47,12 +46,12 @@ La callback getSendPromptCallback istruisce il provider llm da utilizzare per in
 
     il wrapperllm istanzia il chain ed esegue la chiamata ritornando la risposta
  */
-export const handleLLM = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider): Promise<any> => {
+export const handleLLM = async (systemPrompt: string, inputData: DataRequest): Promise<any> => {
     try {
 
         const { keyconversation, noappendchat, config }: DataRequest = inputData;
-        const chain = await getChainWithHistory(systemPrompt, getInstanceLLM(provider, config), noappendchat, keyconversation)
-        return await senderToLLM(inputData, systemPrompt, provider, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
+        const chain = await getChainWithHistory(systemPrompt, getInstanceLLM(config), noappendchat, keyconversation)
+        return await senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
     } catch (err) {
         console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
         throw err;
@@ -63,17 +62,16 @@ export const handleLLM = async (systemPrompt: string, inputData: DataRequest, pr
  * 
  * @param systemPrompt 
  * @param inputData 
- * @param provider 
  * @param tools 
  * @param middleware 
  * @param nomeagente 
  * @returns 
  */
-export const handleAgent = async (systemPrompt: string, inputData: DataRequest, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
+export const handleAgent = async (systemPrompt: string, inputData: DataRequest, tools: any[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> => {
     try {
 
         const { question, keyconversation, config }: DataRequest = inputData;
-        return senderToAgent(question!, keyconversation, config, systemPrompt, provider, tools, middleware, nomeagente);
+        return senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
 
     } catch (err) {
         console.error('Errore durante la comunicazione con un agente:', JSON.stringify(err));

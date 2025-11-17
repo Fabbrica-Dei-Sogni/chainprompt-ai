@@ -4,15 +4,14 @@
  */
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { LLMProvider } from '../enums/llmprovider.enum.js';
 import { getInstanceLLM } from './llm-chain.service.js';
-import '../logger.core.js';
 import { AgentMiddleware } from 'langchain';
 import { getAgent, invokeAgent } from "./llm-agent.service.js";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
+import { logger } from '../logger.core.js';
 
 /**
  * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
@@ -29,18 +28,18 @@ import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
   * @param chainWithHistory 
   * @returns 
   */
-export async function senderToLLM(inputData: DataRequest, systemPrompt: string, provider: LLMProvider, promptTemplate: ChatPromptTemplate<any, any>, chainWithHistory?: Runnable<any, any>) {
+export async function senderToLLM(inputData: DataRequest, systemPrompt: string, promptTemplate: ChatPromptTemplate<any, any>, chainWithHistory?: Runnable<any, any>) {
 
   //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
   const { question, keyconversation, config }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
-  console.log(`System prompt contestuale:\n`, systemPrompt);
-  console.log(`Question prompt utente:\n`, question);
+  logger.log(`System prompt contestuale:\n`, systemPrompt);
+  logger.log(`Question prompt utente:\n`, question);
 
-  const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(provider, config), promptTemplate);
+  const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(config), promptTemplate);
 
   const answer = await invokeChain(question as any, keyconversation, chainToInvoke);
-  console.log(`Risposta assistente:\n`, answer);
+  logger.log(`Risposta assistente:\n`, answer);
 
   //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
   return answer;
@@ -93,14 +92,14 @@ export const invokeChain = async (question: HumanMessageFields<MessageStructure>
     //XXX: gestione accurata dell'errore ricevuto da un llm
 
     // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
-    console.error("Errore durante l'invocazione della chain LLM:", error);
+    logger.error("Errore durante l'invocazione della chain LLM:", error);
 
     // Gestione custom errori specifici (opzionale)
     if (error instanceof Error) {
       // Puoi controllare messaggi o tipi per retry, rate limit, ...
       if (error.message.includes("rate limit")) {
         // eventuale logica retry o backoff
-        console.warn("Rate limit superata. Considera retry o backoff.");
+        logger.warn("Rate limit superata. Considera retry o backoff.");
       }
     }
 
@@ -123,13 +122,13 @@ export const invokeChain = async (question: HumanMessageFields<MessageStructure>
  * @param nomeagente 
  * @returns 
  */
-export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, provider: LLMProvider, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
+export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
 
   //console.log(`System prompt contestuale:\n`, systemPrompt);
-  console.log(`Question prompt utente:\n`, question);
+  logger.log(`Question prompt utente:\n`, question);
 
   let agent = getAgent(
-    getInstanceLLM(provider, config),
+    getInstanceLLM(config),
     systemPrompt,
     tools,
     middleware,
@@ -141,6 +140,6 @@ export async function senderToAgent(question: string, keyconversation: string, c
     question!,
     keyconversation);
 
-  console.log(`Risposta agente:\n`, result);
+  logger.log(`Risposta agente:\n`, result);
   return result;
 };

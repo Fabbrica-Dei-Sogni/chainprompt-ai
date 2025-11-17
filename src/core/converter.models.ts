@@ -4,7 +4,8 @@ import { ConfigChainPrompt } from "./interfaces/protocol/configchainprompt.inter
 import { ConfigEmbeddings } from "./interfaces/protocol/configembeddings.interface.js";
 import { DataRequest } from "./interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "./interfaces/protocol/requestbody.interface.js";
-
+import { LLMProvider } from "./enums/llmprovider.enum.js";
+import { logger } from "./logger.core.js"
 
 /**
  * Recupera l'agent output da un risultato "grezzo" di una risposta ricevuta da un agente
@@ -54,10 +55,13 @@ export function getAgentContent(agentResult: any): string {
  * @returns 
  */
 export function getDataRequest(body: RequestBody, context: string, identifier: string, isAgent: boolean = false): DataRequest {
-    console.log("Estrazione informazioni data input per la preparazione al prompt di sistema....");
+    logger.info("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
     //Recupero della domanda dal campo question o dal campo text (standard cheshire)
     const question = body.question ?? body.text;
+
+    const provider = body.provider;
+
     //recupero del modelname o default
     const modelname = body.modelname;
     //recupero della temperature o default
@@ -65,9 +69,9 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
     //recupero della sessione o default
     const session = body.sessionchat;
     //recupero maxTokens o default
-    const maxTokens = body.maxTokens ? body.maxTokens : 8032;
+    const maxTokens = body.maxTokens;
     //recupero numCtx o default
-    const numCtx = body.numCtx ? body.numCtx : 8032;
+    const numCtx = body.numCtx;
     //recupero richiesta storico o default
     const noappendchat = body.noappendchat;
 
@@ -85,13 +89,13 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
         keyconversation = keyconversation + "_chat";
 
     let config: ConfigChainPrompt = {
-        ...getConfigChainpromptDFL(), temperature, modelname, maxTokens, numCtx, format, timeout
+        ...getConfigChainpromptDFL(), temperature, provider, modelname, maxTokens, numCtx, format, timeout
     };
 
-    console.log("Avviata conversione con chiave : " + keyconversation);
-    console.log("Domanda richiesta: " + question);
-    console.log("Modello llm utilizzato : " + modelname);
-    console.log("temperature impostata a " + temperature);
+    logger.info("Avviata conversione con chiave : " + keyconversation);
+    logger.info("Domanda richiesta: " + question);
+    console.info("Modello llm utilizzato : " + modelname);
+    console.info("temperature impostata a " + temperature);
 
 
     return { question, keyconversation, noappendchat, config };
@@ -99,7 +103,7 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
 
 export function getConfigChainpromptDFL(): ConfigChainPrompt {
 
-    return { timeout: 120000 };
+    return { timeout: 120000, provider: LLMProvider.ChatOllama, maxTokens: 8032, numCtx: 8032 };
 }
 /**
  * Definisce un data request con valori di default.

@@ -1,4 +1,3 @@
-import { LLMProvider } from "../../../../core/enums/llmprovider.enum.js";
 import { ConfigChainPrompt } from "../../../../core/interfaces/protocol/configchainprompt.interface.js";
 import { AgentMiddleware, dynamicSystemPromptMiddleware, StructuredTool, Tool } from "langchain"; // Per agent react moderno in 1.0
 import * as z from "zod";
@@ -24,7 +23,6 @@ import { getCheckpointer } from "../../databases/postgresql/postgresql.service.j
   * Costruisce un agente a partire dal contesto, configurazione
   * @param context 
   * @param config 
-  * @param provider 
   * @param modelname 
   * @param middleware 
   * @returns 
@@ -32,14 +30,13 @@ import { getCheckpointer } from "../../databases/postgresql/postgresql.service.j
 export async function buildAgent(
     context: string,
     config: ConfigChainPrompt,
-    provider: LLMProvider,
     tools: Tool[] | StructuredTool[] = [],
     middleware: AgentMiddleware[] = [handleToolErrors, createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
 
   //step 2. Recupero del systemprompt dalla logica esistente
   const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
   //console.log("System prompt : " + systemPrompt);
-  const agent = getAgent(getInstanceLLM(provider, config), systemPrompt, tools, middleware, "Mr."+context,  getCheckpointer());
+  const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr."+context,  getCheckpointer());
   return agent;
 }
 

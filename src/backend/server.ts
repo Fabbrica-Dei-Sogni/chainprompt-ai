@@ -5,7 +5,7 @@ import cors from 'cors';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './endpoint.js';
-import '../core/logger.core.js';
+import './logger.backend.js';
 dotenv.config();
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
 //l'obiettivo e' impostare a livello globale un agente che istruisce qualsiasi fetch under the wood l'ecosistema langchain a non terminare mai la richiesta per una mancata ricezione di un header
