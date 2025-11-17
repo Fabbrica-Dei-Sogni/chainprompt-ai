@@ -6,6 +6,7 @@ import { DataRequest } from "./interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "./interfaces/protocol/requestbody.interface.js";
 import { LLMProvider } from "./enums/llmprovider.enum.js";
 import { logger } from "./logger.core.js"
+import { EmbeddingProvider } from "./enums/embeddingprovider.enum.js";
 
 /**
  * Recupera l'agent output da un risultato "grezzo" di una risposta ricevuta da un agente
@@ -145,5 +146,6 @@ export function getConfigEmbeddingsDFL(): ConfigEmbeddings {
     return {
         modelname: 'mxbai-embed-large',
         baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+        provider: EmbeddingProvider.Ollama
     }
 }

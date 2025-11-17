@@ -17,9 +17,9 @@ import { EmbeddingProvider } from "../enums/embeddingprovider.enum.js";
  * @param config - Configurazione specifica
  * @returns Embeddings instance
  */
-export function getInstanceEmbeddings(provider: EmbeddingProvider, config: ConfigEmbeddings) {
+export function getInstanceEmbeddings(config: ConfigEmbeddings) {
   let instance: Embeddings;
-
+  let provider = config.provider;
   switch (provider) {
     case EmbeddingProvider.OpenAI:
       instance = getOpenAIEmbeddings(config);

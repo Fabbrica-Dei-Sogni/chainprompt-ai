@@ -54,7 +54,7 @@ export async function getVectorStoreSingleton(
 ): Promise<PGVectorStore> {
   if (VECTORSTORE_INSTANCE) return VECTORSTORE_INSTANCE;
 
-  const embeddings: Embeddings = getInstanceEmbeddings(provider, config);
+  const embeddings: Embeddings = getInstanceEmbeddings(config);
   let pool = POSTGRESQL_CLIENT_INSTANCE.getOrCreatePool();
 
   VECTORSTORE_INSTANCE = await PGVectorStore.initialize(embeddings, {
