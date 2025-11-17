@@ -33,13 +33,13 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
   //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
   const { question, keyconversation, config }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
-  logger.log(`System prompt contestuale:\n`, systemPrompt);
-  logger.log(`Question prompt utente:\n`, question);
+  logger.info(`System prompt contestuale:\n ${systemPrompt}`);
+  logger.info(`Question prompt utente:\n${question}`);
 
   const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(config), promptTemplate);
 
   const answer = await invokeChain(question as any, keyconversation, chainToInvoke);
-  logger.log(`Risposta assistente:\n`, answer);
+  logger.info(`Risposta assistente:\n${answer}`);
 
   //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
   return answer;
@@ -125,7 +125,7 @@ export const invokeChain = async (question: HumanMessageFields<MessageStructure>
 export async function senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
 
   //console.log(`System prompt contestuale:\n`, systemPrompt);
-  logger.log(`Question prompt utente:\n`, question);
+  logger.info(`Question prompt utente:\n ${question}`);
 
   let agent = getAgent(
     getInstanceLLM(config),
@@ -140,6 +140,6 @@ export async function senderToAgent(question: string, keyconversation: string, c
     question!,
     keyconversation);
 
-  logger.log(`Risposta agente:\n`, result);
+  logger.info(`Risposta agente:\n ${result}`);
   return result;
 };

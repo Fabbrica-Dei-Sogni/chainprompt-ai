@@ -94,8 +94,8 @@ export function getDataRequest(body: RequestBody, context: string, identifier: s
 
     logger.info("Avviata conversione con chiave : " + keyconversation);
     logger.info("Domanda richiesta: " + question);
-    console.info("Modello llm utilizzato : " + modelname);
-    console.info("temperature impostata a " + temperature);
+    logger.info("Modello llm utilizzato : " + modelname);
+    logger.info("temperature impostata a " + temperature);
 
 
     return { question, keyconversation, noappendchat, config };
