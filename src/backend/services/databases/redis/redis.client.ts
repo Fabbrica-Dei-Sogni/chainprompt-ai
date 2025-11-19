@@ -31,7 +31,7 @@ class RedisClient {
 
     // Error handling
     this.client.on('error', (err: Error) => {
-      console.error('R[REDIS] Error:', err);
+      console.error('[Redis] Error:', err);
     });
     this.connectRedis().catch(console.error)
 
@@ -40,7 +40,7 @@ class RedisClient {
   // Connecting to the Redis server
   async connectRedis(): Promise<void> {
     await this.client.connect();
-      console.log('[REDIS] Connected.');
+      console.log('[Redis] Connected.');
   }
 }
 

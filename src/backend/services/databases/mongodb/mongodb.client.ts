@@ -1,19 +1,23 @@
 import mongoose from 'mongoose';
+import { dbHost } from '../../common.service.js';
 
 export class MongoClientInstance {
-  private static instance: mongoose.Connection | null = null;
+  constructor() {
 
-  static async connect(uri: string) {
-    if (!MongoClientInstance.instance) {
-      await mongoose.connect(uri, { /* useNewUrlParser, useUnifiedTopology non più necessari con le versioni recenti */ });
-      MongoClientInstance.instance = mongoose.connection;
-      MongoClientInstance.instance.on('error', console.error.bind(console, 'MongoDB connection error:'));
-    }
-    return MongoClientInstance.instance;
-  }
-
-  static getConnection() {
-    if (!MongoClientInstance.instance) throw new Error('MongoDB not connected');
-    return MongoClientInstance.instance;
+    //Connessione a mongodb
+    mongoose.connect(dbHost);
+    mongoose.connection.on('connected', () => {
+      console.log('[mongoDB] Connected');
+    });
+    mongoose.connection.on('error', (err) => {
+      console.error('[mongoDB] Errore nella connessione:', err);
+    });
+    mongoose.connection.on('disconnected', () => {
+      console.warn('[mongoDB] Connessione chiusa');
+    });
+    
   }
 }
+
+//Importare il client all'endpoint.ts permette la connessione a mongodb all'avvio del server
+export const instance = new MongoClientInstance();

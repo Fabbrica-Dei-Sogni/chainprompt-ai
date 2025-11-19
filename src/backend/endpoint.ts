@@ -3,22 +3,10 @@
  * In futuro potrebbero essere interfacciati da strumenti tipici di un API gateway
  */
 import route from './routes/routes.js'
-import mongoose from 'mongoose';
-import { dbHost } from './services/common.service.js';
 import express from 'express';
+//import per eseguire la connect al database mongodb
+import './services/databases/mongodb/mongodb.client.js';
 
-
-//Connessione a mongodb
-mongoose.connect(dbHost);
-mongoose.connection.on('connected', () => {
-  console.log('Connessione a MongoDB stabilita');
-});
-mongoose.connection.on('error', (err) => {
-  console.error('Errore nella connessione a MongoDB:', err);
-});
-mongoose.connection.on('disconnected', () => {
-  console.warn('Connessione a MongoDB chiusa');
-});
 
 // Importa le rotte definite in un altro file
 const router: express.Router = express.Router();

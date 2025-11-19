@@ -79,7 +79,7 @@ export class PostgresqlClient {
                         schema: this.NAME_DB_MEMORY
                     });
                     await this.checkpointer.setup();
-                    console.info("PostgreSQL checkpointer inizializzato");
+                    console.info("[PostgreSQL] checkpointer inizializzato");
                 }
                 this.checkpointer;
                 break;
