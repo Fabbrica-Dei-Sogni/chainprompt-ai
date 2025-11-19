@@ -1,17 +1,16 @@
-import { Model } from 'mongoose';
 import { SchemaService } from './schema.service.js';
 import { IConfiguration } from '../models/config.schema.js';
 import { Configuration } from '../models/config.schema.js';
 import logger from '../../../../logger.backend.js';
 
 export class ConfigService extends SchemaService<IConfiguration> {
-    constructor(model: Model<IConfiguration> = Configuration) {
-        super(model);
-    }
+  constructor() {
+    super(Configuration);
+  }
 
- /**
-   * Salva o aggiorna una configurazione key-value
-   */
+  /**
+    * Salva o aggiorna una configurazione key-value
+    */
   async saveConfig(key: string, value: string): Promise<IConfiguration> {
     try {
       const result = await this.model.findOneAndUpdate(
@@ -39,7 +38,7 @@ export class ConfigService extends SchemaService<IConfiguration> {
       }
       logger.info(`[ConfigService] getConfigValue success for key=${key}`);
       return config.value;
-    } catch (error : any) {
+    } catch (error: any) {
       logger.error(`[ConfigService] getConfigValue ERROR for key=${key}: ${error.message}`);
       throw error;
     }
@@ -53,9 +52,11 @@ export class ConfigService extends SchemaService<IConfiguration> {
       const configs = await this.model.find({});
       logger.info(`[ConfigService] getAllConfigs success: ${configs.length} configs retrieved`);
       return configs;
-    } catch (error : any) {
+    } catch (error: any) {
       logger.error(`[ConfigService] getAllConfigs ERROR: ${error.message}`);
       throw error;
     }
   }
 }
+
+export const configService = new ConfigService();
