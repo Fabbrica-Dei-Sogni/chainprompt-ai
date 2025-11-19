@@ -12,18 +12,22 @@ import { readFileAndConcat } from '../filesystem.service.js';
  * @returns {Promise<string>} A Promise that resolves with the framework prompts as a string.
  */
 export const getFrameworkPrompts = async (contesto: string): Promise<string> => {
+    let sorgente = "file system";
+    const msg = `System prompt per il contesto ${contesto} caricato da ${sorgente}`;
+    let result = "nessun system prompt trovato";
 
     const loadedSystemPrompt = await loadFrameworkPrompts(contesto);
-    if (loadedSystemPrompt)
-    {
-        console.info("Contesto "+contesto+" caricato da mongodb")
-        return loadedSystemPrompt;
+    if (loadedSystemPrompt) {
+        sorgente = "mongodb";
+        result = loadedSystemPrompt;
     }
     else {
-        console.info("Contesto "+contesto+" caricato da file system")
-        const systemPrompt = ['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'];
-        return await readFileAndConcat(systemPrompt, contextFolder + '/' + contesto);
+        result = await readFileAndConcat(['prompt.ruolo', 'prompt.obiettivo', 'prompt.azione', 'prompt.contesto'], contextFolder + '/' + contesto);
     }
+
+    console.info(msg)
+    return result;
+
 };
 
 /**
