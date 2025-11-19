@@ -46,7 +46,7 @@ export class PostgresqlClient {
                 max: 20, // max connessioni simultanee
                 idleTimeoutMillis: 30000, // chiudi connessioni idle dopo 30s
                 connectionTimeoutMillis: 2000, // timeout acquisizione connessione
-                application_name: "langgraph-agent", // utile per debugging
+                application_name: "chaimprompt-ai", // utile per debugging
             });
 
             // Event listeners per monitoraggio pool
@@ -55,7 +55,7 @@ export class PostgresqlClient {
             });
 
             this.pool.on('connect', () => {
-                console.debug('Nuova connessione acquisita dal pool');
+                console.info('[PostgreSQL] Nuova connessione acquisita dal pool');
             });
 
             this.pool.on('remove', () => {
