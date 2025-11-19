@@ -133,3 +133,15 @@ If you want, I can:
 - or draft a CONTRIBUTING.md based on these conventions.
 
 Feedback? Tell me which of the above sections you want expanded or adjusted.
+
+## Contributi
+Siamo aperti ai contributi! Se desideri contribuire a questo progetto, ti preghiamo di aprire una nuova issue o inviare una pull request.
+Quello che è scritto sopra in inglese è stato generato da mr chat e non ho voglia di tradurlo in italiano :)
+
+
+## Come è nato il progetto ChainPrompt
+
+Il progetto è nato dalla consultazione di questo link
+https://javascript.plainenglish.io/embarking-on-the-ai-adventure-introduction-to-langchain-and-node-js-7393b6364f3a
+
+consulta anche le prime documentazioni sul progetto README.legacy.md
