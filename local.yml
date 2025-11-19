@@ -10,6 +10,9 @@ services:
     ports:
       - "5500:5000"
       - "9339:9229"
+    environment:
+      MONGODB_USERNAME: ${MONGODB_USERNAME:-chainprompt}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD:-!!!Chainprompt!!!}      
     env_file:
       - ./.env.dev
     networks:
