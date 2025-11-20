@@ -5,10 +5,10 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { providerRoutes } from "../../core/enums/llmprovider.enum.js";
-import { handleCheshireRequest } from "../handlers/llms/handler.js";
-import '../logger.backend.js';
-import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";
+import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
+import { handleCheshireRequest } from "../../handlers/llms/handler.js";
+import '../../logger.backend.js';
+import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
 
 const contexts = fs.readdirSync(contextFolder);
 
@@ -19,7 +19,7 @@ const contexts = fs.readdirSync(contextFolder);
 console.log(">>> Caricamento chat tematiche per essere interrogate da cheshire cat ai...");
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
-    console.log(prefix +"-"+context);
+    console.log(prefix + "-" + context);
     router.post(`/cheshirecat/${prefix}/prompt/${context}`, (req, res, next) =>
       handleCheshireRequest(req, res, next, provider)
     );

@@ -1,8 +1,8 @@
 import express from "express";
 const router = express.Router();
-import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
-import '../logger.backend.js';
-import { handleCyberSecurityAgent } from "../handlers/agents/handler.js";
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
+import '../../logger.backend.js';
+import { handleCyberSecurityAgent } from "../../handlers/agents/handler.js";
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
@@ -10,15 +10,15 @@ import { handleCyberSecurityAgent } from "../handlers/agents/handler.js";
  */
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
-router.post('/features/'+LLMProvider.OpenAILocal+'/threatintel/', (req, res, next) =>
+router.post('/features/' + LLMProvider.OpenAILocal + '/threatintel/', (req, res, next) =>
   handleCyberSecurityAgent(req, res, next, LLMProvider.OpenAILocal)
 );
 
-router.post('/features/'+LLMProvider.OpenAICloud+'/threatintel', (req, res, next) =>
+router.post('/features/' + LLMProvider.OpenAICloud + '/threatintel', (req, res, next) =>
   handleCyberSecurityAgent(req, res, next, LLMProvider.OpenAICloud)
 );
 
-router.post('/features/'+LLMProvider.ChatOllama+'/threatintel', (req, res, next) =>
+router.post('/features/' + LLMProvider.ChatOllama + '/threatintel', (req, res, next) =>
   handleCyberSecurityAgent(req, res, next, LLMProvider.ChatOllama)
 );
 

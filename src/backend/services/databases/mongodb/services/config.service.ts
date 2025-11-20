@@ -57,6 +57,24 @@ export class ConfigService extends SchemaService<IConfiguration> {
       throw error;
     }
   }
+
+  /**
+   * Elimina configurazione per chiave
+   */
+  async deleteByKey(key: string): Promise<boolean> {
+    try {
+      const result = await this.model.findOneAndDelete({ key });
+      if (!result) {
+        logger.warn(`[ConfigService] deleteByKey: Configuration not found for key=${key}`);
+        return false;
+      }
+      logger.info(`[ConfigService] deleteByKey success for key=${key}`);
+      return true;
+    } catch (error: any) {
+      logger.error(`[ConfigService] deleteByKey ERROR for key=${key}: ${error.message}`);
+      throw error;
+    }
+  }
 }
 
 export const configService = new ConfigService();

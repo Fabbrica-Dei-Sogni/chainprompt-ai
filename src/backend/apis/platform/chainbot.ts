@@ -5,17 +5,18 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { handleCommonAgentRequest } from "../handlers/agents/handler.js";
-import '../logger.backend.js';
-import { providerRoutes } from "../../core/enums/llmprovider.enum.js";
-import { contextFolder, ENDPOINT_CHATGENERICA } from "../services/common.service.js";
+import { handleCommonRequest } from "../../handlers/llms/handler.js";
+import '../../logger.backend.js';
+import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
+import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
 
 const contexts = fs.readdirSync(contextFolder);
+
 /**
  * I metodi seguenti sono un tentativo di generalizzare l'esposizione di endpoint api in base ai prompt tematici definiti in opportune folder di sistema.
  * E' un esempio di dinamismo, seguendo le best practise il tentativo è rendere tale dinamismo piu in linea con le esigenze applicative future, attualmente l'obiettivo è esporre una chatbot tematica
  */
-console.log(">>> Caricamento agenti tematici da backend...");
+console.log(">>> Caricamento chat tematiche da backend...");
 
 //log solo dei contesti tematici alla prima iterazione dei provider
 const allContext: Record<string, boolean> = {};
@@ -23,22 +24,22 @@ const allContext: Record<string, boolean> = {};
 // Per ogni provider e suo prefisso, genera le route dinamiche usando l'handler generico
 providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
-    let route = `/agent/${prefix}/${context}`;
+    let route = `/chat/${prefix}/${context}`;
     if (!allContext[context]) {
-      console.log("Mr."+context);   // Logga solo alla prima occorrenza
+      console.log(context);   // Logga solo alla prima occorrenza
       allContext[context] = true;
     }
     router.post(route, (req, res, next) =>
-      handleCommonAgentRequest(req, res, next, provider)
+      handleCommonRequest(req, res, next, provider)
     );
   });
-  let genericRoute = `/agent/${prefix}/${ENDPOINT_CHATGENERICA}`;
+  let genericRoute = `/chat/${prefix}/${ENDPOINT_CHATGENERICA}`;
   if (!allContext[ENDPOINT_CHATGENERICA]) {
-    console.log("Mr."+ENDPOINT_CHATGENERICA);  // Logga solo alla prima occorrenza
+    console.log(ENDPOINT_CHATGENERICA);  // Logga solo alla prima occorrenza
     allContext[ENDPOINT_CHATGENERICA] = true;
   }
   router.post(genericRoute, (req, res, next) =>
-    handleCommonAgentRequest(req, res, next, provider)
+    handleCommonRequest(req, res, next, provider)
   );
 });
 
