@@ -1,4 +1,4 @@
-[README Principale](./README.md) Vai al readme principale
+[README Principale](../README.md)
 
 # chainprompt-ai
 ## this readme is realized togheter mr. chat

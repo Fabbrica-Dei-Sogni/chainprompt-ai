@@ -1,5 +1,5 @@
 
-[README Principale](./README.md)
+[README Principale](../README.md)
 
 # Chatbot collegato a un server LLM
 

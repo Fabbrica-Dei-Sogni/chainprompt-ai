@@ -132,7 +132,7 @@ chainprompt-ai/
 
 ## 📄 Licenza
 
-Questo progetto è distribuito sotto licenza **ISC**.
+Questo progetto è distribuito sotto licenza **[Apache 2.0](./LICENSE-2.0.txt)**.
 
 ---
 
@@ -142,6 +142,6 @@ Questo progetto è distribuito sotto licenza **ISC**.
 
 ---
 ## 📚 Documentazione del Progetto
-- [Vision & Objectives](./README.objectives.md) - Vision strategica, architettura e obiettivi del progetto.
-- [README Alternativo](./README.main.md) - README professionale alternativo.
-- [README Legacy](./README.legacy.md) - Documentazione storica precedente.
+- [Vision & Objectives](./docs/objectives.md) - Vision strategica, architettura e obiettivi del progetto.
+- [README Alternativo](./docs/README.v2.md) - README alternativo.
+- [README Legacy](./docs/README.legacy.md) - Documentazione storica precedente.
