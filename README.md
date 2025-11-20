@@ -1,147 +1,146 @@
-# chainprompt-ai
-## this readme is realized togheter mr. chat
+# ChainPrompt AI
 
-Lightweight orchestration platform for LLM agents, prompt datasets and tools.  
-Designed to run locally or in containers and to be extended with new agents, tools and datasets.
+![ChainPrompt AI Banner](https://via.placeholder.com/1200x300?text=ChainPrompt+AI+Orchestration)
 
-## Quick summary
-- Purpose: orchestrate LLM-driven agents (chains, tools, subagents) and persist data for analysis.
-- Stack: Node.js (TypeScript), Express, MongoDB, Redis, PostgreSQL, Docker.
-- Key areas: backend APIs, LLM orchestration services, tools, datasets, DB adapters.
+> **Enterprise-grade Orchestration Platform for LLM Agents, Chains, and Prompt Engineering.**
+
+**ChainPrompt AI** è una piattaforma backend avanzata progettata per l'orchestrazione, la gestione e il deployment di agenti basati su Large Language Models (LLM). Costruita con un'architettura modulare e scalabile, permette di creare flussi di lavoro complessi integrando molteplici modelli AI, memoria persistente e strumenti esterni.
 
 ---
 
-## Getting started (local / dev)
+## 🌟 Caratteristiche Principali
 
-Prerequisites
-- Node.js (>=16)
-- npm / yarn
-- Docker & docker-compose (for DB services)
-
-1. Copy/select environment
-   - Inspect `.env.dev`, `.env.collaudo`, `.env.release` and create `.env` as appropriate.
-
-2. Start databases (examples)
-   - MongoDB:
-     ```
-     cd mongodb && docker-compose up -d
-     ```
-   - Redis:
-     ```
-     cd redis && docker-compose up -d
-     ```
-   - PostgreSQL:
-     ```
-     cd postgresql && docker-compose up -d
-     ```
-   - Check `mongo-init/init.js` for DB initialization logic.
-
-3. Install dependencies
-   ```
-   npm ci
-   ```
-
-4. Run the backend
-   - Check `package.json` scripts. Common options:
-     ```
-     npm run dev     # if present for development
-     npm start       # production-like run
-     ```
-   - Or use provided helpers:
-     ```
-     ./avvia.sh
-     ./entry-point.sh
-     ```
-   - Use `./stop.sh` to stop helper-run services.
-
-5. Tests
-   ```
-   npm test
-   ```
-   (jest configured via `jest.config.cjs`)
+*   **🤖 Orchestrazione Avanzata LLM**: Basata su **LangChain** e **LangGraph**, supporta la creazione di agenti autonomi e catene di esecuzione complesse.
+*   **🔌 Multi-Model Support**: Integrazione nativa con i principali provider AI:
+    *   **OpenAI** (GPT-4, GPT-3.5)
+    *   **Anthropic** (Claude)
+    *   **Google VertexAI** & **Gemini**
+    *   **Ollama** (Modelli locali open-source)
+    *   **HuggingFace**
+*   **💾 Memoria & Persistenza Ibrida**:
+    *   **Redis**: Per la gestione dello stato a bassa latenza e caching delle conversazioni.
+    *   **MongoDB**: Per lo storage flessibile di documenti, log e configurazioni.
+    *   **PostgreSQL**: Per dati strutturati e analisi relazionali.
+*   **🛠️ Sistema di Tool Estensibile**: Framework modulare per dotare gli agenti di capacità reali (Web Scraping, Cybersecurity API, Analisi Dati, ecc.).
+*   **📚 Gestione Dataset & Prompt**: Sistema integrato per il versionamento e il caricamento dinamico di dataset di prompt e knowledge base.
+*   **🐳 Cloud-Native & Docker Ready**: Completamente containerizzato per un deployment semplice e scalabile in qualsiasi ambiente.
 
 ---
 
-## Script package.json
+## 🏗️ Architettura del Progetto
 
--    `publish:nexus`: "npm publish",
--    `clean`: "rimraf dist",
--    `build`: "tsc",
--    `start:prod`: "node dist/server.js",
--    `start`: "node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
--    `start-dev`: "nodemon --exec node --inspect=0.0.0.0:9229 --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
--    `test`:jest,
--    `release`: "npm version $npm_config_versione -m 'Rilasciata una nuova release backend' && git push",
--    `patch`: "npm version patch -m 'Rilasciata una nuova patch backend' && git push"
+Il sistema è diviso in due macro-componenti logici per garantire manutenibilità e separazione delle responsabilità:
 
+### `src/core`
+Il motore pulsante della piattaforma. Contiene la logica di business agnostica e i servizi fondamentali per l'interazione con gli LLM.
+*   **LLM Services**: Gestione centralizzata delle chiamate ai modelli.
+*   **Interfaces & Enums**: Contratti di tipo rigorosi per garantire la stabilità del codice.
 
-## Architecture overview
-
-- `src/backend/server.ts` — Express app entry. Important: middleware ordering matters (e.g. threat logging middleware must be first).
-- `src/backend/apis/*` — HTTP handlers / agent endpoints (examples: `agentbot.ts`, `chainbot.ts`, `threatintel.ts`).
-- `src/backend/services/*` — Business logic and DB adapters; look at `databases/{mongodb,postgresql,redis}` for connectors.
-- `core/services/*` — LLM orchestration: `llm-agent.service.ts`, `llm-chain.service.ts`, `llm-embeddings.service.ts`.
-- `src/backend/tools/*` — Reusable tools callable by agents (e.g. `cybersecurityapi.tool.ts`, `scraping.tool.ts`).
-- `src/backend/datasets/*` — Prompt libraries and dataset files used by agents.
-- `proxy/chainprompt.conf` — Nginx proxy example for routing front door / reverse proxy behavior.
-- `plugins/` — front-end / browser plugin files and styles.
+### `src/backend`
+L'implementazione server e API.
+*   **API Endpoints**: REST API (Express) per esporre le funzionalità degli agenti al frontend o ad altri servizi.
+*   **Tools**: Moduli funzionali (es. `scraping.tool.ts`) che gli agenti possono invocare.
+*   **Databases**: Connettori e repository pattern per MongoDB, Redis e Postgres.
 
 ---
 
-## Project conventions & tips
+## 🚀 Getting Started
 
-- Config driven: most lists (providers, endpoints, patterns) are configured via `.env.*`; inspect those files before changing code.
-- DB access centralised: use services in `src/backend/services/databases/*` instead of direct model usage.
-- Tools are stateless modules under `src/backend/tools/` and should be callable by handlers and agents.
-- Datasets are stored under `src/backend/datasets/*` as filesystem resources; reader services handle loading.
-- Debugging: VSCode launch config available in `.vscode/launch.json`.
-- Docker images: use `Dockerfile`, `Dockerfile.release` and `entry-point.sh` for containerized runs.
+### Prerequisiti
+
+*   **Node.js** (v18+)
+*   **Docker** & **Docker Compose**
+*   **NPM** o **Yarn**
+
+### Installazione
+
+1.  **Clona il repository:**
+    ```bash
+    git clone https://github.com/your-org/chainprompt-ai.git
+    cd chainprompt-ai
+    ```
+
+2.  **Configura l'ambiente:**
+    Copia il file di esempio e configura le tue chiavi API (OpenAI, Anthropic, ecc.).
+    ```bash
+    cp .env.dev .env
+    # Modifica .env con i tuoi parametri
+    ```
+
+3.  **Avvia i servizi di supporto (Database):**
+    Utilizza gli script helper o docker-compose direttamente.
+    ```bash
+    # Avvia MongoDB, Redis e PostgreSQL
+    cd mongodb && docker-compose up -d
+    cd ../redis && docker-compose up -d
+    cd ../postgresql && docker-compose up -d
+    cd ..
+    ```
+
+4.  **Installa le dipendenze:**
+    ```bash
+    npm ci
+    ```
+
+5.  **Avvia il Server:**
+    ```bash
+    npm run start-dev
+    ```
+    Il server sarà attivo su `http://localhost:3000` (o sulla porta configurata).
 
 ---
 
-## Common developer workflows
+## 💻 Sviluppo e Contribuzione
 
-- Add an API route: create handler in `src/backend/apis/`, register in `src/backend/server.ts` or `src/backend/routes/routes.ts`.
-- Add a tool: implement under `src/backend/tools/` and expose via agent handler.
-- Add dataset: place files in `src/backend/datasets/<your-dataset>/` and use `filesystem.service.ts` / `reader-prompt.service.ts`.
-- Run unit tests with Jest: `npm test` (see `jest.config.cjs`).
+### Struttura Directory
+```
+chainprompt-ai/
+├── src/
+│   ├── backend/          # Server Express, API, Tools
+│   │   ├── apis/         # Endpoint degli Agenti
+│   │   ├── tools/        # Strumenti (Skills) degli Agenti
+│   │   └── services/     # Logica di business e DB
+│   └── core/             # Logica Core LLM condivisa
+├── mongodb/              # Configurazione Docker Mongo
+├── redis/                # Configurazione Docker Redis
+└── postgresql/           # Configurazione Docker Postgres
+```
+
+### Aggiungere un Nuovo Agente
+1.  Crea un nuovo handler in `src/backend/apis/`.
+2.  Definisci la logica dell'agente utilizzando i servizi in `src/core`.
+3.  Registra la rotta in `src/backend/routes/routes.ts`.
+
+### Aggiungere un Nuovo Tool
+1.  Implementa la logica del tool in `src/backend/tools/`.
+2.  Assicurati che implementi l'interfaccia standard per essere "invocabile" dagli agenti LangChain.
 
 ---
 
-## Deployment & Docker
+## 🛠️ Tech Stack
 
-- For local/dev, start DB containers in each `mongodb/`, `redis/`, `postgresql/` folder via `docker-compose`.
-- For production, build image with `Dockerfile.release` and use your container orchestration.
-- `proxy/chainprompt.conf` is an example Nginx config—adjust for your domain and TLS.
-
----
-
-## Where to look first (developer checklist)
-
-1. `src/backend/server.ts` — middleware order, boot sequence.
-2. `src/backend/apis/chainbot.ts` & `agentbot.ts` — examples of agent endpoints.
-3. `core/services/llm-agent.service.ts` & `llm-chain.service.ts` — LLM orchestration core.
-4. `src/backend/services/databases/mongodb` — DB models and queries.
-5. `src/backend/tools/*` — pattern for adding new capabilities.
-6. `.env.dev` / `.env.collaudo` — environment-driven behavior.
+| Categoria | Tecnologie |
+| :--- | :--- |
+| **Language** | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) |
+| **Runtime** | ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white) |
+| **Framework** | ![Express](https://img.shields.io/badge/Express.js-404D59?style=flat-square) |
+| **AI Framework** | 🦜️🔗 **LangChain** |
+| **Databases** | ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white) |
+| **DevOps** | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) |
 
 ---
 
-If you want, I can:
-- generate a checklist of files to modify when adding a new agent/tool,
-- produce a minimal `npm` script set to add to `package.json`,
-- or draft a CONTRIBUTING.md based on these conventions.
+## 📄 Licenza
 
-Feedback? Tell me which of the above sections you want expanded or adjusted.
+Questo progetto è distribuito sotto licenza **ISC**.
 
-## Contributi
-Siamo aperti ai contributi! Se desideri contribuire a questo progetto, ti preghiamo di aprire una nuova issue o inviare una pull request.
-Quello che è scritto sopra in inglese è stato generato da mr chat e non ho voglia di tradurlo in italiano :)
+---
 
+<p align="center">
+  <i>Realizzato con ❤️ dal team di ChainPrompt AI</i>
+</p>
 
-## Come è nato il progetto ChainPrompt
-
-Il progetto è nato dalla consultazione di questo link
-https://javascript.plainenglish.io/embarking-on-the-ai-adventure-introduction-to-langchain-and-node-js-7393b6364f3a
-
-consulta anche le prime documentazioni sul progetto README.legacy.md
+---
+## 📚 Documentazione Storica
+- [README Alternativo](./README.v2.md) - Un altro readme del progetto.
+- [README Quello originatore](./README.legacy.md) - Documentazione storica precedente.

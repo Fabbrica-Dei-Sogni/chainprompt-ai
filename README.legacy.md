@@ -1,4 +1,6 @@
 
+[README Principale](./README.md)
+
 # Chatbot collegato a un server LLM
 
 Questo progetto è un'applicazione Express.js che implementa una chatbot collegata a un server LLM (Large Language Model). 
