@@ -16,4 +16,3 @@ const username = process.env.MONGODB_USERNAME;
 const password = process.env.MONGODB_PASSWORD;
 const database = process.env.MONGODB_DATABASE;
 export const dbHost = `mongodb://${username}:${password}@${hostname}:${portdb}/${database}`;
-console.log(dbHost);
