@@ -7,9 +7,7 @@ import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
 import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
-import fs from 'fs';
 import { getAgentContent } from '../../../core/converter.models.js';
-import { scrapingTool } from '../../tools/suite.tools.js';
 import { buildAgent } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../../services/common.service.js';
@@ -41,7 +39,7 @@ export async function agentManagerHandler(
     req.body = {
       ...req.body,
       provider
-    };    
+    };
     const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
 
     //middleware istanziato dall'handler.
