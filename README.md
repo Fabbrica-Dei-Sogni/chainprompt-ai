@@ -141,6 +141,7 @@ Questo progetto è distribuito sotto licenza **ISC**.
 </p>
 
 ---
-## 📚 Documentazione Storica
-- [README Alternativo](./README.v2.md) - Un altro readme del progetto.
-- [README Quello originatore](./README.legacy.md) - Documentazione storica precedente.
+## 📚 Documentazione del Progetto
+- [Vision & Objectives](./README.objectives.md) - Vision strategica, architettura e obiettivi del progetto.
+- [README Alternativo](./README.main.md) - README professionale alternativo.
+- [README Legacy](./README.legacy.md) - Documentazione storica precedente.
