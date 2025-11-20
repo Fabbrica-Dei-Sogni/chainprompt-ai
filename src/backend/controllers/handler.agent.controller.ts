@@ -1,18 +1,18 @@
-import '../../logger.backend.js';
+import '../logger.backend.js';
 import { NextFunction } from "express";
-import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
-import { cyberSecurityPreprocessor, clickbaitAgentPreprocessor } from './preprocessor.js';
-import { handleToolErrors, createSummaryMemoryMiddleware } from '../../services/business/agents/middleware.service.js';
+import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
+import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
+import { handleToolErrors, createSummaryMemoryMiddleware } from '../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
-import { SubAgentTool } from '../../tools/subagent.tool.js';
-import { getSectionsPrompts } from '../../services/business/reader-prompt.service.js';
-import { getAgentContent } from '../../../core/converter.models.js';
-import { buildAgent } from '../../services/business/agents/agent.service.js';
-import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
-import { CONTEXT_MANAGER } from '../../services/common.service.js';
-import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../../services/business/handler.service.js';
-import { ScrapingToolStructured } from '../../tools/scraping.structured.tool.js';
+import { SubAgentTool } from '../tools/subagent.tool.js';
+import { getSectionsPrompts } from '../services/business/reader-prompt.service.js';
+import { getAgentContent } from '../../core/converter.models.js';
+import { buildAgent } from '../services/business/agents/agent.service.js';
+import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
+import { CONTEXT_MANAGER } from '../services/common.service.js';
+import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../services/business/handler.service.js';
+import { ScrapingToolStructured } from '../tools/scraping.structured.tool.js';
+import { decodeBase64 } from '../utils/clickbaitscore.util.js';
 
 /**
  * 
@@ -186,5 +186,31 @@ export const handleCommonAgentRequest = (
   })()
 );
 
+export const cyberSecurityPreprocessor: Preprocessor = async (req) => {
+  try {
+    // Nessuna modifica, usato per contesti generici
+    console.info("Sconfiggi l'inferno apocalittico!! Forza e coraggio!");
+  } catch (error) {
+    console.error("Errore nel preprocessore di default:", error);
+    throw error;
+  }
+};
+
+export const clickbaitAgentPreprocessor: Preprocessor = async (req) => {
+  try {
+    const { url } = req.body;
+    if (!url) {
+      throw new Error("URL mancante nel payload per clickbaitscore");
+    }
+    const decodedUri = decodeBase64(url);
+    req.body.question = decodedUri;
+    req.body.numCtx = req.body.numCtx ?? 2040;
+    req.body.maxToken = req.body.maxToken ?? 8032;
+    req.body.noappendchat = true;
+  } catch (error) {
+    console.error("Errore nel preprocessore agente clickbaitscore:", error);
+    throw error;  // rilancia per essere gestito centralmente
+  }
+};
 
 

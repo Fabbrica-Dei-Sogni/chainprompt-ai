@@ -5,7 +5,7 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { handleCommonAgentRequest } from "../../handlers/agents/handler.js";
+import { handleCommonAgentRequest } from "../../controllers/handler.agent.controller.js";
 import '../../logger.backend.js';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
