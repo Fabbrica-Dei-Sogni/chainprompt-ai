@@ -1,9 +1,5 @@
 # ChainPrompt AI
 
-![ChainPrompt AI Banner](https://via.placeholder.com/1200x300?text=ChainPrompt+AI+Orchestration)
-
-> **Enterprise-grade Orchestration Platform for LLM Agents, Chains, and Prompt Engineering.**
-
 **ChainPrompt AI** è una piattaforma backend avanzata progettata per l'orchestrazione, la gestione e il deployment di agenti basati su Large Language Models (LLM). Costruita con un'architettura modulare e scalabile, permette di creare flussi di lavoro complessi integrando molteplici modelli AI, memoria persistente e strumenti esterni.
 
 ---
