@@ -4,7 +4,7 @@ import { getConfigEmbeddingsDFL } from "../../../core/converter.models.js";
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
 import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
 import { postgresqlService } from "../databases/postgresql/postgresql.service.js";
-import { getSectionsPrompts } from "./reader-prompt.service.js";
+import { readerPromptService } from "./reader-prompt.service.js";
 
 /**
  * Metodo di servizio per sincronizzare i systemprompt degli agenti sul vectorstore tool_embeddings
@@ -22,8 +22,8 @@ export async function syncToolAgentEmbeddings(contexts: string[], provider: Embe
   for (const context of contexts) {
     const subContext = context;
     //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-    let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
-    let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
+    let prRuolo = await readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
+    let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
     const descriptionSubAgent = context + "." + prRuolo + "\n"; //await getFrameworkPrompts(subContext);
 
     //console.log("System prompt subcontext: " + promptsubAgent);

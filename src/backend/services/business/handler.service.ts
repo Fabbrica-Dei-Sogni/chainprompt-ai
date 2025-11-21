@@ -3,7 +3,7 @@ import { DataRequest } from "../../../core/interfaces/protocol/datarequest.inter
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
 import { getDataRequestDFL, getDataRequest } from "../../../core/converter.models.js";
 import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.service.js";
-import { getFrameworkPrompts } from "./reader-prompt.service.js";
+import { readerPromptService } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 import { getChainWithHistory } from "../databases/redis/redis.service.js";
 import { getInstanceLLM } from "../../../core/services/llm-chain.service.js";
@@ -99,7 +99,7 @@ export async function getDataByResponseHttp(req: any, context: string, identifie
     let inputData = getDataRequestDFL();
 
     //step 2. Recupero del systemprompt dalla logica esistente
-    const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+    const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
     console.log("System prompt : " + systemPrompt);
 
     console.log("Identificativo chiamante: ", identifier);

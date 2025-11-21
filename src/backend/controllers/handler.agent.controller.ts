@@ -5,7 +5,7 @@ import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
 import { handleToolErrors, createSummaryMemoryMiddleware } from '../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../tools/subagent.tool.js';
-import { getSectionsPrompts } from '../services/business/reader-prompt.service.js';
+import { readerPromptService } from '../services/business/reader-prompt.service.js';
 import { getAgentContent } from '../../core/converter.models.js';
 import { buildAgent } from '../services/business/agents/agent.service.js';
 import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
@@ -75,8 +75,8 @@ export class AgentController {
         const subContext = context;
 
         //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-        let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
-        let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
+        let prRuolo = await readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
+        let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
         const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
         const agent = await buildAgent(subContext, config);
