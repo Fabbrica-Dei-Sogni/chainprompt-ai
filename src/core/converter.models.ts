@@ -104,8 +104,16 @@ export class ConverterModels {
         else
             keyconversation = keyconversation + "_chat";
 
+        const defaults = this.getConfigChainpromptDFL();
         let config: ConfigChainPrompt = {
-            ...this.getConfigChainpromptDFL(), temperature, provider, modelname, maxTokens, numCtx, format, timeout
+            ...defaults,
+            temperature: temperature,
+            provider: provider ?? defaults.provider,
+            modelname: modelname,
+            maxTokens: maxTokens ?? defaults.maxTokens,
+            numCtx: numCtx ?? defaults.numCtx,
+            format: format,
+            timeout: timeout ?? defaults.timeout
         };
 
         this.logger.info("Avviata conversione con chiave : " + keyconversation);

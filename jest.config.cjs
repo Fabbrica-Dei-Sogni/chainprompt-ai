@@ -1,19 +1,35 @@
 module.exports = {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
   verbose: true,
 
-  // ES Modules support
-  extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      useESM: true,
+      tsconfig: {
+        ...require('./tsconfig.json').compilerOptions,
+        module: 'commonjs',
+      },
+      isolatedModules: true
     }],
+    '^.+\\.m?[tj]sx?$': ['ts-jest', {
+      tsconfig: {
+        ...require('./tsconfig.json').compilerOptions,
+        module: 'commonjs',
+      },
+      isolatedModules: true
+    }]
   },
+
+  transformIgnorePatterns: [
+    'node_modules/(?!(langchain|@langchain|@vis.gl|d3|d3-.*|uuid)/)'
+  ],
+
+  // Global setup
+  // setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
 
   // Test patterns
   testMatch: [

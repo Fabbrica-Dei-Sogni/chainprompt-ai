@@ -8,7 +8,8 @@
     "emitDecoratorMetadata": true,
     "moduleResolution": "NodeNext",
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
