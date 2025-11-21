@@ -2,7 +2,7 @@ import { AgentMiddleware } from "langchain";
 import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
 import { getDataRequestDFL, getDataRequest } from "../../../core/converter.models.js";
-import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.service.js";
+import { llmSenderService } from "../../../core/services/llm-sender.service.js";
 import { readerPromptService } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 import { getChainWithHistory } from "../databases/redis/redis.service.js";
@@ -63,7 +63,7 @@ export class HandlerService {
 
             const { keyconversation, noappendchat, config }: DataRequest = inputData;
             const chain = await getChainWithHistory(systemPrompt, llmChainService.getInstanceLLM(config), noappendchat, keyconversation)
-            return await senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
+            return await llmSenderService.senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
         } catch (err) {
             console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
             throw err;
@@ -83,7 +83,7 @@ export class HandlerService {
         try {
 
             const { question, keyconversation, config }: DataRequest = inputData;
-            return senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
+            return llmSenderService.senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
 
         } catch (err) {
             console.error('Errore durante la comunicazione con un agente:', JSON.stringify(err));
