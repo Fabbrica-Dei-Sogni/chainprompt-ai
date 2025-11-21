@@ -1,12 +1,8 @@
 import { Logger } from "winston";
 import { logger } from "../logger.core.js";
-import { coreContainer, get, registerSingleton, registerValue } from "./common.container.js";
+import { coreContainer, get, registerValue } from "./common.container.js";
 import { InjectionToken } from "tsyringe";
 import { LOGGER_TOKEN } from "./tokens.js";
-import { LLMAgentService } from "../services/llm-agent.service.js";
-import { LLMSenderService } from "../services/llm-sender.service.js";
-import { LLMEmbeddingsService } from "../services/llm-embeddings.service.js";
-import { LLMChainService } from "../services/llm-chain.service.js";
 
 /**
  * DI Container Setup
@@ -22,12 +18,7 @@ import { LLMChainService } from "../services/llm-chain.service.js";
 
 // registrazione del logger come valore usando token centralizzato
 registerValue<Logger>(LOGGER_TOKEN, logger);
-//Registrazione dei servizi core sul container DI
-/*registerSingleton(LLMAgentService, LLMAgentService);
-registerSingleton(LLMSenderService, LLMSenderService);
-registerSingleton(LLMEmbeddingsService, LLMEmbeddingsService);
-registerSingleton(LLMChainService, LLMChainService);
-*/
+
 
 // nuova funzione generica
 export function getComponent<T>(token: InjectionToken<T>): T {
