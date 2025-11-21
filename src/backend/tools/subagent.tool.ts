@@ -1,6 +1,6 @@
 import { StructuredTool, Tool } from "@langchain/core/tools";
 import { ReactAgent } from "langchain";
-import { getAgentContent } from "../../core/converter.models.js";
+import { converterModels } from "../../core/converter.models.js";
 import { llmAgentService } from "../../core/services/llm-agent.service.js";
 import z from "zod";
 
@@ -55,7 +55,7 @@ export class SubAgentTool extends StructuredTool<typeof subAgentInputSchema> {
         try {
             let keyconversation = this.keyConversation + "_" + "subAgent" + "_" + this.context;
             const result = await llmAgentService.invokeAgent(this.agent, question, keyconversation);
-            return getAgentContent(result);
+            return converterModels.getAgentContent(result);
         } catch {
             throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
         }

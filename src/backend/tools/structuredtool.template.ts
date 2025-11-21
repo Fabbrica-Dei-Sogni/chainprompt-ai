@@ -3,7 +3,7 @@ import { ConfigChainPrompt } from "../../core/interfaces/protocol/configchainpro
 import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { getAgentContent } from "../../core/converter.models.js";
+import { converterModels } from "../../core/converter.models.js";
 import { llmAgentService } from "../../core/services/llm-agent.service.js";
 
 /**
@@ -100,7 +100,7 @@ export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema>
     try {
       let keyconversation = this.keyConversation + "_" + "subAgent" + "_" + this.context;
       const result = llmAgentService.invokeAgent(this.agent, question.question, keyconversation);
-      return getAgentContent(result);
+      return converterModels.getAgentContent(result);
     } catch {
       throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
     }

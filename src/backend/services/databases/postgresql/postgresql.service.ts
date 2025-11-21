@@ -6,7 +6,7 @@ import { llmEmbeddingsService } from "../../../../core/services/llm-embeddings.s
 import { EmbeddingProvider } from "../../../../core/enums/embeddingprovider.enum.js";
 import { ConfigEmbeddings } from "../../../../core/interfaces/protocol/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
-import { getConfigEmbeddingsDFL } from "../../../../core/converter.models.js";
+import { converterModels } from "../../../../core/converter.models.js";
 import { Kysely, PostgresDialect } from "kysely";
 import { Database } from "./models/database.js";
 import { VectorStoreConfig } from "./models/vectorstoreconfig.js";
@@ -50,8 +50,7 @@ export class PostgreSQLService {
   }
 
   public async getVectorStoreSingleton(
-    provider: EmbeddingProvider = EmbeddingProvider.Ollama,
-    config: ConfigEmbeddings = getConfigEmbeddingsDFL(),
+    config: ConfigEmbeddings = converterModels.getConfigEmbeddingsDFL(),
     vectorStoreConfig: VectorStoreConfig = DEFAULT_VECTORSTORE_CONFIG
   ): Promise<PGVectorStore> {
     if (this.vectorStoreInstance) return this.vectorStoreInstance;

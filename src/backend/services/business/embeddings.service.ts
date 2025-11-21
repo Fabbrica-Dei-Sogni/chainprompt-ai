@@ -1,6 +1,6 @@
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { ConfigEmbeddings } from "../../../core/interfaces/protocol/configembeddings.interface.js";
-import { getConfigEmbeddingsDFL } from "../../../core/converter.models.js";
+import { converterModels } from "../../../core/converter.models.js";
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
 import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
 import { postgresqlService } from "../databases/postgresql/postgresql.service.js";
@@ -41,7 +41,9 @@ export class EmbeddingsService {
       //console.log("System prompt subcontext: " + promptsubAgent);
       docs.push({ pageContent: descriptionSubAgent, metadata: null });
     }
-    await this.syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
+    const configEmbeddings = converterModels.getConfigEmbeddingsDFL();
+    configEmbeddings.provider = provider;
+    await this.syncDocsPgvectorStore(configEmbeddings, docs);
   }
 
 
@@ -52,7 +54,6 @@ export class EmbeddingsService {
    */
   // Sincronizzazione base (con SQL)
   private async syncDocsPgvectorStore(
-    provider: EmbeddingProvider,
     config: ConfigEmbeddings,
     toolDocs: { pageContent: string, metadata: any }[]
   ): Promise<{ added: number; updated: number; deleted: number }> {
@@ -62,7 +63,7 @@ export class EmbeddingsService {
     let added = 0, updated = 0, deleted = 0;
     try {
 
-      vectorStore = await postgresqlService.getVectorStoreSingleton(provider, config);
+      vectorStore = await postgresqlService.getVectorStoreSingleton(config);
 
       // Recupero dei documenti esistenti
       const existingDocs = await this.getExistingToolDocs();

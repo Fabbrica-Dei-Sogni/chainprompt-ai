@@ -6,7 +6,7 @@ import { middlewareService } from '../services/business/agents/middleware.servic
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../tools/subagent.tool.js';
 import { readerPromptService } from '../services/business/reader-prompt.service.js';
-import { getAgentContent } from '../../core/converter.models.js';
+import { converterModels } from '../../core/converter.models.js';
 import { agentService } from '../services/business/agents/agent.service.js';
 import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../services/common.service.js';
@@ -86,7 +86,7 @@ export class AgentController {
       }
 
       const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = getAgentContent(result);
+      let answer = converterModels.getAgentContent(result);
 
       //step 3. ritorno la response http
       res.json(answer);
@@ -135,7 +135,7 @@ export class AgentController {
 
       //step 2. istanza e invocazione dell'agente
       const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = getAgentContent(result);
+      let answer = converterModels.getAgentContent(result);
       //step 3. ritorno la response http
       res.json(answer);
 
