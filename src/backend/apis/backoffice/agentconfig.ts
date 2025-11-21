@@ -3,7 +3,9 @@
  * Definisce gli endpoint e delega la logica al controller
  */
 import express from "express";
-import { agentConfigController } from "../../controllers/agentconfig.controller.js";
+import { AgentConfigController } from "../../controllers/backoffice/agentconfig.controller.js";
+import { getComponent } from "../../di/container.js";
+const agentConfigController = getComponent(AgentConfigController);
 
 const router = express.Router();
 

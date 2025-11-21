@@ -3,13 +3,16 @@ import { AgentMiddleware, dynamicSystemPromptMiddleware, StructuredTool, Tool } 
 import * as z from "zod";
 import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
-import { middlewareService } from "./middleware.service.js";
+import { MiddlewareService } from "./middleware.service.js";
 import { readerPromptService } from "../reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
 import { postgresqlService } from "../../databases/postgresql/postgresql.service.js";
 import { getComponent } from "../../../../core/di/container.js";
 import { LLMAgentService } from "../../../../core/services/llm-agent.service.js";
 import { LLMChainService } from "../../../../core/services/llm-chain.service.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../../core/di/tokens.js";
+import { Logger } from "winston";
 //recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
 const llmAgentService = getComponent(LLMAgentService);
 const llmChainService = getComponent(LLMChainService);
@@ -21,17 +24,13 @@ const llmChainService = getComponent(LLMChainService);
 //il checkpointer piu semplice definito in memory
 //const checkpointer = getCheckpointer();//new MemorySaver();
 
+@injectable()
 export class AgentService {
-    private static instance: AgentService;
 
-    private constructor() { }
-
-    public static getInstance(): AgentService {
-        if (!AgentService.instance) {
-            AgentService.instance = new AgentService();
-        }
-        return AgentService.instance;
-    }
+  constructor(
+      @inject(LOGGER_TOKEN) private readonly logger: Logger,
+      private readonly middlewareService: MiddlewareService,
+  ) { }
 
     /**
      * 
@@ -46,7 +45,7 @@ export class AgentService {
         context: string,
         config: ConfigChainPrompt,
         tools: Tool[] | StructuredTool[] = [],
-        middleware: AgentMiddleware[] = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
+        middleware: AgentMiddleware[] = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
 
         //step 2. Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
@@ -55,9 +54,6 @@ export class AgentService {
         return agent;
     }
 }
-
-export const agentService = AgentService.getInstance();
-
 
 //XXX: Sezione da studiare e approfondire per snocciolare gli step lineari del loro utilizzo in ambiti complessi.
 

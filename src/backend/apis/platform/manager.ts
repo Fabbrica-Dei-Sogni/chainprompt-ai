@@ -2,8 +2,9 @@ import express from "express";
 const router = express.Router();
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import '../../logger.backend.js';
-import { agentController } from "../../controllers/handler.agent.controller.js";
-
+import { AgentController } from "../../controllers/handlers/handler.agent.controller.js";
+import { getComponent } from "../../di/container.js";
+const agentController = getComponent(AgentController);
 
 //Api per definire degli agenti manager
 

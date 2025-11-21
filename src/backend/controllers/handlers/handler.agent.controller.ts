@@ -1,34 +1,33 @@
-import '../logger.backend.js';
 import { NextFunction, Request, Response } from "express";
-import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
-import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
-import { middlewareService } from '../services/business/agents/middleware.service.js';
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
+import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
+import { MiddlewareService } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
-import { SubAgentTool } from '../tools/subagent.tool.js';
-import { readerPromptService } from '../services/business/reader-prompt.service.js';
-import { agentService } from '../services/business/agents/agent.service.js';
-import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
-import { CONTEXT_MANAGER } from '../services/common.service.js';
-import { handlerService, Preprocessor } from '../services/business/handler.service.js';
-import { ScrapingToolStructured } from '../tools/scraping.structured.tool.js';
-import { decodeBase64 } from '../utils/clickbaitscore.util.js';
-import { ConverterModels } from '../../core/converter.models.js';
-import { getComponent } from '../../core/di/container.js';
+import { SubAgentTool } from '../../tools/subagent.tool.js';
+import { readerPromptService } from '../../services/business/reader-prompt.service.js';
+import { AgentService } from '../../services/business/agents/agent.service.js';
+import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
+import { CONTEXT_MANAGER } from '../../services/common.service.js';
+import { HandlerService, Preprocessor } from '../../services/business/handler.service.js';
+import { ScrapingToolStructured } from '../../tools/scraping.structured.tool.js';
+import { decodeBase64 } from '../../utils/clickbaitscore.util.js';
+import { ConverterModels } from '../../../core/converter.models.js';
+import { getComponent } from '../../../core/di/container.js';
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 //recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
 const converterModels = getComponent(ConverterModels);
 
+@injectable()
 export class AgentController {
 
-  private static instance: AgentController;
-
-  private constructor() { }
-
-  public static getInstance(): AgentController {
-    if (!AgentController.instance) {
-      AgentController.instance = new AgentController();
-    }
-    return AgentController.instance;
-  }
+  constructor(
+    @inject(LOGGER_TOKEN) private readonly logger: Logger,
+    private readonly agentService: AgentService,
+    private readonly middlewareService: MiddlewareService,
+    private readonly handlerService: HandlerService,
+  ) { }
 
   /**
    * 
@@ -56,12 +55,15 @@ export class AgentController {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData, } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, handlerService.defaultPreprocessor, true);
+
+      this.logger.info(`AgentController - agentManagerHandler - Contesto: ${context} - Provider: ${provider}`);
+
+      const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, this.handlerService.defaultPreprocessor, true);
 
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
       //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
+      const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
       const { keyconversation, config }: DataRequest = resultData;
       //step 2. istanza e invocazione dell'agente
@@ -82,13 +84,13 @@ export class AgentController {
         let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
         const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
-        const agent = await agentService.buildAgent(subContext, config);
+        const agent = await this.agentService.buildAgent(subContext, config);
 
         let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
         tools.push(subagenttool);
       }
 
-      const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
+      const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
       let answer = converterModels.getAgentContent(result);
 
       //step 3. ritorno la response http
@@ -123,21 +125,23 @@ export class AgentController {
   ) {
     try {
 
+      this.logger.info(`AgentController - agentHandler - Contesto: ${context} - Provider: ${provider}`);
+
       //step 1. recupero dati da una richiesta http
       //valorizzato il provider sul body request dall'handler
       req.body = {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData, } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
+      const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
       //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
+      const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
       //step 2. istanza e invocazione dell'agente
-      const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
+      const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
       let answer = converterModels.getAgentContent(result);
       //step 3. ritorno la response http
       res.json(answer);
@@ -193,7 +197,7 @@ export class AgentController {
     res,
     next,
     provider,
-    handlerService.defaultPreprocessor,
+    this.handlerService.defaultPreprocessor,
     [],
     (() => {
       // Esempio di estrazione contesto generico ed elegante da req.originalUrl
@@ -229,8 +233,6 @@ export class AgentController {
     }
   };
 }
-
-export const agentController = AgentController.getInstance();
 
 
 

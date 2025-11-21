@@ -3,21 +3,17 @@
  * Contiene la logica business per le operazioni CRUD sulle configurazioni
  */
 import { Request, Response } from "express";
-import { configService } from "../services/databases/mongodb/services/config.service.js";
-import logger from "../logger.backend.js";
+import { configService } from "../../services/databases/mongodb/services/config.service.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 
+@injectable()
 export class ConfigurationController {
-
-    private static instance: ConfigurationController;
-
-    private constructor() { }
-
-    public static getInstance(): ConfigurationController {
-        if (!ConfigurationController.instance) {
-            ConfigurationController.instance = new ConfigurationController();
-        }
-        return ConfigurationController.instance;
-    }
+    
+    constructor(
+        @inject(LOGGER_TOKEN) private readonly logger: Logger
+    ) {}
 
     /**
      * Lista tutte le configurazioni (con ricerca opzionale per chiave)
@@ -25,13 +21,13 @@ export class ConfigurationController {
     async getAllConfigurations(req: Request, res: Response): Promise<void> {
         try {
             const { search } = req.query;
-            logger.info("[ConfigurationController] getAllConfigurations - Recupero configurazioni");
+            this.logger.info("[ConfigurationController] getAllConfigurations - Recupero configurazioni");
 
             let configs;
 
             if (search && typeof search === 'string') {
                 // Ricerca per chiave con regex case-insensitive
-                logger.info(`[ConfigurationController] Ricerca configurazioni con chiave: ${search}`);
+                this.logger.info(`[ConfigurationController] Ricerca configurazioni con chiave: ${search}`);
                 configs = await configService.findAll({
                     key: { $regex: search, $options: 'i' }
                 });
@@ -41,7 +37,7 @@ export class ConfigurationController {
 
             res.status(200).json(configs);
         } catch (error: any) {
-            logger.error(`[ConfigurationController] getAllConfigurations ERROR: ${error.message}`);
+            this.logger.error(`[ConfigurationController] getAllConfigurations ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nel recupero delle configurazioni",
                 details: error.message
@@ -55,7 +51,7 @@ export class ConfigurationController {
     async getConfigByKey(req: Request, res: Response): Promise<void> {
         try {
             const { key } = req.params;
-            logger.info(`[ConfigurationController] getConfigByKey - Chiave: ${key}`);
+            this.logger.info(`[ConfigurationController] getConfigByKey - Chiave: ${key}`);
 
             const value = await configService.getConfigValue(key);
 
@@ -70,7 +66,7 @@ export class ConfigurationController {
             // Ritorna oggetto completo per consistenza
             res.status(200).json({ key, value });
         } catch (error: any) {
-            logger.error(`[ConfigurationController] getConfigByKey ERROR: ${error.message}`);
+            this.logger.error(`[ConfigurationController] getConfigByKey ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nel recupero della configurazione",
                 details: error.message
@@ -103,13 +99,13 @@ export class ConfigurationController {
             // Converti value a stringa se necessario
             const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
 
-            logger.info(`[ConfigurationController] saveConfiguration - Key: ${key}`);
+            this.logger.info(`[ConfigurationController] saveConfiguration - Key: ${key}`);
 
             const savedConfig = await configService.saveConfig(key, stringValue);
 
             res.status(200).json(savedConfig);
         } catch (error: any) {
-            logger.error(`[ConfigurationController] saveConfiguration ERROR: ${error.message}`);
+            this.logger.error(`[ConfigurationController] saveConfiguration ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nel salvataggio della configurazione",
                 details: error.message
@@ -123,7 +119,7 @@ export class ConfigurationController {
     async deleteConfiguration(req: Request, res: Response): Promise<void> {
         try {
             const { key } = req.params;
-            logger.info(`[ConfigurationController] deleteConfiguration - Key: ${key}`);
+            this.logger.info(`[ConfigurationController] deleteConfiguration - Key: ${key}`);
 
             // Usa il metodo deleteByKey del service
             const deleted = await configService.deleteByKey(key);
@@ -136,10 +132,10 @@ export class ConfigurationController {
                 return;
             }
 
-            logger.info(`[ConfigurationController] deleteConfiguration - Configurazione eliminata: ${key}`);
+            this.logger.info(`[ConfigurationController] deleteConfiguration - Configurazione eliminata: ${key}`);
             res.status(200).json({ success: true, key });
         } catch (error: any) {
-            logger.error(`[ConfigurationController] deleteConfiguration ERROR: ${error.message}`);
+            this.logger.error(`[ConfigurationController] deleteConfiguration ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nell'eliminazione della configurazione",
                 details: error.message
@@ -147,6 +143,3 @@ export class ConfigurationController {
         }
     }
 }
-
-// Esporta istanza singleton del controller
-export const configurationController = ConfigurationController.getInstance();

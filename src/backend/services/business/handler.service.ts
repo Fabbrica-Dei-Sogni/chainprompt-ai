@@ -9,6 +9,9 @@ import { getPromptTemplate } from "../../templates/chainpromptbase.template.js";
 import { getComponent } from "../../../core/di/container.js";
 import { LLMChainService } from "../../../core/services/llm-chain.service.js";
 import { ConverterModels } from "../../../core/converter.models.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 //recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
 const llmSenderService = getComponent(LLMSenderService);
 const llmChainService = getComponent(LLMChainService);
@@ -17,17 +20,12 @@ const converterModels = getComponent(ConverterModels);
 export type Preprocessor = (req: any) => Promise<void>;
 
 
+@injectable()
 export class HandlerService {
-    private static instance: HandlerService;
 
-    private constructor() { }
-
-    public static getInstance(): HandlerService {
-        if (!HandlerService.instance) {
-            HandlerService.instance = new HandlerService();
-        }
-        return HandlerService.instance;
-    }
+  constructor(
+    @inject(LOGGER_TOKEN) private readonly logger: Logger
+  ) { }
 
     /**
      Preprocessore di default (nessuna modifica, utile per casi generici)
@@ -67,6 +65,8 @@ export class HandlerService {
     public async handleLLM(systemPrompt: string, inputData: DataRequest): Promise<any> {
         try {
 
+            this.logger.info(`HandlerService - handleLLM - Invio richiesta LLM con modello ${inputData.config?.modelname}`);
+
             let { question, keyconversation, noappendchat, config } = inputData; // Changed from `body ? converterModels.getDataRequest(body, context, identifier, isAgent) : converterModels.getDataRequestDFL();` to use `inputData` directly, as `body`, `context`, `identifier`, `isAgent` are not defined in this scope.
             const chain = await getChainWithHistory(systemPrompt, llmChainService.getInstanceLLM(config), noappendchat, keyconversation)
             return await llmSenderService.senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
@@ -88,6 +88,8 @@ export class HandlerService {
     public async handleAgent(systemPrompt: string, inputData: DataRequest, tools: any[], middleware: AgentMiddleware[], nomeagente: string): Promise<any> {
         try {
 
+            this.logger.info(`HandlerService - handleAgent - Invio richiesta Agent con modello ${inputData.config?.modelname}`);
+
             const { question, keyconversation, config }: DataRequest = inputData;
             return llmSenderService.senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
 
@@ -107,6 +109,8 @@ export class HandlerService {
      * @returns 
      */
     public async getDataByResponseHttp(req: any, context: string, identifier: string, preprocessor: Preprocessor, isAgent: boolean = false) {
+
+        this.logger.info(`HandlerService - getDataByResponseHttp - Preparazione dati per contesto ${context} e identificatore ${identifier}`);
 
         await preprocessor(req);
 
@@ -134,5 +138,3 @@ export class HandlerService {
         return { systemPrompt, resultData };
     }
 }
-
-export const handlerService = HandlerService.getInstance();

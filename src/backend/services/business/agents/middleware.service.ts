@@ -1,16 +1,14 @@
 import { createMiddleware, ToolMessage, summarizationMiddleware } from "langchain";
+import { LOGGER_TOKEN } from "../../../../core/di/tokens.js";
+import { Logger } from "winston";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class MiddlewareService {
-    private static instance: MiddlewareService;
 
-    private constructor() { }
-
-    public static getInstance(): MiddlewareService {
-        if (!MiddlewareService.instance) {
-            MiddlewareService.instance = new MiddlewareService();
-        }
-        return MiddlewareService.instance;
-    }
+  constructor(
+    @inject(LOGGER_TOKEN) private readonly logger: Logger
+  ) { }
 
     /**
      * Gestione errore dei tool
@@ -41,9 +39,8 @@ export class MiddlewareService {
             trigger: { tokens: maxTokensBeforeSummary },
             keep: { messages: messagesToKeep }
         });
-
+        this.logger.info(`MiddlewareService - createSummaryMemoryMiddleware - Creazione middleware di summary con modello ${modelname}`);
+        
         return result;
     };
 }
-
-export const middlewareService = MiddlewareService.getInstance();

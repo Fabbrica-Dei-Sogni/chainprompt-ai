@@ -1,7 +1,7 @@
 // MUST BE FIRST: reflect-metadata for TSyringe DI
 import "reflect-metadata";
 // Bootstrap DI container (side-effect import)
-import "../core/di/container.js";
+import "../backend/di/container.js";
 
 import express from 'express';
 import bodyParser from 'body-parser';

@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston';
 
-const logger = createLogger({
+export const logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: format.combine(
     format.label({ label: '[backend]' }), 

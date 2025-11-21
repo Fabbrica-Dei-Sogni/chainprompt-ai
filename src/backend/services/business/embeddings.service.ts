@@ -6,20 +6,18 @@ import { postgresqlService } from "../databases/postgresql/postgresql.service.js
 import { readerPromptService } from "./reader-prompt.service.js";
 import { getComponent } from "../../../core/di/container.js";
 import { ConverterModels } from "../../../core/converter.models.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 
 const converterModels = getComponent(ConverterModels);
 
+@injectable()
 export class EmbeddingsService {
-  private static instance: EmbeddingsService;
 
-  private constructor() { }
-
-  public static getInstance(): EmbeddingsService {
-    if (!EmbeddingsService.instance) {
-      EmbeddingsService.instance = new EmbeddingsService();
-    }
-    return EmbeddingsService.instance;
-  }
+  constructor(
+    @inject(LOGGER_TOKEN) private readonly logger: Logger
+  ) { }
 
   /**
    * Metodo di servizio per sincronizzare i systemprompt degli agenti sul vectorstore tool_embeddings
@@ -33,6 +31,8 @@ export class EmbeddingsService {
       pageContent: string;
       metadata: any;
     }[] = [];
+
+    this.logger.info(`EmbeddingsService - syncToolAgentEmbeddings - Sincronizzazione tool agent embeddings per contesti: ${contexts.join(", ")}`);
 
     for (const context of contexts) {
       const subContext = context;
@@ -60,6 +60,8 @@ export class EmbeddingsService {
     config: ConfigEmbeddings,
     toolDocs: { pageContent: string, metadata: any }[]
   ): Promise<{ added: number; updated: number; deleted: number }> {
+
+    this.logger.info(`EmbeddingsService - syncDocsPgvectorStore - Sincronizzazione tool embeddings su pgvector con provider ${config.provider}`);
 
     let vectorStore: PGVectorStore | undefined;
 
@@ -135,5 +137,3 @@ export class EmbeddingsService {
       .execute();
   }
 }
-
-export const embeddingsService = EmbeddingsService.getInstance();

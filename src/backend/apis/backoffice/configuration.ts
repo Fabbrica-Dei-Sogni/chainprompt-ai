@@ -3,7 +3,9 @@
  * Definisce gli endpoint per il key-value store e delega la logica al controller
  */
 import express from "express";
-import { configurationController } from "../../controllers/configuration.controller.js";
+import { ConfigurationController } from "../../controllers/backoffice/configuration.controller.js";
+import { getComponent } from "../../di/container.js";
+const configurationController = getComponent(ConfigurationController);
 
 const router = express.Router();
 

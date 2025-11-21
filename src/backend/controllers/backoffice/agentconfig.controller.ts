@@ -3,33 +3,28 @@
  * Contiene la logica business per le operazioni CRUD sugli agenti
  */
 import { Request, Response } from "express";
-import { agentConfigService } from "../services/databases/mongodb/services/agentconfig.service.js";
-import { CreateAgentConfigDTO } from "../dto/createagentconfig.dto.js";
-import logger from "../logger.backend.js";
+import { agentConfigService } from "../../services/databases/mongodb/services/agentconfig.service.js";
+import { CreateAgentConfigDTO } from "../../dto/createagentconfig.dto.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 
+//export class AgentConfigController {
+@injectable()
 export class AgentConfigController {
-
-    private static instance: AgentConfigController;
-
-    private constructor() { }
-
-    public static getInstance(): AgentConfigController {
-        if (!AgentConfigController.instance) {
-            AgentConfigController.instance = new AgentConfigController();
-        }
-        return AgentConfigController.instance;
-    }
-
+    constructor(
+        @inject(LOGGER_TOKEN) private readonly logger: Logger
+    ) {}
     /**
      * Lista tutti gli agenti configurati
      */
     async getAllAgents(req: Request, res: Response): Promise<void> {
         try {
-            logger.info("[AgentConfigController] getAllAgents - Recupero lista agenti");
+            this.logger.info("[AgentConfigController] getAllAgents - Recupero lista agenti");
             const agents = await agentConfigService.findAll();
             res.status(200).json(agents);
         } catch (error: any) {
-            logger.error(`[AgentConfigController] getAllAgents ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] getAllAgents ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nel recupero degli agenti",
                 details: error.message
@@ -52,7 +47,7 @@ export class AgentConfigController {
                 return;
             }
 
-            logger.info(`[AgentConfigController] searchAgentsByName - Ricerca: ${nome}`);
+            this.logger.info(`[AgentConfigController] searchAgentsByName - Ricerca: ${nome}`);
 
             // Ricerca con regex case-insensitive
             const agents = await agentConfigService.findAll({
@@ -61,7 +56,7 @@ export class AgentConfigController {
 
             res.status(200).json(agents);
         } catch (error: any) {
-            logger.error(`[AgentConfigController] searchAgentsByName ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] searchAgentsByName ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nella ricerca degli agenti",
                 details: error.message
@@ -75,7 +70,7 @@ export class AgentConfigController {
     async getAgentById(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            logger.info(`[AgentConfigController] getAgentById - ID: ${id}`);
+            this.logger.info(`[AgentConfigController] getAgentById - ID: ${id}`);
 
             const agent = await agentConfigService.findById(id);
 
@@ -89,7 +84,7 @@ export class AgentConfigController {
 
             res.status(200).json(agent);
         } catch (error: any) {
-            logger.error(`[AgentConfigController] getAgentById ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] getAgentById ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nel recupero dell'agente",
                 details: error.message
@@ -102,7 +97,7 @@ export class AgentConfigController {
      */
     async createAgent(req: Request, res: Response): Promise<void> {
         try {
-            logger.info("[AgentConfigController] createAgent - Creazione nuovo agente");
+            this.logger.info("[AgentConfigController] createAgent - Creazione nuovo agente");
 
             const data: CreateAgentConfigDTO = req.body;
 
@@ -120,10 +115,10 @@ export class AgentConfigController {
 
             const newAgent = await agentConfigService.create(cleanData);
 
-            logger.info(`[AgentConfigController] createAgent - Agente creato con ID: ${newAgent._id}`);
+            this.logger.info(`[AgentConfigController] createAgent - Agente creato con ID: ${newAgent._id}`);
             res.status(201).json(newAgent);
         } catch (error: any) {
-            logger.error(`[AgentConfigController] createAgent ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] createAgent ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nella creazione dell'agente",
                 details: error.message
@@ -137,7 +132,7 @@ export class AgentConfigController {
     async updateAgent(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            logger.info(`[AgentConfigController] updateAgent - ID: ${id}`);
+            this.logger.info(`[AgentConfigController] updateAgent - ID: ${id}`);
 
             const updateData = { ...req.body };
 
@@ -159,10 +154,10 @@ export class AgentConfigController {
                 return;
             }
 
-            logger.info(`[AgentConfigController] updateAgent - Agente aggiornato: ${id}`);
+            this.logger.info(`[AgentConfigController] updateAgent - Agente aggiornato: ${id}`);
             res.status(200).json(updatedAgent);
         } catch (error: any) {
-            logger.error(`[AgentConfigController] updateAgent ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] updateAgent ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nell'aggiornamento dell'agente",
                 details: error.message
@@ -176,7 +171,7 @@ export class AgentConfigController {
     async deleteAgent(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            logger.info(`[AgentConfigController] deleteAgent - ID: ${id}`);
+            this.logger.info(`[AgentConfigController] deleteAgent - ID: ${id}`);
 
             const deleted = await agentConfigService.deleteById(id);
 
@@ -188,10 +183,10 @@ export class AgentConfigController {
                 return;
             }
 
-            logger.info(`[AgentConfigController] deleteAgent - Agente eliminato: ${id}`);
+            this.logger.info(`[AgentConfigController] deleteAgent - Agente eliminato: ${id}`);
             res.status(200).json({ success: true, id });
         } catch (error: any) {
-            logger.error(`[AgentConfigController] deleteAgent ERROR: ${error.message}`);
+            this.logger.error(`[AgentConfigController] deleteAgent ERROR: ${error.message}`);
             res.status(500).json({
                 error: "Errore nell'eliminazione dell'agente",
                 details: error.message
@@ -199,6 +194,3 @@ export class AgentConfigController {
         }
     }
 }
-
-// Esporta istanza singleton del controller
-export const agentConfigController = AgentConfigController.getInstance();

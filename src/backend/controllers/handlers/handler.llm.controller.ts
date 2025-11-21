@@ -1,28 +1,26 @@
 import { NextFunction } from "express";
-import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
-import '../logger.backend.js';
+import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import * as requestIp from 'request-ip';
-import { handlerService, Preprocessor } from "../services/business/handler.service.js";
-import { YouTubeComment, formatCommentsForPrompt } from "../utils/analisicommenti.util.js";
-import { removeCheshireCatText } from "../utils/cheshire.util.js";
-import { decodeBase64, scrapeArticle } from "../utils/clickbaitscore.util.js";
+import { HandlerService, Preprocessor } from "../../services/business/handler.service.js";
+import { YouTubeComment, formatCommentsForPrompt } from "../../utils/analisicommenti.util.js";
+import { removeCheshireCatText } from "../../utils/cheshire.util.js";
+import { decodeBase64, scrapeArticle } from "../../utils/clickbaitscore.util.js";
+import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
+import { Logger } from "winston";
 
 //
 // Esportazione degli handler specifici usando la funzione generica
 //
 
+@injectable()
 export class LLMController {
 
-  private static instance: LLMController;
+  constructor(
+    @inject(LOGGER_TOKEN) private readonly logger: Logger,
+    private readonly handlerService: HandlerService,
+  ) { }
 
-  private constructor() { }
-
-  public static getInstance(): LLMController {
-    if (!LLMController.instance) {
-      LLMController.instance = new LLMController();
-    }
-    return LLMController.instance;
-  }
 
   private async llmHandler(
     req: any,
@@ -34,16 +32,18 @@ export class LLMController {
   ) {
     try {
 
+      this.logger.info(`LLMController - llmHandler - Contesto: ${context} - Provider: ${provider}`);
+
       //step 1. recupero dati da una richiesta http
       //valorizzato il provider sul body request dall'handler
       req.body = {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
+      const { systemPrompt, resultData } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
 
       //step 2. istanza e invocazione dell'agente
-      const answer = await handlerService.handleLLM(systemPrompt, resultData);
+      const answer = await this.handlerService.handleLLM(systemPrompt, resultData);
 
       //step 3. ritorno la response http
       res.json(answer);
@@ -85,7 +85,7 @@ export class LLMController {
     res,
     next,
     provider,
-    handlerService.defaultPreprocessor,
+    this.handlerService.defaultPreprocessor,
     (() => {
       // Esempio di estrazione contesto generico ed elegante da req.originalUrl
       const originalUriTokens = req.originalUrl.split('/');
@@ -181,5 +181,3 @@ export class LLMController {
     }
   };
 }
-
-export const llmController = LLMController.getInstance();

@@ -1,8 +1,10 @@
 import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
+import { LLMController } from "../../controllers/handlers/handler.llm.controller.js";
+import { getComponent } from "../../di/container.js";
+const llmController = getComponent(LLMController);
 
 
 /**

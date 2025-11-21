@@ -5,10 +5,12 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
+import { LLMController } from "../../controllers/handlers/handler.llm.controller.js";
+import { getComponent } from "../../di/container.js";
+const llmController = getComponent(LLMController);
 
 const contexts = fs.readdirSync(contextFolder);
 

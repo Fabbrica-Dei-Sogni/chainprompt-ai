@@ -5,10 +5,12 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { agentController } from "../../controllers/handler.agent.controller.js";
+import { AgentController } from "../../controllers/handlers/handler.agent.controller.js";
 import '../../logger.backend.js';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
+import { getComponent } from "../../di/container.js";
+const agentController = getComponent(AgentController);
 
 const contexts = fs.readdirSync(contextFolder);
 /**
