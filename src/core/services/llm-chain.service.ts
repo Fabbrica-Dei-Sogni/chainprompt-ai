@@ -17,175 +17,191 @@ import { LLMProvider } from "../enums/llmprovider.enum.js";
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
 
-/**
- * Ritorna l'istanza di un llm in base al provider scelto.
- 
- * @param provider 
- * @param config 
- * @returns 
- */
-export function getInstanceLLM(config: ConfigChainPrompt) {
-  let instance;
-  const provider = config.provider;
-  switch (provider) {
-    case LLMProvider.OpenAICloud:
-      instance = getOpenAICloudLLM(config);
-      break;
-    case LLMProvider.OpenAILocal:
-      instance = getLocalLLM(config);
-      break;
-    case LLMProvider.Ollama:
-      instance = getOllamaLLM(config);
-      break;
-    case LLMProvider.ChatOllama:
-      instance = getChatOllamaLLM(config);
-      break;
-    case LLMProvider.AzureOpenAiCloud:
-      instance = getAzureOpenAICloudLLM(config);
-      break;
-    case LLMProvider.Anthropic:
-      instance = getAnthropicCloudLLM(config);
-      break;
-    case LLMProvider.Google:
-      instance = getGoogleCloudLLM(config);
-      break;
-    default:
-      throw new Error(`Provider non supportato: ${provider}`);
+export class LLMChainService {
+  private static instance: LLMChainService;
+
+  private constructor() { }
+
+  public static getInstance(): LLMChainService {
+    if (!LLMChainService.instance) {
+      LLMChainService.instance = new LLMChainService();
+    }
+    return LLMChainService.instance;
   }
-  return instance;
-};
+
+  /**
+   * Ritorna l'istanza di un llm in base al provider scelto.
+   *
+   * @param provider 
+   * @param config 
+   * @returns 
+   */
+  public getInstanceLLM(config: ConfigChainPrompt) {
+    let instance;
+    const provider = config.provider;
+    switch (provider) {
+      case LLMProvider.OpenAICloud:
+        instance = this.getOpenAICloudLLM(config);
+        break;
+      case LLMProvider.OpenAILocal:
+        instance = this.getLocalLLM(config);
+        break;
+      case LLMProvider.Ollama:
+        instance = this.getOllamaLLM(config);
+        break;
+      case LLMProvider.ChatOllama:
+        instance = this.getChatOllamaLLM(config);
+        break;
+      case LLMProvider.AzureOpenAiCloud:
+        instance = this.getAzureOpenAICloudLLM(config);
+        break;
+      case LLMProvider.Anthropic:
+        instance = this.getAnthropicCloudLLM(config);
+        break;
+      case LLMProvider.Google:
+        instance = this.getGoogleCloudLLM(config);
+        break;
+      default:
+        throw new Error(`Provider non supportato: ${provider}`);
+    }
+    return instance;
+  };
 
 
-const getAzureOpenAICloudLLM = (config: ConfigChainPrompt) => {
+  private getAzureOpenAICloudLLM(config: ConfigChainPrompt) {
 
-  const llm = new AzureChatOpenAI({
-    maxTokens: config.maxTokens,
-    apiKey: process.env.OPENAI_API_KEY,
-    temperature: config.temperature,
-    modelName: config.modelname,
-    /**
-    il cast forzato a runnable in questa forma
-    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
-     */
-  });
+    const llm = new AzureChatOpenAI({
+      maxTokens: config.maxTokens,
+      apiKey: process.env.OPENAI_API_KEY,
+      temperature: config.temperature,
+      modelName: config.modelname,
+      /**
+      il cast forzato a runnable in questa forma
+      è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+       */
+    });
 
-  return llm;
+    return llm;
 
-};
+  };
 
-const getAnthropicCloudLLM = (config: ConfigChainPrompt) => {
+  private getAnthropicCloudLLM(config: ConfigChainPrompt) {
 
-  const llm = new ChatAnthropic({
-    maxTokens: config.maxTokens,
-    apiKey: process.env.ANTROPHIC_API_KEY,
-    temperature: config.temperature,
-    modelName: config.modelname
-    /**
-    il cast forzato a runnable in questa forma
-    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
-     */
-  });
+    const llm = new ChatAnthropic({
+      maxTokens: config.maxTokens,
+      apiKey: process.env.ANTROPHIC_API_KEY,
+      temperature: config.temperature,
+      modelName: config.modelname
+      /**
+      il cast forzato a runnable in questa forma
+      è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+       */
+    });
 
-  return llm;
+    return llm;
 
-};
+  };
 
-const getGoogleCloudLLM = (config: ConfigChainPrompt) => {
+  private getGoogleCloudLLM(config: ConfigChainPrompt) {
 
-  const llm = new ChatGoogleGenerativeAI({
-    //maxTokens: config.maxTokens,
-    apiKey: process.env.ANTROPHIC_API_KEY,
-    temperature: config.temperature,
-    model: config.modelname!
-    /**
-    il cast forzato a runnable in questa forma
-    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
-     */
-  });
+    const llm = new ChatGoogleGenerativeAI({
+      //maxTokens: config.maxTokens,
+      apiKey: process.env.ANTROPHIC_API_KEY,
+      temperature: config.temperature,
+      model: config.modelname!
+      /**
+      il cast forzato a runnable in questa forma
+      è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+       */
+    });
 
-  return llm;
+    return llm;
 
-};
+  };
 
-const getOpenAICloudLLM = (config: ConfigChainPrompt) => {
+  private getOpenAICloudLLM(config: ConfigChainPrompt) {
 
-  const llm = new ChatOpenAI({
-    maxTokens: config.maxTokens,
-    apiKey: process.env.OPENAI_API_KEY,
-    temperature: config.temperature,
-    modelName: config.modelname
-    /**
-    il cast forzato a runnable in questa forma
-    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
-     */
-  });
+    const llm = new ChatOpenAI({
+      maxTokens: config.maxTokens,
+      apiKey: process.env.OPENAI_API_KEY,
+      temperature: config.temperature,
+      modelName: config.modelname
+      /**
+      il cast forzato a runnable in questa forma
+      è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+       */
+    });
 
-  return llm;
+    return llm;
 
-};
+  };
 
 
-const getLocalLLM = (config: ConfigChainPrompt) => {
+  private getLocalLLM(config: ConfigChainPrompt) {
 
-  const llm = new ChatOpenAI({
-    configuration: {
-      baseURL: process.env.URI_LANGCHAIN_LLMSTUDIO,
-    },
-    maxTokens: config.maxTokens,
-    temperature: config.temperature,
-    modelName: config.modelname
-    /**
-    il cast forzato a runnable in questa forma
-    è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
-     */
-  });
+    const llm = new ChatOpenAI({
+      configuration: {
+        baseURL: process.env.URI_LANGCHAIN_LLMSTUDIO,
+      },
+      maxTokens: config.maxTokens,
+      temperature: config.temperature,
+      modelName: config.modelname
+      /**
+      il cast forzato a runnable in questa forma
+      è accettabile come pragmatismo in progetti complessi, per ora, se usato consapevolmente e documentato, senza compromettere la manutenzione futura.
+       */
+    });
 
-  return llm;
+    return llm;
 
-};
+  };
 
-const getChatOllamaLLM = (config: ConfigChainPrompt) => {
+  private getChatOllamaLLM(config: ConfigChainPrompt) {
 
-  const llm = new ChatOllama({
-    baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
-    temperature: config.temperature,
-    //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
-    model: config.modelname,
-    numCtx: config.numCtx,
-    format: config.format
-    //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
-    //numBatch: 512,
-    //topK: 40,
-    //repeatPenalty: 1.1,
-    //topP: 0.95,
+    const llm = new ChatOllama({
+      baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+      temperature: config.temperature,
+      //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
+      model: config.modelname,
+      numCtx: config.numCtx,
+      format: config.format
+      //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
+      //numBatch: 512,
+      //topK: 40,
+      //repeatPenalty: 1.1,
+      //topP: 0.95,
 
-    //XXX: parametri da capire e sperimentare
-    //keepAlive: "24h",
-    //logitsAll: true,
-  });
-  return llm;
+      //XXX: parametri da capire e sperimentare
+      //keepAlive: "24h",
+      //logitsAll: true,
+    });
+    return llm;
 
-};
+  };
 
-const getOllamaLLM = (config: ConfigChainPrompt) => {
+  private getOllamaLLM(config: ConfigChainPrompt) {
 
-  const llm = new Ollama({
-    baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
-    temperature: config.temperature,
-    //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
-    model: config.modelname,
-    numCtx: config.numCtx,
-    format: config.format
-    //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
-    //numBatch: 512,
-    //topK: 40,
-    //repeatPenalty: 1.1,
-    //topP: 0.95,
+    const llm = new Ollama({
+      baseUrl: process.env.URI_LANGCHAIN_OLLAMA,
+      temperature: config.temperature,
+      //in questa casistica il modelname è fornito da openui e il server ollama e a local name puo anche non esserci nulla, al piu da un errore
+      model: config.modelname,
+      numCtx: config.numCtx,
+      format: config.format
+      //XXX candidati nuovi parametri: saranno eventualmente messi a configurazione
+      //numBatch: 512,
+      //topK: 40,
+      //repeatPenalty: 1.1,
+      //topP: 0.95,
 
-    //XXX: parametri da capire e sperimentare
-    //keepAlive: "24h",
-    //logitsAll: true,
-  });
-  return llm;
+      //XXX: parametri da capire e sperimentare
+      //keepAlive: "24h",
+      //logitsAll: true,
+    });
+    return llm;
 
-};
+  };
+}
+
+export const llmChainService = LLMChainService.getInstance();
+

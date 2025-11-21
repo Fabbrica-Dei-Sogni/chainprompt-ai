@@ -4,7 +4,7 @@
  */
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { getInstanceLLM } from './llm-chain.service.js';
+import { llmChainService } from './llm-chain.service.js';
 import { AgentMiddleware } from 'langchain';
 import { llmAgentService } from "./llm-agent.service.js";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
@@ -36,7 +36,7 @@ export async function senderToLLM(inputData: DataRequest, systemPrompt: string, 
   logger.info(`System prompt contestuale:\n ${systemPrompt}`);
   logger.info(`Question prompt utente:\n${question}`);
 
-  const chainToInvoke = chainWithHistory ?? getChain(getInstanceLLM(config), promptTemplate);
+  const chainToInvoke = chainWithHistory ?? getChain(llmChainService.getInstanceLLM(config), promptTemplate);
 
   const answer = await invokeChain(question as any, keyconversation, chainToInvoke);
   logger.info(`Risposta assistente:\n${answer}`);
@@ -128,7 +128,7 @@ export async function senderToAgent(question: string, keyconversation: string, c
   logger.info(`Question prompt utente:\n ${question}`);
 
   let agent = llmAgentService.getAgent(
-    getInstanceLLM(config),
+    llmChainService.getInstanceLLM(config),
     systemPrompt,
     tools,
     middleware,

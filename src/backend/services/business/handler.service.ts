@@ -6,7 +6,7 @@ import { senderToLLM, senderToAgent } from "../../../core/services/llm-sender.se
 import { readerPromptService } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 import { getChainWithHistory } from "../databases/redis/redis.service.js";
-import { getInstanceLLM } from "../../../core/services/llm-chain.service.js";
+import { llmChainService } from "../../../core/services/llm-chain.service.js";
 import { getPromptTemplate } from "../../templates/chainpromptbase.template.js";
 
 export type Preprocessor = (req: any) => Promise<void>;
@@ -62,7 +62,7 @@ export class HandlerService {
         try {
 
             const { keyconversation, noappendchat, config }: DataRequest = inputData;
-            const chain = await getChainWithHistory(systemPrompt, getInstanceLLM(config), noappendchat, keyconversation)
+            const chain = await getChainWithHistory(systemPrompt, llmChainService.getInstanceLLM(config), noappendchat, keyconversation)
             return await senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
         } catch (err) {
             console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
