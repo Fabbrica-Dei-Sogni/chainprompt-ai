@@ -2,7 +2,7 @@ import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import '../../../../backend/logger.backend.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-import { getInstanceEmbeddings } from "../../../../core/services/llm-embeddings.service.js";
+import { llmEmbeddingsService } from "../../../../core/services/llm-embeddings.service.js";
 import { EmbeddingProvider } from "../../../../core/enums/embeddingprovider.enum.js";
 import { ConfigEmbeddings } from "../../../../core/interfaces/protocol/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
@@ -56,7 +56,7 @@ export class PostgreSQLService {
   ): Promise<PGVectorStore> {
     if (this.vectorStoreInstance) return this.vectorStoreInstance;
 
-    const embeddings: Embeddings = getInstanceEmbeddings(config);
+    const embeddings: Embeddings = llmEmbeddingsService.getInstanceEmbeddings(config);
     let pool = this.postgresClient.getOrCreatePool();
 
     this.vectorStoreInstance = await PGVectorStore.initialize(embeddings, {
