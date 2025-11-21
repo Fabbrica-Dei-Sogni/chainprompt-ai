@@ -11,12 +11,16 @@ import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
-import { logger } from '../logger.core.js';
+import { Logger } from "winston";
+import { getLogger } from "../di/container.js";
 
 export class LLMSenderService {
   private static instance: LLMSenderService;
+  private logger: Logger;
 
-  private constructor() { }
+  private constructor() {
+    this.logger = getLogger();
+  }
 
   public static getInstance(): LLMSenderService {
     if (!LLMSenderService.instance) {
@@ -45,13 +49,13 @@ export class LLMSenderService {
     //XXX: vengono recuperati tutti i parametri provenienti dalla request, i parametri qui recuperati potrebbero aumentare nel tempo
     const { question, keyconversation, config }: DataRequest = inputData;//extractDataFromRequest(req, contextchat);
 
-    logger.info(`System prompt contestuale:\n ${systemPrompt}`);
-    logger.info(`Question prompt utente:\n${question}`);
+    this.logger.info(`System prompt contestuale:\n ${systemPrompt}`);
+    this.logger.info(`Question prompt utente:\n${question}`);
 
     const chainToInvoke = chainWithHistory ?? this.getChain(llmChainService.getInstanceLLM(config), promptTemplate);
 
     const answer = await this.invokeChain(question as any, keyconversation, chainToInvoke);
-    logger.info(`Risposta assistente:\n${answer}`);
+    this.logger.info(`Risposta assistente:\n${answer}`);
 
     //XXX: questo aspetto e' cruciale per ridirigere e modellare i flussi applicativi tramite prompts in entrata e in uscita.
     return answer;
@@ -104,14 +108,14 @@ export class LLMSenderService {
       //XXX: gestione accurata dell'errore ricevuto da un llm
 
       // Log dell'errore per diagnosi - sostituisci con logger reale in produzione
-      logger.error("Errore durante l'invocazione della chain LLM:", error);
+      this.logger.error("Errore durante l'invocazione della chain LLM:", error);
 
       // Gestione custom errori specifici (opzionale)
       if (error instanceof Error) {
         // Puoi controllare messaggi o tipi per retry, rate limit, ...
         if (error.message.includes("rate limit")) {
           // eventuale logica retry o backoff
-          logger.warn("Rate limit superata. Considera retry o backoff.");
+          this.logger.warn("Rate limit superata. Considera retry o backoff.");
         }
       }
 
@@ -137,7 +141,7 @@ export class LLMSenderService {
   public async senderToAgent(question: string, keyconversation: string, config: ConfigChainPrompt, systemPrompt: string, tools: any[], middleware: AgentMiddleware[], nomeagente: string) {
 
     //console.log(`System prompt contestuale:\n`, systemPrompt);
-    logger.info(`Question prompt utente:\n ${question}`);
+    this.logger.info(`Question prompt utente:\n ${question}`);
 
     let agent = llmAgentService.getAgent(
       llmChainService.getInstanceLLM(config),
@@ -152,7 +156,7 @@ export class LLMSenderService {
       question!,
       keyconversation);
 
-    logger.info(`Risposta agente:\n ${result}`);
+    this.logger.info(`Risposta agente:\n ${result}`);
     return result;
   };
 }

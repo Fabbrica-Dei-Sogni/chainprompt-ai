@@ -5,13 +5,21 @@ import { ConfigEmbeddings } from "./interfaces/protocol/configembeddings.interfa
 import { DataRequest } from "./interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "./interfaces/protocol/requestbody.interface.js";
 import { LLMProvider } from "./enums/llmprovider.enum.js";
-import { logger } from "./logger.core.js"
+import { Logger } from "winston";
+import { getLogger } from "./di/container.js";
 import { EmbeddingProvider } from "./enums/embeddingprovider.enum.js";
+// MUST BE FIRST: reflect-metadata for TSyringe DI
+import "reflect-metadata";
+// Bootstrap DI container (side-effect import)
+import "../core/di/container.js";
 
 export class ConverterModels {
     private static instance: ConverterModels;
+    private logger: Logger;
 
-    private constructor() { }
+    private constructor() {
+        this.logger = getLogger();
+    }
 
     public static getInstance(): ConverterModels {
         if (!ConverterModels.instance) {
@@ -68,7 +76,7 @@ export class ConverterModels {
      * @returns 
      */
     public getDataRequest(body: RequestBody, context: string, identifier: string, isAgent: boolean = false): DataRequest {
-        logger.info("Estrazione informazioni data input per la preparazione al prompt di sistema....");
+        this.logger.info("Estrazione informazioni data input per la preparazione al prompt di sistema....");
 
         //Recupero della domanda dal campo question o dal campo text (standard cheshire)
         const question = body.question ?? body.text;
@@ -105,11 +113,11 @@ export class ConverterModels {
             ...this.getConfigChainpromptDFL(), temperature, provider, modelname, maxTokens, numCtx, format, timeout
         };
 
-        logger.info("Avviata conversione con chiave : " + keyconversation);
-        logger.info("Domanda richiesta: " + question);
-        logger.info("Provider utilizzato " + provider);
-        logger.info("Modello llm utilizzato : " + modelname);
-        logger.info("temperature impostata a " + temperature);
+        this.logger.info("Avviata conversione con chiave : " + keyconversation);
+        this.logger.info("Domanda richiesta: " + question);
+        this.logger.info("Provider utilizzato " + provider);
+        this.logger.info("Modello llm utilizzato : " + modelname);
+        this.logger.info("temperature impostata a " + temperature);
 
 
         return { question, keyconversation, noappendchat, config };

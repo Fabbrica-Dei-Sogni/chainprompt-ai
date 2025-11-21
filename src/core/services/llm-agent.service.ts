@@ -1,12 +1,16 @@
 import { AgentMiddleware, createAgent, ReactAgent, StructuredTool, Tool } from "langchain";
 import { Runnable } from "@langchain/core/runnables";
 import { BaseCheckpointSaver, MemorySaver } from "@langchain/langgraph";
-import { logger } from "../logger.core.js"
+import { Logger } from "winston";
+import { getLogger } from "../di/container.js";
 
 export class LLMAgentService {
     private static instance: LLMAgentService;
+    private logger: Logger;
 
-    private constructor() { }
+    private constructor() {
+        this.logger = getLogger();
+    }
 
     public static getInstance(): LLMAgentService {
         if (!LLMAgentService.instance) {
@@ -55,8 +59,8 @@ export class LLMAgentService {
     public async invokeAgent(agent: ReactAgent, question: string, sessionId: string) {
         try {
 
-            logger.info("Identificativo " + sessionId + " sta interagendo con l'agente " + agent.graph.getName());
-            logger.info("Invio richiesta " + question);
+            this.logger.info("Identificativo " + sessionId + " sta interagendo con l'agente " + agent.graph.getName());
+            this.logger.info("Invio richiesta " + question);
 
             const result = await agent.invoke(
                 { messages: [{ role: "user", content: question }] },
@@ -70,7 +74,7 @@ export class LLMAgentService {
 
             return result;
         } catch (error) {
-            logger.error("Errore durante l'invocazione dell'agente:", error);
+            this.logger.error("Errore durante l'invocazione dell'agente:", error);
             // Puoi personalizzare il messaggio di errore per l'utente qui
             throw {
                 error: true,
@@ -98,65 +102,65 @@ export class LLMAgentService {
 
             const state = await agent.graph.getState(config);
 
-            logger.info("Stato corrente recuperato:");
+            this.logger.info("Stato corrente recuperato:");
             //usare il logger e definire la stringa nella forma `testo ${variable}`
-            logger.info(`- Created at: ${state.createdAt}`);   // Timestamp creazione
-            logger.info(`- Checkpoint ID: ${state.config?.configurable?.checkpoint_id ?? "N/A"}`);
-            logger.info(`- Thread ID: ${state.config?.configurable?.thread_id ?? "N/A"}`);
+            this.logger.info(`- Created at: ${state.createdAt}`);   // Timestamp creazione
+            this.logger.info(`- Checkpoint ID: ${state.config?.configurable?.checkpoint_id ?? "N/A"}`);
+            this.logger.info(`- Thread ID: ${state.config?.configurable?.thread_id ?? "N/A"}`);
 
-            logger.info("Values in state:");
+            this.logger.info("Values in state:");
             if (!state.values) {
-                logger.info("  Nessun valore presente.");
+                this.logger.info("  Nessun valore presente.");
                 return;
             }
             for (const [key, value] of Object.entries(state.values)) {
-                logger.info(`  - Key: ${JSON.stringify(key)}`);
-                logger.info(`    Value: ${JSON.stringify(value)}`);
+                this.logger.info(`  - Key: ${JSON.stringify(key)}`);
+                this.logger.info(`    Value: ${JSON.stringify(value)}`);
             }
 
-            logger.info("Next nodes to execute:");
+            this.logger.info("Next nodes to execute:");
             if (!state.next || state.next.length === 0) {
-                logger.info("  Nessun nodo successivo, esecuzione terminata o in pausa.");
+                this.logger.info("  Nessun nodo successivo, esecuzione terminata o in pausa.");
                 return;
             }
             state.next.forEach((node: any, index: number) => {
-                logger.info(`  [${index}] Node: ${JSON.stringify(node)}`,);
+                this.logger.info(`  [${index}] Node: ${JSON.stringify(node)}`,);
             });
 
-            logger.info("Checkpoint config:");
+            this.logger.info("Checkpoint config:");
             if (!state.config) {
-                logger.info("  Config non disponibile.");
+                this.logger.info("  Config non disponibile.");
                 return;
             }
-            logger.info(JSON.stringify(state.config, null, 2));
+            this.logger.info(JSON.stringify(state.config, null, 2));
 
-            logger.info("Checkpoint metadata:");
+            this.logger.info("Checkpoint metadata:");
             if (!state.metadata) {
-                logger.info("  Metadata non disponibile.");
+                this.logger.info("  Metadata non disponibile.");
                 return;
             }
-            logger.info(JSON.stringify(state.metadata, null, 2));
+            this.logger.info(JSON.stringify(state.metadata, null, 2));
 
-            logger.info("Pending tasks:");
+            this.logger.info("Pending tasks:");
             if (!state.tasks || state.tasks.length === 0) {
-                logger.info("  Nessun task pendente.");
+                this.logger.info("  Nessun task pendente.");
                 return;
             }
             state.tasks.forEach((task: any, index: number) => {
-                logger.info(`  [${index}] Task:`);
-                logger.info(JSON.stringify(task, null, 2));
+                this.logger.info(`  [${index}] Task:`);
+                this.logger.info(JSON.stringify(task, null, 2));
             });
 
-            logger.info("Parent checkpoint config:");
+            this.logger.info("Parent checkpoint config:");
             if (!state.parentConfig) {
-                logger.info("  Nessuna configurazione genitore.");
+                this.logger.info("  Nessuna configurazione genitore.");
                 return;
             }
-            logger.info(JSON.stringify(state.parentConfig, null, 2));
+            this.logger.info(JSON.stringify(state.parentConfig, null, 2));
 
             return state;
         } catch (error) {
-            logger.error("Errore nel recupero dello stato:", error);
+            this.logger.error("Errore nel recupero dello stato:", error);
             throw error;
         }
     }
