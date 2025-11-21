@@ -1,9 +1,9 @@
 import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { handleClickbaitRequest } from "../../controllers/handler.llm.controller.js";
+import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
-import { handleClickbaitAgent } from "../../controllers/handler.agent.controller.js";
+import { agentController } from "../../controllers/handler.agent.controller.js";
 
 /**
  * La classe rappresenta l'endpoint della feature clickbaitscore.
@@ -12,27 +12,27 @@ import { handleClickbaitAgent } from "../../controllers/handler.agent.controller
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
 router.post('/features/' + LLMProvider.OpenAILocal + '/clickbaitscore', (req, res, next) =>
-  handleClickbaitRequest(req, res, next, LLMProvider.OpenAILocal)
+  llmController.handleClickbaitRequest(req, res, next, LLMProvider.OpenAILocal)
 );
 
 router.post('/features/' + LLMProvider.OpenAICloud + '/clickbaitscore/', (req, res, next) =>
-  handleClickbaitRequest(req, res, next, LLMProvider.OpenAICloud)
+  llmController.handleClickbaitRequest(req, res, next, LLMProvider.OpenAICloud)
 );
 
 router.post('/features/' + LLMProvider.Ollama + '/clickbaitscore/', (req, res, next) =>
-  handleClickbaitRequest(req, res, next, LLMProvider.Ollama)
+  llmController.handleClickbaitRequest(req, res, next, LLMProvider.Ollama)
 );
 
 router.post('/agent/features/' + LLMProvider.OpenAILocal + '/clickbaitscore', (req, res, next) =>
-  handleClickbaitAgent(req, res, next, LLMProvider.OpenAILocal)
+  agentController.handleClickbaitAgent(req, res, next, LLMProvider.OpenAILocal)
 );
 
 router.post('/agent/features/' + LLMProvider.OpenAICloud + '/clickbaitscore', (req, res, next) =>
-  handleClickbaitAgent(req, res, next, LLMProvider.OpenAICloud)
+  agentController.handleClickbaitAgent(req, res, next, LLMProvider.OpenAICloud)
 );
 
 router.post('/agent/features/' + LLMProvider.ChatOllama + '/clickbaitscore', (req, res, next) =>
-  handleClickbaitAgent(req, res, next, LLMProvider.ChatOllama)
+  agentController.handleClickbaitAgent(req, res, next, LLMProvider.ChatOllama)
 );
 
 console.log(`Api del clickbaitscore caricati con successo!`);

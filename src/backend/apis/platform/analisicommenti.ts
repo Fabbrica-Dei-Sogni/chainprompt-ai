@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { handleAnalisiCommentiRequest } from "../../controllers/handler.llm.controller.js";
+import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
 
 
@@ -12,15 +12,15 @@ import '../../logger.backend.js';
 
 // Endpoint POST per accettare un URL e chiamare lo scraper
 router.post('/features/' + LLMProvider.OpenAILocal + '/analisicommenti', (req, res, next) =>
-  handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAILocal)
+  llmController.handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAILocal)
 );
 
 router.post('/features/' + LLMProvider.OpenAICloud + '/analisicommenti', (req, res, next) =>
-  handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAICloud)
+  llmController.handleAnalisiCommentiRequest(req, res, next, LLMProvider.OpenAICloud)
 );
 
 router.post('/features/' + LLMProvider.Ollama + '/analisicommenti', (req, res, next) =>
-  handleAnalisiCommentiRequest(req, res, next, LLMProvider.Ollama)
+  llmController.handleAnalisiCommentiRequest(req, res, next, LLMProvider.Ollama)
 );
 
 console.log(`Api per l'analisi dei commenti caricato con successo!`);

@@ -8,6 +8,17 @@ import logger from "../logger.backend.js";
 
 export class ConfigurationController {
 
+    private static instance: ConfigurationController;
+
+    private constructor() { }
+
+    public static getInstance(): ConfigurationController {
+        if (!ConfigurationController.instance) {
+            ConfigurationController.instance = new ConfigurationController();
+        }
+        return ConfigurationController.instance;
+    }
+
     /**
      * Lista tutte le configurazioni (con ricerca opzionale per chiave)
      */
@@ -138,4 +149,4 @@ export class ConfigurationController {
 }
 
 // Esporta istanza singleton del controller
-export const configurationController = new ConfigurationController();
+export const configurationController = ConfigurationController.getInstance();

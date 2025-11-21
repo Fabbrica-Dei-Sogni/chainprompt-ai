@@ -6,7 +6,7 @@ import express from "express";
 const router = express.Router();
 import fs from 'fs';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
-import { handleCheshireRequest } from "../../controllers/handler.llm.controller.js";
+import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
 
@@ -21,11 +21,11 @@ providerRoutes.forEach(({ prefix, provider }) => {
   contexts.forEach(context => {
     console.log(prefix + "-" + context);
     router.post(`/cheshirecat/${prefix}/prompt/${context}`, (req, res, next) =>
-      handleCheshireRequest(req, res, next, provider)
+      llmController.handleCheshireRequest(req, res, next, provider)
     );
   });
   router.post(`/cheshirecat/${prefix}/prompt/${ENDPOINT_CHATGENERICA}`, (req, res, next) =>
-    handleCheshireRequest(req, res, next, provider)
+    llmController.handleCheshireRequest(req, res, next, provider)
   );
 });
 

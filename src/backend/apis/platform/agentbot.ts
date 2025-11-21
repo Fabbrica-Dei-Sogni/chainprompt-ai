@@ -5,7 +5,7 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { handleCommonAgentRequest } from "../../controllers/handler.agent.controller.js";
+import { agentController } from "../../controllers/handler.agent.controller.js";
 import '../../logger.backend.js';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
@@ -29,7 +29,7 @@ providerRoutes.forEach(({ prefix, provider }) => {
       allContext[context] = true;
     }
     router.post(route, (req, res, next) =>
-      handleCommonAgentRequest(req, res, next, provider)
+      agentController.handleCommonAgentRequest(req, res, next, provider)
     );
   });
   let genericRoute = `/agent/${prefix}/${ENDPOINT_CHATGENERICA}`;
@@ -38,7 +38,7 @@ providerRoutes.forEach(({ prefix, provider }) => {
     allContext[ENDPOINT_CHATGENERICA] = true;
   }
   router.post(genericRoute, (req, res, next) =>
-    handleCommonAgentRequest(req, res, next, provider)
+    agentController.handleCommonAgentRequest(req, res, next, provider)
   );
 });
 

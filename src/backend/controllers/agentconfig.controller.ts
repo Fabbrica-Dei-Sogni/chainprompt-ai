@@ -9,6 +9,17 @@ import logger from "../logger.backend.js";
 
 export class AgentConfigController {
 
+    private static instance: AgentConfigController;
+
+    private constructor() { }
+
+    public static getInstance(): AgentConfigController {
+        if (!AgentConfigController.instance) {
+            AgentConfigController.instance = new AgentConfigController();
+        }
+        return AgentConfigController.instance;
+    }
+
     /**
      * Lista tutti gli agenti configurati
      */
@@ -190,4 +201,4 @@ export class AgentConfigController {
 }
 
 // Esporta istanza singleton del controller
-export const agentConfigController = new AgentConfigController();
+export const agentConfigController = AgentConfigController.getInstance();

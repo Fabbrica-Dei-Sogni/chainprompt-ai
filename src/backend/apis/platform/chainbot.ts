@@ -5,7 +5,7 @@
 import express from "express";
 const router = express.Router();
 import fs from 'fs';
-import { handleCommonRequest } from "../../controllers/handler.llm.controller.js";
+import { llmController } from "../../controllers/handler.llm.controller.js";
 import '../../logger.backend.js';
 import { providerRoutes } from "../../../core/enums/llmprovider.enum.js";
 import { contextFolder, ENDPOINT_CHATGENERICA } from "../../services/common.service.js";
@@ -30,7 +30,7 @@ providerRoutes.forEach(({ prefix, provider }) => {
       allContext[context] = true;
     }
     router.post(route, (req, res, next) =>
-      handleCommonRequest(req, res, next, provider)
+      llmController.handleCommonRequest(req, res, next, provider)
     );
   });
   let genericRoute = `/chat/${prefix}/${ENDPOINT_CHATGENERICA}`;
@@ -39,7 +39,7 @@ providerRoutes.forEach(({ prefix, provider }) => {
     allContext[ENDPOINT_CHATGENERICA] = true;
   }
   router.post(genericRoute, (req, res, next) =>
-    handleCommonRequest(req, res, next, provider)
+    llmController.handleCommonRequest(req, res, next, provider)
   );
 });
 
