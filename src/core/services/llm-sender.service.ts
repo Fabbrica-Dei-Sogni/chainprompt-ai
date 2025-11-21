@@ -13,12 +13,13 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
 import { Logger } from "winston";
 import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../di/tokens.js";
 
 @injectable()
 export class LLMSenderService {
 
   constructor(
-    @inject("Logger") private readonly logger: Logger,
+    @inject(LOGGER_TOKEN) private readonly logger: Logger,
     private readonly llmChainService: LLMChainService,
     private readonly llmAgentService: LLMAgentService,
   ) {}

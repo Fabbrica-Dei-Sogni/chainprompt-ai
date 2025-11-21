@@ -3,11 +3,12 @@ import { Runnable } from "@langchain/core/runnables";
 import { BaseCheckpointSaver, MemorySaver } from "@langchain/langgraph";
 import { Logger } from "winston";
 import { inject, injectable } from "tsyringe";
+import { LOGGER_TOKEN } from "../di/tokens.js";
 
 @injectable()
 export class LLMAgentService {
     constructor(
-        @inject("Logger") private readonly logger: Logger
+        @inject(LOGGER_TOKEN) private readonly logger: Logger
     ) {}
 
     /**

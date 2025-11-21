@@ -12,6 +12,7 @@ import { DataRequest } from "./interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "./interfaces/protocol/requestbody.interface.js";
 import { LLMProvider } from "./enums/llmprovider.enum.js";
 import { Logger } from "winston";
+import { LOGGER_TOKEN } from "./di/tokens.js";
 import { EmbeddingProvider } from "./enums/embeddingprovider.enum.js";
 import { inject, injectable } from "tsyringe";
 
@@ -19,7 +20,7 @@ import { inject, injectable } from "tsyringe";
 export class ConverterModels {
 
     constructor(
-        @inject("Logger") private readonly logger: Logger,
+        @inject(LOGGER_TOKEN) private readonly logger: Logger,
     ) { }
 
     /**
