@@ -8,7 +8,7 @@ import { getFrameworkPrompts } from "../reader-prompt.service.js";
 import { getAgent } from "../../../../core/services/llm-agent.service.js";
 import { getInstanceLLM } from "../../../../core/services/llm-chain.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
-import { getCheckpointer } from "../../databases/postgresql/postgresql.service.js";
+import { postgresqlService } from "../../databases/postgresql/postgresql.service.js";
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents
@@ -18,26 +18,26 @@ import { getCheckpointer } from "../../databases/postgresql/postgresql.service.j
 //const checkpointer = getCheckpointer();//new MemorySaver();
 
 
- /**
-  * 
-  * Costruisce un agente a partire dal contesto, configurazione
-  * @param context 
-  * @param config 
-  * @param modelname 
-  * @param middleware 
-  * @returns 
-  */
+/**
+ * 
+ * Costruisce un agente a partire dal contesto, configurazione
+ * @param context 
+ * @param config 
+ * @param modelname 
+ * @param middleware 
+ * @returns 
+ */
 export async function buildAgent(
     context: string,
     config: ConfigChainPrompt,
     tools: Tool[] | StructuredTool[] = [],
     middleware: AgentMiddleware[] = [handleToolErrors, createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
 
-  //step 2. Recupero del systemprompt dalla logica esistente
-  const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-  //console.log("System prompt : " + systemPrompt);
-  const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr."+context,  getCheckpointer());
-  return agent;
+    //step 2. Recupero del systemprompt dalla logica esistente
+    const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+    //console.log("System prompt : " + systemPrompt);
+    const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
+    return agent;
 }
 
 

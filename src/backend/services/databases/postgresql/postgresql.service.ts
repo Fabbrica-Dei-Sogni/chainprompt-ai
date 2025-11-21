@@ -11,24 +11,6 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Database } from "./models/database.js";
 import { VectorStoreConfig } from "./models/vectorstoreconfig.js";
 
-/**
- * Istanza singleton oriented per fornire all'applicazione il checkpointer e altre informazioni future sullo schema postgresql
- */
-export const POSTGRESQL_CLIENT_INSTANCE = new PostgresqlClient();
-
-export const KYSELY_DATABASE = new Kysely<Database>({
-  dialect: new PostgresDialect({
-    pool: POSTGRESQL_CLIENT_INSTANCE.getOrCreatePool(),
-  }),
-});
-
-/**
- * Restituisce il checkpointer inizializzato
- */
-export function getCheckpointer(): PostgresSaver {
-    return POSTGRESQL_CLIENT_INSTANCE.getCheckpointer();
-}
-
 const DEFAULT_VECTORSTORE_CONFIG: VectorStoreConfig = {
   tableName: "tool_embeddings",
   idColumnName: "id",
@@ -37,35 +19,58 @@ const DEFAULT_VECTORSTORE_CONFIG: VectorStoreConfig = {
   metadataColumnName: "metadata",
 };
 
-let VECTORSTORE_INSTANCE: PGVectorStore | null = null;
+export class PostgreSQLService {
+  private static instance: PostgreSQLService;
+  private postgresClient: PostgresqlClient;
+  private kyselyDatabase: Kysely<Database>;
+  private vectorStoreInstance: PGVectorStore | null = null;
 
-/**
- * Inizializza il vector store singleton con il provider embedding specificato.
- * @param provider - enum (OpenAI, Ollama, ecc)
- * @param config   - configurazione embedding
- * @param pool     - pg.Pool centralizzato
- * @param vectorStoreConfig - configurazione tabella/colonne (opzionale)
- * @returns {Promise<PGVectorStore>}
- */
-export async function getVectorStoreSingleton(
-  provider: EmbeddingProvider = EmbeddingProvider.Ollama,
-  config: ConfigEmbeddings = getConfigEmbeddingsDFL(),
-  vectorStoreConfig: VectorStoreConfig = DEFAULT_VECTORSTORE_CONFIG
-): Promise<PGVectorStore> {
-  if (VECTORSTORE_INSTANCE) return VECTORSTORE_INSTANCE;
+  private constructor() {
+    this.postgresClient = new PostgresqlClient();
+    this.kyselyDatabase = new Kysely<Database>({
+      dialect: new PostgresDialect({
+        pool: this.postgresClient.getOrCreatePool(),
+      }),
+    });
+  }
 
-  const embeddings: Embeddings = getInstanceEmbeddings(config);
-  let pool = POSTGRESQL_CLIENT_INSTANCE.getOrCreatePool();
+  public static getInstance(): PostgreSQLService {
+    if (!PostgreSQLService.instance) {
+      PostgreSQLService.instance = new PostgreSQLService();
+    }
+    return PostgreSQLService.instance;
+  }
 
-  VECTORSTORE_INSTANCE = await PGVectorStore.initialize(embeddings, {
-    postgresConnectionOptions: pool.options, // usa quello che hai già istanziato
-    tableName: vectorStoreConfig.tableName,
-    columns: {
-      idColumnName: vectorStoreConfig.idColumnName,
-      vectorColumnName: vectorStoreConfig.vectorColumnName,
-      contentColumnName: vectorStoreConfig.contentColumnName,
-      metadataColumnName: vectorStoreConfig.metadataColumnName,
-    },
-  });
-  return VECTORSTORE_INSTANCE;
-};
+  public getCheckpointer(): PostgresSaver {
+    return this.postgresClient.getCheckpointer();
+  }
+
+  public getKyselyDatabase(): Kysely<Database> {
+    return this.kyselyDatabase;
+  }
+
+  public async getVectorStoreSingleton(
+    provider: EmbeddingProvider = EmbeddingProvider.Ollama,
+    config: ConfigEmbeddings = getConfigEmbeddingsDFL(),
+    vectorStoreConfig: VectorStoreConfig = DEFAULT_VECTORSTORE_CONFIG
+  ): Promise<PGVectorStore> {
+    if (this.vectorStoreInstance) return this.vectorStoreInstance;
+
+    const embeddings: Embeddings = getInstanceEmbeddings(config);
+    let pool = this.postgresClient.getOrCreatePool();
+
+    this.vectorStoreInstance = await PGVectorStore.initialize(embeddings, {
+      postgresConnectionOptions: pool.options, // usa quello che hai già istanziato
+      tableName: vectorStoreConfig.tableName,
+      columns: {
+        idColumnName: vectorStoreConfig.idColumnName,
+        vectorColumnName: vectorStoreConfig.vectorColumnName,
+        contentColumnName: vectorStoreConfig.contentColumnName,
+        metadataColumnName: vectorStoreConfig.metadataColumnName,
+      },
+    });
+    return this.vectorStoreInstance;
+  }
+}
+
+export const postgresqlService = PostgreSQLService.getInstance();

@@ -3,7 +3,7 @@ import { ConfigEmbeddings } from "../../../core/interfaces/protocol/configembedd
 import { getConfigEmbeddingsDFL } from "../../../core/converter.models.js";
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
 import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
-import { getVectorStoreSingleton, KYSELY_DATABASE } from "../databases/postgresql/postgresql.service.js";
+import { postgresqlService } from "../databases/postgresql/postgresql.service.js";
 import { getSectionsPrompts } from "./reader-prompt.service.js";
 
 /**
@@ -13,23 +13,23 @@ import { getSectionsPrompts } from "./reader-prompt.service.js";
  * @param provider 
  */
 export async function syncToolAgentEmbeddings(contexts: string[], provider: EmbeddingProvider = EmbeddingProvider.Ollama) {
-    //XXX: inserimento di tutti gli agenti tematici idonei
-    let docs: {
-        pageContent: string;
-        metadata: any;
-    }[] = [];
+  //XXX: inserimento di tutti gli agenti tematici idonei
+  let docs: {
+    pageContent: string;
+    metadata: any;
+  }[] = [];
 
-    for (const context of contexts) {
-        const subContext = context;
-        //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-        let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
-        let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
-        const descriptionSubAgent = context+"."+prRuolo + "\n"; //await getFrameworkPrompts(subContext);
+  for (const context of contexts) {
+    const subContext = context;
+    //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
+    let prRuolo = await getSectionsPrompts(subContext, "prompt.ruolo");
+    let prAzione = await getSectionsPrompts(subContext, "prompt.azione");
+    const descriptionSubAgent = context + "." + prRuolo + "\n"; //await getFrameworkPrompts(subContext);
 
-        //console.log("System prompt subcontext: " + promptsubAgent);
-        docs.push({ pageContent: descriptionSubAgent, metadata: null });
-    }
-    syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
+    //console.log("System prompt subcontext: " + promptsubAgent);
+    docs.push({ pageContent: descriptionSubAgent, metadata: null });
+  }
+  syncDocsPgvectorStore(provider, getConfigEmbeddingsDFL(), docs);
 }
 
 
@@ -50,7 +50,7 @@ async function syncDocsPgvectorStore(
   let added = 0, updated = 0, deleted = 0;
   try {
 
-    vectorStore = await getVectorStoreSingleton(provider, config);
+    vectorStore = await postgresqlService.getVectorStoreSingleton(provider, config);
 
     // Recupero dei documenti esistenti
     const existingDocs = await getExistingToolDocs();
@@ -110,10 +110,10 @@ async function syncDocsPgvectorStore(
 };
 
 async function getExistingToolDocs(): Promise<ToolEmbedding[]> {
-  return KYSELY_DATABASE.selectFrom('tool_embeddings').selectAll().execute();
+  return postgresqlService.getKyselyDatabase().selectFrom('tool_embeddings').selectAll().execute();
 }
 async function deleteToolDocByName(name: string): Promise<void> {
-  await KYSELY_DATABASE
+  await postgresqlService.getKyselyDatabase()
     .deleteFrom('tool_embeddings')
     .where('metadata', '@>', { name }) // match JSON per nome
     .execute();
