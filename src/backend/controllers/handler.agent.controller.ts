@@ -10,7 +10,7 @@ import { getAgentContent } from '../../core/converter.models.js';
 import { buildAgent } from '../services/business/agents/agent.service.js';
 import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../services/common.service.js';
-import { defaultPreprocessor, getDataByResponseHttp, handleAgent, Preprocessor } from '../services/business/handler.service.js';
+import { handlerService, Preprocessor } from '../services/business/handler.service.js';
 import { ScrapingToolStructured } from '../tools/scraping.structured.tool.js';
 import { decodeBase64 } from '../utils/clickbaitscore.util.js';
 
@@ -53,7 +53,7 @@ export class AgentController {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, defaultPreprocessor, true);
+      const { systemPrompt, resultData, } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, handlerService.defaultPreprocessor, true);
 
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
@@ -85,7 +85,7 @@ export class AgentController {
         tools.push(subagenttool);
       }
 
-      const result = await handleAgent(systemPrompt, resultData, tools, middleware, context);
+      const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
       let answer = getAgentContent(result);
 
       //step 3. ritorno la response http
@@ -126,7 +126,7 @@ export class AgentController {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData, } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
+      const { systemPrompt, resultData, } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
@@ -134,7 +134,7 @@ export class AgentController {
       const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
       //step 2. istanza e invocazione dell'agente
-      const result = await handleAgent(systemPrompt, resultData, tools, middleware, context);
+      const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
       let answer = getAgentContent(result);
       //step 3. ritorno la response http
       res.json(answer);
@@ -190,7 +190,7 @@ export class AgentController {
     res,
     next,
     provider,
-    defaultPreprocessor,
+    handlerService.defaultPreprocessor,
     [],
     (() => {
       // Esempio di estrazione contesto generico ed elegante da req.originalUrl

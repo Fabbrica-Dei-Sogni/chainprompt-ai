@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import '../logger.backend.js';
 import * as requestIp from 'request-ip';
-import { defaultPreprocessor, getDataByResponseHttp, handleLLM, Preprocessor } from "../services/business/handler.service.js";
+import { handlerService, Preprocessor } from "../services/business/handler.service.js";
 import { YouTubeComment, formatCommentsForPrompt } from "../utils/analisicommenti.util.js";
 import { removeCheshireCatText } from "../utils/cheshire.util.js";
 import { decodeBase64, scrapeArticle } from "../utils/clickbaitscore.util.js";
@@ -40,10 +40,10 @@ export class LLMController {
         ...req.body,
         provider
       };
-      const { systemPrompt, resultData } = await getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
+      const { systemPrompt, resultData } = await handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
 
       //step 2. istanza e invocazione dell'agente
-      const answer = await handleLLM(systemPrompt, resultData);
+      const answer = await handlerService.handleLLM(systemPrompt, resultData);
 
       //step 3. ritorno la response http
       res.json(answer);
@@ -85,7 +85,7 @@ export class LLMController {
     res,
     next,
     provider,
-    defaultPreprocessor,
+    handlerService.defaultPreprocessor,
     (() => {
       // Esempio di estrazione contesto generico ed elegante da req.originalUrl
       const originalUriTokens = req.originalUrl.split('/');
