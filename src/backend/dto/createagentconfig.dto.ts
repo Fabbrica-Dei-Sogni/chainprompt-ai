@@ -19,8 +19,17 @@ export interface CreateAgentConfigDTO {
   nome?: string;
   descrizione?: string;
   contesto: string;
+
+  // LEGACY: Backward compatibility
   systemprompt?: string;
-  promptFrameworks?: PromptFrameworkDTO[]; // usa il tipo corretto se importi la definizione
+
+  // HYBRID ARCHITECTURE:
+  // 1) Riferimento a template condiviso (ObjectId come string)
+  promptFrameworkRef?: string;
+
+  // 2) Custom framework embedded
+  promptFramework?: PromptFrameworkDTO;
+
   profilo: string;
   tools?: string[];
 }
