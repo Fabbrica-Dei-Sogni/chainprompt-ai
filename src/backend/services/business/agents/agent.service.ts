@@ -4,7 +4,7 @@ import * as z from "zod";
 import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
 import { MiddlewareService } from "./middleware.service.js";
-import { readerPromptService } from "../reader-prompt.service.js";
+import { ReaderPromptService } from "../reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
 import { postgresqlService } from "../../databases/postgresql/postgresql.service.js";
 import { getComponent } from "../../../../core/di/container.js";
@@ -27,10 +27,11 @@ const llmChainService = getComponent(LLMChainService);
 @injectable()
 export class AgentService {
 
-  constructor(
-      @inject(LOGGER_TOKEN) private readonly logger: Logger,
-      private readonly middlewareService: MiddlewareService,
-  ) { }
+    constructor(
+        @inject(LOGGER_TOKEN) private readonly logger: Logger,
+        private readonly middlewareService: MiddlewareService,
+        private readonly readerPromptService: ReaderPromptService,
+    ) { }
 
     /**
      * 
@@ -48,7 +49,7 @@ export class AgentService {
         middleware: AgentMiddleware[] = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
 
         //step 2. Recupero del systemprompt dalla logica esistente
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await this.readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         //console.log("System prompt : " + systemPrompt);
         const agent = llmAgentService.getAgent(llmChainService.getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
         return agent;

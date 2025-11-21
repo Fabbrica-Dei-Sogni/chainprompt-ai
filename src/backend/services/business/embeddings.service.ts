@@ -3,12 +3,12 @@ import { ConfigEmbeddings } from "../../../core/interfaces/protocol/configembedd
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
 import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
 import { postgresqlService } from "../databases/postgresql/postgresql.service.js";
-import { readerPromptService } from "./reader-prompt.service.js";
 import { getComponent } from "../../../core/di/container.js";
 import { ConverterModels } from "../../../core/converter.models.js";
 import { inject, injectable } from "tsyringe";
 import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
+import { ReaderPromptService } from "./reader-prompt.service.js";
 
 const converterModels = getComponent(ConverterModels);
 
@@ -16,7 +16,8 @@ const converterModels = getComponent(ConverterModels);
 export class EmbeddingsService {
 
   constructor(
-    @inject(LOGGER_TOKEN) private readonly logger: Logger
+    @inject(LOGGER_TOKEN) private readonly logger: Logger,
+    private readonly readerPromptService: ReaderPromptService,
   ) { }
 
   /**
@@ -37,8 +38,8 @@ export class EmbeddingsService {
     for (const context of contexts) {
       const subContext = context;
       //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-      let prRuolo = await readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
-      let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
+      let prRuolo = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
+      let prAzione = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
       const descriptionSubAgent = context + "." + prRuolo + "\n"; //await getFrameworkPrompts(subContext);
 
       //console.log("System prompt subcontext: " + promptsubAgent);

@@ -26,7 +26,6 @@ export class LLMChainService {
   /**
    * Ritorna l'istanza di un llm in base al provider scelto.
    *
-   * @param provider 
    * @param config 
    * @returns 
    */

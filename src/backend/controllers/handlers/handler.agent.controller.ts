@@ -4,7 +4,7 @@ import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
 import { MiddlewareService } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
-import { readerPromptService } from '../../services/business/reader-prompt.service.js';
+import { ReaderPromptService } from '../../services/business/reader-prompt.service.js';
 import { AgentService } from '../../services/business/agents/agent.service.js';
 import { DataRequest } from '../../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../../services/common.service.js';
@@ -12,12 +12,9 @@ import { HandlerService, Preprocessor } from '../../services/business/handler.se
 import { ScrapingToolStructured } from '../../tools/scraping.structured.tool.js';
 import { decodeBase64 } from '../../utils/clickbaitscore.util.js';
 import { ConverterModels } from '../../../core/converter.models.js';
-import { getComponent } from '../../../core/di/container.js';
 import { inject, injectable } from "tsyringe";
 import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
-//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
-const converterModels = getComponent(ConverterModels);
 
 @injectable()
 export class AgentController {
@@ -27,6 +24,8 @@ export class AgentController {
     private readonly agentService: AgentService,
     private readonly middlewareService: MiddlewareService,
     private readonly handlerService: HandlerService,
+    private readonly readerPromptService: ReaderPromptService,
+    private readonly converterModels: ConverterModels,
   ) { }
 
   /**
@@ -80,8 +79,8 @@ export class AgentController {
         const subContext = context;
 
         //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-        let prRuolo = await readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
-        let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
+        let prRuolo = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
+        let prAzione = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
         const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
         const agent = await this.agentService.buildAgent(subContext, config);
@@ -91,7 +90,7 @@ export class AgentController {
       }
 
       const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = converterModels.getAgentContent(result);
+      let answer = this.converterModels.getAgentContent(result);
 
       //step 3. ritorno la response http
       res.json(answer);
@@ -142,7 +141,7 @@ export class AgentController {
 
       //step 2. istanza e invocazione dell'agente
       const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = converterModels.getAgentContent(result);
+      let answer = this.converterModels.getAgentContent(result);
       //step 3. ritorno la response http
       res.json(answer);
 

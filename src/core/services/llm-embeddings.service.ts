@@ -14,13 +14,12 @@ import { injectable } from "tsyringe";
 @injectable()
 export class LLMEmbeddingsService {
 
-  constructor() {} // costruttore pubblico standard
+  constructor() { } // costruttore pubblico standard
 
 
   /**
    * Ritorna l'istanza di un embedding model in base al provider scelto.
    * 
-   * @param provider - EmbeddingProvider enum
    * @param config - Configurazione specifica
    * @returns Embeddings instance
    */

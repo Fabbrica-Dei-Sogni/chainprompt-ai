@@ -1,4 +1,4 @@
-import { NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
 import * as requestIp from 'request-ip';
 import { HandlerService, Preprocessor } from "../../services/business/handler.service.js";
@@ -23,9 +23,9 @@ export class LLMController {
 
 
   private async llmHandler(
-    req: any,
-    res: any,
-    next: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
     provider: LLMProvider,
     preprocessor: Preprocessor,
     context: string
@@ -55,29 +55,29 @@ export class LLMController {
   };
 
   public handleClickbaitRequest = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.llmHandler(req, res, next, provider, this.clickbaitPreprocessor, 'clickbaitscore');
 
   public handleCheshireRequest = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.llmHandler(req, res, next, provider, this.cheshirePreprocessor, 'cheshirecat');
 
   public handleAnalisiCommentiRequest = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.llmHandler(req, res, next, provider, this.analisiCommentiPreprocessor, 'analisicommenti');
 
   public handleCommonRequest = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.llmHandler(

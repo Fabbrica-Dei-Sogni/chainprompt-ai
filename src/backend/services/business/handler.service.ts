@@ -2,20 +2,15 @@ import { AgentMiddleware } from "langchain";
 import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
 import { LLMSenderService } from "../../../core/services/llm-sender.service.js";
-import { readerPromptService } from "./reader-prompt.service.js";
+import { ReaderPromptService } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 import { getChainWithHistory } from "../databases/redis/redis.service.js";
 import { getPromptTemplate } from "../../templates/chainpromptbase.template.js";
-import { getComponent } from "../../../core/di/container.js";
 import { LLMChainService } from "../../../core/services/llm-chain.service.js";
 import { ConverterModels } from "../../../core/converter.models.js";
 import { inject, injectable } from "tsyringe";
 import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
-//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
-const llmSenderService = getComponent(LLMSenderService);
-const llmChainService = getComponent(LLMChainService);
-const converterModels = getComponent(ConverterModels);
 
 export type Preprocessor = (req: any) => Promise<void>;
 
@@ -23,9 +18,13 @@ export type Preprocessor = (req: any) => Promise<void>;
 @injectable()
 export class HandlerService {
 
-  constructor(
-    @inject(LOGGER_TOKEN) private readonly logger: Logger
-  ) { }
+    constructor(
+        @inject(LOGGER_TOKEN) private readonly logger: Logger,
+        private readonly readerPromptService: ReaderPromptService,
+        private readonly converterModels: ConverterModels,
+        private readonly llmSenderService: LLMSenderService,
+        private readonly llmChainService: LLMChainService,
+    ) { }
 
     /**
      Preprocessore di default (nessuna modifica, utile per casi generici)
@@ -68,8 +67,8 @@ export class HandlerService {
             this.logger.info(`HandlerService - handleLLM - Invio richiesta LLM con modello ${inputData.config?.modelname}`);
 
             let { question, keyconversation, noappendchat, config } = inputData; // Changed from `body ? converterModels.getDataRequest(body, context, identifier, isAgent) : converterModels.getDataRequestDFL();` to use `inputData` directly, as `body`, `context`, `identifier`, `isAgent` are not defined in this scope.
-            const chain = await getChainWithHistory(systemPrompt, llmChainService.getInstanceLLM(config), noappendchat, keyconversation)
-            return await llmSenderService.senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
+            const chain = await getChainWithHistory(systemPrompt, this.llmChainService.getInstanceLLM(config), noappendchat, keyconversation)
+            return await this.llmSenderService.senderToLLM(inputData, systemPrompt, getPromptTemplate(systemPrompt), chain); // Invia il prompt al client
         } catch (err) {
             console.error('Errore durante la comunicazione con un llm:', JSON.stringify(err));
             throw err;
@@ -91,7 +90,7 @@ export class HandlerService {
             this.logger.info(`HandlerService - handleAgent - Invio richiesta Agent con modello ${inputData.config?.modelname}`);
 
             const { question, keyconversation, config }: DataRequest = inputData;
-            return llmSenderService.senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
+            return this.llmSenderService.senderToAgent(question!, keyconversation, config, systemPrompt, tools, middleware, nomeagente);
 
         } catch (err) {
             console.error('Errore durante la comunicazione con un agente:', JSON.stringify(err));
@@ -118,16 +117,16 @@ export class HandlerService {
         let body = req.body as RequestBody;
 
         //step 1. Recupero informazioni di default
-        let inputData = converterModels.getDataRequestDFL();
+        let inputData = this.converterModels.getDataRequestDFL();
 
         //step 2. Recupero del systemprompt dalla logica esistente
-        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await this.readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         console.log("System prompt : " + systemPrompt);
 
         console.log("Identificativo chiamante: ", identifier);
 
         //recupero del requestbody
-        let updateData: DataRequest = converterModels.getDataRequest(body, context, identifier, isAgent);
+        let updateData: DataRequest = this.converterModels.getDataRequest(body, context, identifier, isAgent);
 
         // Merge di inputData con updatedData (updatedData sovrascrive in caso di conflitti)
         const resultData: DataRequest = {

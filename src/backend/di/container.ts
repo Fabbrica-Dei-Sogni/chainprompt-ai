@@ -6,13 +6,13 @@ import { LOGGER_TOKEN } from "../../core/di/tokens.js";
 
 /**
  * DI Container Setup
- * 
+ *
  * This module configures dependency injection for the application.
  * We use manual registration (Approach 2) to avoid decorators.
- * 
+ *
  * Currently injected:
  * - Logger (Winston instance)
- * 
+ *
  * Future: Can extend to inject other services if needed
  */
 
@@ -30,7 +30,7 @@ export function getComponent<T>(token: InjectionToken<T>): T {
  * Type-safe helper to resolve logger from container
 
  metodo a titolo documentativo
- * 
+ *
  * @returns Logger instance
  */
 function getLogger(): Logger {

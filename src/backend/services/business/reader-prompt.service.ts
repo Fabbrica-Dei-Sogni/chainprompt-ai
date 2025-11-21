@@ -1,19 +1,17 @@
+import { inject, injectable } from 'tsyringe';
 import '../../logger.backend.js';
 import { contextFolder } from '../common.service.js';
 import { agentConfigService } from '../databases/mongodb/services/agentconfig.service.js';
 import { readFileAndConcat } from '../filesystem.service.js';
+import { LOGGER_TOKEN } from '../../../core/di/tokens.js';
+import { Logger } from 'winston';
 
+@injectable()
 export class ReaderPromptService {
-    private static instance: ReaderPromptService;
 
-    private constructor() { }
-
-    public static getInstance(): ReaderPromptService {
-        if (!ReaderPromptService.instance) {
-            ReaderPromptService.instance = new ReaderPromptService();
-        }
-        return ReaderPromptService.instance;
-    }
+    constructor(
+        @inject(LOGGER_TOKEN) private readonly logger: Logger
+    ) { }
 
     /**
      * Retrieves the framework prompts for the specified context.
@@ -69,5 +67,3 @@ export class ReaderPromptService {
         return agentconfig ? agentConfigService.getPromptBySection(agentconfig, section) : null;
     }
 }
-
-export const readerPromptService = ReaderPromptService.getInstance();

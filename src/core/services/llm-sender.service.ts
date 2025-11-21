@@ -5,8 +5,9 @@
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
 import { LLMChainService } from './llm-chain.service.js';
-import { AgentMiddleware } from 'langchain';
 import { LLMAgentService } from "./llm-agent.service.js";
+import { AgentMiddleware } from 'langchain';
+
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
@@ -22,7 +23,7 @@ export class LLMSenderService {
     @inject(LOGGER_TOKEN) private readonly logger: Logger,
     private readonly llmChainService: LLMChainService,
     private readonly llmAgentService: LLMAgentService,
-  ) {}
+  ) { }
 
   /**
    * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
