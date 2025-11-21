@@ -3,7 +3,7 @@ import { AgentMiddleware, dynamicSystemPromptMiddleware, StructuredTool, Tool } 
 import * as z from "zod";
 import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
-import { createSummaryMemoryMiddleware, handleToolErrors } from "./middleware.service.js";
+import { middlewareService } from "./middleware.service.js";
 import { readerPromptService } from "../reader-prompt.service.js";
 import { getAgent } from "../../../../core/services/llm-agent.service.js";
 import { getInstanceLLM } from "../../../../core/services/llm-chain.service.js";
@@ -17,29 +17,42 @@ import { postgresqlService } from "../../databases/postgresql/postgresql.service
 //il checkpointer piu semplice definito in memory
 //const checkpointer = getCheckpointer();//new MemorySaver();
 
+export class AgentService {
+    private static instance: AgentService;
 
-/**
- * 
- * Costruisce un agente a partire dal contesto, configurazione
- * @param context 
- * @param config 
- * @param modelname 
- * @param middleware 
- * @returns 
- */
-export async function buildAgent(
-    context: string,
-    config: ConfigChainPrompt,
-    tools: Tool[] | StructuredTool[] = [],
-    middleware: AgentMiddleware[] = [handleToolErrors, createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
+    private constructor() { }
 
-    //step 2. Recupero del systemprompt dalla logica esistente
-    const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
-    //console.log("System prompt : " + systemPrompt);
-    const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
-    return agent;
+    public static getInstance(): AgentService {
+        if (!AgentService.instance) {
+            AgentService.instance = new AgentService();
+        }
+        return AgentService.instance;
+    }
+
+    /**
+     * 
+     * Costruisce un agente a partire dal contesto, configurazione
+     * @param context 
+     * @param config 
+     * @param modelname 
+     * @param middleware 
+     * @returns 
+     */
+    public async buildAgent(
+        context: string,
+        config: ConfigChainPrompt,
+        tools: Tool[] | StructuredTool[] = [],
+        middleware: AgentMiddleware[] = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(config.modelname!) /*, dynamicSystemPrompt*/]) {
+
+        //step 2. Recupero del systemprompt dalla logica esistente
+        const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
+        //console.log("System prompt : " + systemPrompt);
+        const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
+        return agent;
+    }
 }
 
+export const agentService = AgentService.getInstance();
 
 
 //XXX: Sezione da studiare e approfondire per snocciolare gli step lineari del loro utilizzo in ambiti complessi.
@@ -87,7 +100,7 @@ const dynamicSystemPrompt = dynamicSystemPromptMiddleware<z.infer<typeof context
 
 /**
  * Stato della memoria dell'agente in modo che ci siano userPreferences, ma anche altro.
- da studiare meglio
+ * da studiare meglio
  */
 /**
 An optional schema for the agent state.

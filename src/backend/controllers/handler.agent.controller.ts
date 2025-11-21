@@ -2,12 +2,12 @@ import '../logger.backend.js';
 import { NextFunction, Request, Response } from "express";
 import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import { CybersecurityAPITool } from "../tools/cybersecurityapi.tool.js";
-import { handleToolErrors, createSummaryMemoryMiddleware } from '../services/business/agents/middleware.service.js';
+import { middlewareService } from '../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../tools/subagent.tool.js';
 import { readerPromptService } from '../services/business/reader-prompt.service.js';
 import { getAgentContent } from '../../core/converter.models.js';
-import { buildAgent } from '../services/business/agents/agent.service.js';
+import { agentService } from '../services/business/agents/agent.service.js';
 import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../services/common.service.js';
 import { handlerService, Preprocessor } from '../services/business/handler.service.js';
@@ -58,7 +58,7 @@ export class AgentController {
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
       //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
+      const middleware = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
       const { keyconversation, config }: DataRequest = resultData;
       //step 2. istanza e invocazione dell'agente
@@ -79,7 +79,7 @@ export class AgentController {
         let prAzione = await readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
         const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
-        const agent = await buildAgent(subContext, config);
+        const agent = await agentService.buildAgent(subContext, config);
 
         let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
         tools.push(subagenttool);
@@ -131,7 +131,7 @@ export class AgentController {
       //middleware istanziato dall'handler.
       //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
       //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [handleToolErrors, createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
+      const middleware = [middlewareService.handleToolErrors, middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
       //step 2. istanza e invocazione dell'agente
       const result = await handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
