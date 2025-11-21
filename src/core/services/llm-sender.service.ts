@@ -4,30 +4,24 @@
  */
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
-import { llmChainService } from './llm-chain.service.js';
+import { LLMChainService } from './llm-chain.service.js';
 import { AgentMiddleware } from 'langchain';
-import { llmAgentService } from "./llm-agent.service.js";
+import { LLMAgentService } from "./llm-agent.service.js";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { HumanMessageFields, MessageStructure } from "@langchain/core/messages";
 import { Logger } from "winston";
-import { getLogger } from "../di/container.js";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class LLMSenderService {
-  private static instance: LLMSenderService;
-  private logger: Logger;
 
-  private constructor() {
-    this.logger = getLogger();
-  }
-
-  public static getInstance(): LLMSenderService {
-    if (!LLMSenderService.instance) {
-      LLMSenderService.instance = new LLMSenderService();
-    }
-    return LLMSenderService.instance;
-  }
+  constructor(
+    @inject("Logger") private readonly logger: Logger,
+    private readonly llmChainService: LLMChainService,
+    private readonly llmAgentService: LLMAgentService,
+  ) {}
 
   /**
    * Il metodo ha lo scopo di gestire i valori di input entranti dalla richiesta,
@@ -52,7 +46,7 @@ export class LLMSenderService {
     this.logger.info(`System prompt contestuale:\n ${systemPrompt}`);
     this.logger.info(`Question prompt utente:\n${question}`);
 
-    const chainToInvoke = chainWithHistory ?? this.getChain(llmChainService.getInstanceLLM(config), promptTemplate);
+    const chainToInvoke = chainWithHistory ?? this.getChain(this.llmChainService.getInstanceLLM(config), promptTemplate);
 
     const answer = await this.invokeChain(question as any, keyconversation, chainToInvoke);
     this.logger.info(`Risposta assistente:\n${answer}`);
@@ -143,15 +137,15 @@ export class LLMSenderService {
     //console.log(`System prompt contestuale:\n`, systemPrompt);
     this.logger.info(`Question prompt utente:\n ${question}`);
 
-    let agent = llmAgentService.getAgent(
-      llmChainService.getInstanceLLM(config),
+    let agent = this.llmAgentService.getAgent(
+      this.llmChainService.getInstanceLLM(config),
       systemPrompt,
       tools,
       middleware,
       nomeagente);
 
     //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
-    const result = await llmAgentService.invokeAgent(
+    const result = await this.llmAgentService.invokeAgent(
       agent,
       question!,
       keyconversation);
@@ -160,5 +154,3 @@ export class LLMSenderService {
     return result;
   };
 }
-
-export const llmSenderService = LLMSenderService.getInstance();

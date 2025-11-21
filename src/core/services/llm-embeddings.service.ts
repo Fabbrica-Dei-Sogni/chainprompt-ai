@@ -9,18 +9,13 @@ import { InMemoryStore } from "@langchain/core/stores"; // O RedisStore per il t
 import { OllamaEmbeddings, } from "@langchain/ollama";
 import { ConfigEmbeddings } from "../interfaces/protocol/configembeddings.interface.js";
 import { EmbeddingProvider } from "../enums/embeddingprovider.enum.js";
+import { injectable } from "tsyringe";
 
+@injectable()
 export class LLMEmbeddingsService {
-  private static instance: LLMEmbeddingsService;
 
-  private constructor() { }
+  constructor() {} // costruttore pubblico standard
 
-  public static getInstance(): LLMEmbeddingsService {
-    if (!LLMEmbeddingsService.instance) {
-      LLMEmbeddingsService.instance = new LLMEmbeddingsService();
-    }
-    return LLMEmbeddingsService.instance;
-  }
 
   /**
    * Ritorna l'istanza di un embedding model in base al provider scelto.
@@ -126,5 +121,3 @@ export class LLMEmbeddingsService {
     return embeddings;
   };
 }
-
-export const llmEmbeddingsService = LLMEmbeddingsService.getInstance();

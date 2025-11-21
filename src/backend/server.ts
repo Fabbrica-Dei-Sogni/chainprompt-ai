@@ -1,3 +1,8 @@
+// MUST BE FIRST: reflect-metadata for TSyringe DI
+import "reflect-metadata";
+// Bootstrap DI container (side-effect import)
+import "../core/di/container.js";
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import * as http from 'http';
@@ -6,6 +11,8 @@ import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './endpoint.js';
 import './logger.backend.js';
+
+
 dotenv.config();
 //XXX: questa istruzione crea un agente dispatcher per il gestore delle richieste undici usato da node.js
 //l'obiettivo e' impostare a livello globale un agente che istruisce qualsiasi fetch under the wood l'ecosistema langchain a non terminare mai la richiesta per una mancata ricezione di un header

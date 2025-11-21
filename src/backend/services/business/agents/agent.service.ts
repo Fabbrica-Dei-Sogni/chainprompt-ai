@@ -5,10 +5,14 @@ import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
 import { middlewareService } from "./middleware.service.js";
 import { readerPromptService } from "../reader-prompt.service.js";
-import { llmAgentService } from "../../../../core/services/llm-agent.service.js";
-import { llmChainService } from "../../../../core/services/llm-chain.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
 import { postgresqlService } from "../../databases/postgresql/postgresql.service.js";
+import { getComponent } from "../../../../core/di/container.js";
+import { LLMAgentService } from "../../../../core/services/llm-agent.service.js";
+import { LLMChainService } from "../../../../core/services/llm-chain.service.js";
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const llmAgentService = getComponent(LLMAgentService);
+const llmChainService = getComponent(LLMChainService);
 
 //Questo codice è stato realizzato seguendo le linee guida di langchain 
 //https://docs.langchain.com/oss/javascript/langchain/agents

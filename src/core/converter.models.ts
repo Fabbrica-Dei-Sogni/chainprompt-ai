@@ -1,3 +1,9 @@
+//XXX: è l'entry point della futura libreria core di chainprompt ai
+// MUST BE FIRST: reflect-metadata for TSyringe DI
+import "reflect-metadata";
+// Bootstrap DI container (side-effect import)
+import "../core/di/container.js";
+
 import { AIMessage } from "langchain";
 import { AgentOutput } from "./interfaces/agentoutput.interface.js";
 import { ConfigChainPrompt } from "./interfaces/protocol/configchainprompt.interface.js";
@@ -6,27 +12,15 @@ import { DataRequest } from "./interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "./interfaces/protocol/requestbody.interface.js";
 import { LLMProvider } from "./enums/llmprovider.enum.js";
 import { Logger } from "winston";
-import { getLogger } from "./di/container.js";
 import { EmbeddingProvider } from "./enums/embeddingprovider.enum.js";
-// MUST BE FIRST: reflect-metadata for TSyringe DI
-import "reflect-metadata";
-// Bootstrap DI container (side-effect import)
-import "../core/di/container.js";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class ConverterModels {
-    private static instance: ConverterModels;
-    private logger: Logger;
 
-    private constructor() {
-        this.logger = getLogger();
-    }
-
-    public static getInstance(): ConverterModels {
-        if (!ConverterModels.instance) {
-            ConverterModels.instance = new ConverterModels();
-        }
-        return ConverterModels.instance;
-    }
+    constructor(
+        @inject("Logger") private readonly logger: Logger,
+    ) { }
 
     /**
      * Recupera l'agent output da un risultato "grezzo" di una risposta ricevuta da un agente
@@ -170,5 +164,3 @@ export class ConverterModels {
         }
     }
 }
-
-export const converterModels = ConverterModels.getInstance();

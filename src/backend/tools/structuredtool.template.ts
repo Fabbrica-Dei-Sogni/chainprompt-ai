@@ -3,8 +3,12 @@ import { ConfigChainPrompt } from "../../core/interfaces/protocol/configchainpro
 import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
-import { converterModels } from "../../core/converter.models.js";
-import { llmAgentService } from "../../core/services/llm-agent.service.js";
+import { LLMAgentService } from "../../core/services/llm-agent.service.js";
+import { getComponent } from "../../core/di/container.js";
+import { ConverterModels } from "../../core/converter.models.js";
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const llmAgentService = getComponent(LLMAgentService);
+const converterModels = getComponent(ConverterModels);
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema

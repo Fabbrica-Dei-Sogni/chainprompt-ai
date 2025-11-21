@@ -6,13 +6,16 @@ import { middlewareService } from '../services/business/agents/middleware.servic
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../tools/subagent.tool.js';
 import { readerPromptService } from '../services/business/reader-prompt.service.js';
-import { converterModels } from '../../core/converter.models.js';
 import { agentService } from '../services/business/agents/agent.service.js';
 import { DataRequest } from '../../core/interfaces/protocol/datarequest.interface.js';
 import { CONTEXT_MANAGER } from '../services/common.service.js';
 import { handlerService, Preprocessor } from '../services/business/handler.service.js';
 import { ScrapingToolStructured } from '../tools/scraping.structured.tool.js';
 import { decodeBase64 } from '../utils/clickbaitscore.util.js';
+import { ConverterModels } from '../../core/converter.models.js';
+import { getComponent } from '../../core/di/container.js';
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const converterModels = getComponent(ConverterModels);
 
 export class AgentController {
 
@@ -37,9 +40,9 @@ export class AgentController {
    * @param tools 
    */
   public async agentManagerHandler(
-    req: any,
-    res: any,
-    next: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
     provider: LLMProvider,
     tools: any[] = [],
     subContexts: any[]
@@ -110,9 +113,9 @@ export class AgentController {
     * @param context 
     */
   private async agentHandler(
-    req: any,
-    res: any,
-    next: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
     provider: LLMProvider,
     preprocessor: Preprocessor,
     tools: any[],
@@ -158,8 +161,8 @@ export class AgentController {
    * @returns 
    */
   public handleCyberSecurityAgent = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.agentHandler(req, res, next, provider, this.cyberSecurityPreprocessor, [new CybersecurityAPITool()], 'threatintel');
@@ -181,8 +184,8 @@ export class AgentController {
   ) => this.agentHandler(req, res, next, provider, this.clickbaitAgentPreprocessor, [new ScrapingToolStructured()], 'clickbaitscore');
 
   public handleCommonAgentRequest = (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
     provider: LLMProvider
   ) => this.agentHandler(

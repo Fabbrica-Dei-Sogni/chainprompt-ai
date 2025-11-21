@@ -4,6 +4,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOllama, Ollama } from "@langchain/ollama";
 import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.interface.js";
 import { LLMProvider } from "../enums/llmprovider.enum.js";
+import { injectable } from "tsyringe";
 
 /*
  * La seguente implementazione raccoglie metodi per interrogare modelli LLM con la libreria Langchain configurandone i parametri peculiari di ciascun modello usato processandone il prompt seguendo il pattern base:
@@ -17,17 +18,10 @@ import { LLMProvider } from "../enums/llmprovider.enum.js";
  * L'obiettivo di questa implementazione è fornire accurati prompt separando in modo netto il system e l'user prompt, focalizzando la configurazione dei modelli.
  */
 
+@injectable()
 export class LLMChainService {
-  private static instance: LLMChainService;
 
-  private constructor() { }
-
-  public static getInstance(): LLMChainService {
-    if (!LLMChainService.instance) {
-      LLMChainService.instance = new LLMChainService();
-    }
-    return LLMChainService.instance;
-  }
+  constructor() { } // nessuna dipendenza, costruttore pubblico
 
   /**
    * Ritorna l'istanza di un llm in base al provider scelto.
@@ -202,6 +196,3 @@ export class LLMChainService {
 
   };
 }
-
-export const llmChainService = LLMChainService.getInstance();
-

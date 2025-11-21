@@ -2,22 +2,13 @@ import { AgentMiddleware, createAgent, ReactAgent, StructuredTool, Tool } from "
 import { Runnable } from "@langchain/core/runnables";
 import { BaseCheckpointSaver, MemorySaver } from "@langchain/langgraph";
 import { Logger } from "winston";
-import { getLogger } from "../di/container.js";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class LLMAgentService {
-    private static instance: LLMAgentService;
-    private logger: Logger;
-
-    private constructor() {
-        this.logger = getLogger();
-    }
-
-    public static getInstance(): LLMAgentService {
-        if (!LLMAgentService.instance) {
-            LLMAgentService.instance = new LLMAgentService();
-        }
-        return LLMAgentService.instance;
-    }
+    constructor(
+        @inject("Logger") private readonly logger: Logger
+    ) {}
 
     /**
        * Crea un agente con un nome, un systemprompt, specifiche caratteristiche dell'llm , lista di tool, middlewar e un checkpointer se quest'ultimo non viene fornito viene gestito con postgresql nativamente.
@@ -164,6 +155,5 @@ export class LLMAgentService {
             throw error;
         }
     }
-}
+};
 
-export const llmAgentService = LLMAgentService.getInstance();

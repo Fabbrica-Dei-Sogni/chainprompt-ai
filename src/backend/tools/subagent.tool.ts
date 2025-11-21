@@ -1,8 +1,12 @@
 import { StructuredTool, Tool } from "@langchain/core/tools";
 import { ReactAgent } from "langchain";
-import { converterModels } from "../../core/converter.models.js";
-import { llmAgentService } from "../../core/services/llm-agent.service.js";
+import { LLMAgentService } from "../../core/services/llm-agent.service.js";
 import z from "zod";
+import { getComponent } from "../../core/di/container.js";
+import { ConverterModels } from "../../core/converter.models.js";
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const llmAgentService = getComponent(LLMAgentService);
+const converterModels = getComponent(ConverterModels);
 
 export interface SubAgentInput {
     question: string;

@@ -1,15 +1,21 @@
 import { AgentMiddleware } from "langchain";
 import { DataRequest } from "../../../core/interfaces/protocol/datarequest.interface.js";
 import { RequestBody } from "../../../core/interfaces/protocol/requestbody.interface.js";
-import { converterModels } from "../../../core/converter.models.js";
-import { llmSenderService } from "../../../core/services/llm-sender.service.js";
+import { LLMSenderService } from "../../../core/services/llm-sender.service.js";
 import { readerPromptService } from "./reader-prompt.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../common.service.js";
 import { getChainWithHistory } from "../databases/redis/redis.service.js";
-import { llmChainService } from "../../../core/services/llm-chain.service.js";
 import { getPromptTemplate } from "../../templates/chainpromptbase.template.js";
+import { getComponent } from "../../../core/di/container.js";
+import { LLMChainService } from "../../../core/services/llm-chain.service.js";
+import { ConverterModels } from "../../../core/converter.models.js";
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const llmSenderService = getComponent(LLMSenderService);
+const llmChainService = getComponent(LLMChainService);
+const converterModels = getComponent(ConverterModels);
 
 export type Preprocessor = (req: any) => Promise<void>;
+
 
 export class HandlerService {
     private static instance: HandlerService;

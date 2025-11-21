@@ -2,14 +2,18 @@ import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
 import '../../../../backend/logger.backend.js';
 import { PostgresqlClient } from "./postgresq.client.js";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-import { llmEmbeddingsService } from "../../../../core/services/llm-embeddings.service.js";
-import { EmbeddingProvider } from "../../../../core/enums/embeddingprovider.enum.js";
 import { ConfigEmbeddings } from "../../../../core/interfaces/protocol/configembeddings.interface.js";
 import { Embeddings } from "@langchain/core/embeddings";
-import { converterModels } from "../../../../core/converter.models.js";
 import { Kysely, PostgresDialect } from "kysely";
 import { Database } from "./models/database.js";
 import { VectorStoreConfig } from "./models/vectorstoreconfig.js";
+import { getComponent } from "../../../../core/di/container.js";
+import { LLMEmbeddingsService } from "../../../../core/services/llm-embeddings.service.js";
+import { ConverterModels } from "../../../../core/converter.models.js";
+
+//recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
+const llmEmbeddingsService = getComponent(LLMEmbeddingsService);
+const converterModels = getComponent(ConverterModels);
 
 const DEFAULT_VECTORSTORE_CONFIG: VectorStoreConfig = {
   tableName: "tool_embeddings",

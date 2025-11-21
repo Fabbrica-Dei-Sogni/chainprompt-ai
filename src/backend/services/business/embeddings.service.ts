@@ -1,10 +1,13 @@
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { ConfigEmbeddings } from "../../../core/interfaces/protocol/configembeddings.interface.js";
-import { converterModels } from "../../../core/converter.models.js";
 import { EmbeddingProvider } from "../../../core/enums/embeddingprovider.enum.js";
 import { ToolEmbedding } from "../databases/postgresql/models/toolembedding.js";
 import { postgresqlService } from "../databases/postgresql/postgresql.service.js";
 import { readerPromptService } from "./reader-prompt.service.js";
+import { getComponent } from "../../../core/di/container.js";
+import { ConverterModels } from "../../../core/converter.models.js";
+
+const converterModels = getComponent(ConverterModels);
 
 export class EmbeddingsService {
   private static instance: EmbeddingsService;
