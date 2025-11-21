@@ -6,7 +6,7 @@ import { ConfigChainPrompt } from "../interfaces/protocol/configchainprompt.inte
 import { DataRequest } from "../interfaces/protocol/datarequest.interface.js";
 import { getInstanceLLM } from './llm-chain.service.js';
 import { AgentMiddleware } from 'langchain';
-import { getAgent, invokeAgent } from "./llm-agent.service.js";
+import { llmAgentService } from "./llm-agent.service.js";
 import { Runnable, RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
@@ -127,7 +127,7 @@ export async function senderToAgent(question: string, keyconversation: string, c
   //console.log(`System prompt contestuale:\n`, systemPrompt);
   logger.info(`Question prompt utente:\n ${question}`);
 
-  let agent = getAgent(
+  let agent = llmAgentService.getAgent(
     getInstanceLLM(config),
     systemPrompt,
     tools,
@@ -135,7 +135,7 @@ export async function senderToAgent(question: string, keyconversation: string, c
     nomeagente);
 
   //XXX: il nome dell'agente per ora coincide con il nome del contesto definito nel fileset dei systemprompt tematici
-  const result = await invokeAgent(
+  const result = await llmAgentService.invokeAgent(
     agent,
     question!,
     keyconversation);

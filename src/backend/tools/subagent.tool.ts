@@ -1,14 +1,14 @@
 import { StructuredTool, Tool } from "@langchain/core/tools";
 import { ReactAgent } from "langchain";
 import { getAgentContent } from "../../core/converter.models.js";
-import { invokeAgent } from "../../core/services/llm-agent.service.js";
+import { llmAgentService } from "../../core/services/llm-agent.service.js";
 import z from "zod";
 
 export interface SubAgentInput {
-  question: string;
+    question: string;
 }
 export const subAgentInputSchema = z.object({
-  question: z.string().describe("La domanda da porre all'agente esperto nel campo"),
+    question: z.string().describe("La domanda da porre all'agente esperto nel campo"),
 });
 
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
@@ -38,14 +38,14 @@ export class SubAgentTool extends StructuredTool<typeof subAgentInputSchema> {
     protected async _call(arg: SubAgentInput): Promise<string> {
 
         console.info(
-        `Domanda inoltrata : "${JSON.stringify(arg)}":\n` +    
-        `SubAgent Info:\n` +
-        `name: ${this.name}\n` +
-        `description: ${this.description}\n` +
-        `context: ${this.context}\n` +
-        `keyConversation: ${this.keyConversation}\n` 
-        );  
-        
+            `Domanda inoltrata : "${JSON.stringify(arg)}":\n` +
+            `SubAgent Info:\n` +
+            `name: ${this.name}\n` +
+            `description: ${this.description}\n` +
+            `context: ${this.context}\n` +
+            `keyConversation: ${this.keyConversation}\n`
+        );
+
         if (!arg) {
             console.log("Argument risulta vuoto");
             throw "fail";
@@ -53,8 +53,8 @@ export class SubAgentTool extends StructuredTool<typeof subAgentInputSchema> {
         const question = arg.question;
 
         try {
-            let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
-            const result = invokeAgent(this.agent, question, keyconversation);
+            let keyconversation = this.keyConversation + "_" + "subAgent" + "_" + this.context;
+            const result = await llmAgentService.invokeAgent(this.agent, question, keyconversation);
             return getAgentContent(result);
         } catch {
             throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;

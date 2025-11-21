@@ -5,7 +5,7 @@ import '../../../logger.backend.js';
 import { MessagesZodState } from "@langchain/langgraph";
 import { middlewareService } from "./middleware.service.js";
 import { readerPromptService } from "../reader-prompt.service.js";
-import { getAgent } from "../../../../core/services/llm-agent.service.js";
+import { llmAgentService } from "../../../../core/services/llm-agent.service.js";
 import { getInstanceLLM } from "../../../../core/services/llm-chain.service.js";
 import { ENDPOINT_CHATGENERICA, SYSTEMPROMPT_DFL } from "../../common.service.js";
 import { postgresqlService } from "../../databases/postgresql/postgresql.service.js";
@@ -47,7 +47,7 @@ export class AgentService {
         //step 2. Recupero del systemprompt dalla logica esistente
         const systemPrompt = (context != ENDPOINT_CHATGENERICA) ? await readerPromptService.getFrameworkPrompts(context) : SYSTEMPROMPT_DFL; // Ottieni il prompt di sistema per il contesto
         //console.log("System prompt : " + systemPrompt);
-        const agent = getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
+        const agent = llmAgentService.getAgent(getInstanceLLM(config), systemPrompt, tools, middleware, "Mr." + context, postgresqlService.getCheckpointer());
         return agent;
     }
 }

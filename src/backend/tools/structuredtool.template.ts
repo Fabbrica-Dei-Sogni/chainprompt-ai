@@ -4,19 +4,19 @@ import { LLMProvider } from "../../core/enums/llmprovider.enum.js";
 import z from "zod";
 import { ReactAgent } from "langchain";
 import { getAgentContent } from "../../core/converter.models.js";
-import { invokeAgent } from "../../core/services/llm-agent.service.js";
+import { llmAgentService } from "../../core/services/llm-agent.service.js";
 
 /**
  * Questo structured tool e' da considerarlo come un template logico per realizzarne altri con schemi contenenti informazioni intrinsechi della richiesta in base al tema
  */
 
 export interface SubAgentToolInput {
-    config: ConfigChainPrompt;
-    provider: LLMProvider;
-    modelname: string;
-    context: string;
-    question: string;
-    // altri parametri opzionali se servono
+  config: ConfigChainPrompt;
+  provider: LLMProvider;
+  modelname: string;
+  context: string;
+  question: string;
+  // altri parametri opzionali se servono
 }
 
 // 1. Schema per ConfigChainPrompt con describe
@@ -58,51 +58,51 @@ export const SubAgentToolInputSchema = z.object({
 // Tool che usa la funzione di evocazione di un agente tematico come tool a disposizione di un agente
 export class SubAgentTool extends StructuredTool<typeof SubAgentToolInputSchema> {
 
-    name = "Mr Scagnozzo";
-    description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
+  name = "Mr Scagnozzo";
+  description = "Sono il tool che avvia un agente associato al contesto richiesto, con una domanda pertinente, e altri metadati come il provider";
 
-    private context: string;
-    private keyConversation: string;
-    private agent: ReactAgent;
+  private context: string;
+  private keyConversation: string;
+  private agent: ReactAgent;
 
-    constructor(agent: ReactAgent, nomeagente: string, context: string, systemprompt: string, keyConversation: string,) {
-        super();
-        this.name = nomeagente;
+  constructor(agent: ReactAgent, nomeagente: string, context: string, systemprompt: string, keyConversation: string,) {
+    super();
+    this.name = nomeagente;
 
-        let description = `
+    let description = `
         Sei un sub agente di nome ${nomeagente} incaricato di eseguire quanto segue:
         ${systemprompt}
         `;
-        this.context = context;
-        this.description = description;
-        this.keyConversation = keyConversation;
-        this.agent = agent;
-    }
-    schema = SubAgentToolInputSchema;
+    this.context = context;
+    this.description = description;
+    this.keyConversation = keyConversation;
+    this.agent = agent;
+  }
+  schema = SubAgentToolInputSchema;
 
-    protected async _call(arg: SubAgentToolInput): Promise<string> {
-        
-        console.info(
-        `Argomenti : "${arg}":\n` +    
-        `SubAgent Info:\n` +
-        `name: ${this.name}\n` +
-        `description: ${this.description}\n` +
-        `context: ${this.context}\n` +
-        `keyConversation: ${this.keyConversation}\n` 
-        );  
-        
-        if (!arg) {
-            console.log("Argument risulta vuoto");
-            throw "fail";
-        }
-        const question = arg;
+  protected async _call(arg: SubAgentToolInput): Promise<string> {
 
-        try {
-            let keyconversation = this.keyConversation+"_"+"subAgent"+"_"+this.context;
-            const result = invokeAgent(this.agent, question.question, keyconversation);
-            return getAgentContent(result);
-        } catch {
-            throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
-        }
+    console.info(
+      `Argomenti : "${arg}":\n` +
+      `SubAgent Info:\n` +
+      `name: ${this.name}\n` +
+      `description: ${this.description}\n` +
+      `context: ${this.context}\n` +
+      `keyConversation: ${this.keyConversation}\n`
+    );
+
+    if (!arg) {
+      console.log("Argument risulta vuoto");
+      throw "fail";
     }
+    const question = arg;
+
+    try {
+      let keyconversation = this.keyConversation + "_" + "subAgent" + "_" + this.context;
+      const result = llmAgentService.invokeAgent(this.agent, question.question, keyconversation);
+      return getAgentContent(result);
+    } catch {
+      throw `Errore durante l'esecuzione del sub agente ${this.agent.graph.getName()}`;
+    }
+  }
 }
