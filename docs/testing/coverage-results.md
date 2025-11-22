@@ -11,21 +11,26 @@ npm test -- --coverage \
   --coverageReporters=text-summary
 ```
 ```
-PASS  src/backend/controllers/backoffice/__tests__/agentconfig.controller.test.ts
+PASS  src/backend/services/databases/redis/__tests__/redis.service.test.ts
+PASS  src/backend/services/databases/mongodb/services/__tests__/agentconfig.service.test.ts
+PASS  src/backend/services/databases/mongodb/services/__tests__/promptframework.service.test.ts
+PASS  src/backend/services/databases/mongodb/services/__tests__/config.service.test.ts
+PASS  src/backend/services/databases/mongodb/services/__tests__/toolregistry.service.test.ts
+PASS  src/backend/services/databases/mongodb/services/__tests__/schema.service.test.ts
 ...
 ------------------------------- Coverage summary -------------------------------
-Statements   : 56.79% ( 719/1266 )
-Branches     : 49.14% ( 143/291 )
-Functions    : 95.23% ( 80/84 )
-Lines        : 57.23% ( 688/1202 )
+Statements   : 68.95% ( 873/1266 )
+Branches     : 62.19% ( 181/291 )
+Functions    : 54.70% ( 128/234 )
+Lines        : 69.38% ( 834/1202 )
 --------------------------------------------------------------------------
-Jest: "global" coverage threshold for statements (80%) not met: 56.79%
-Jest: "global" coverage threshold for branches (70%) not met: 49.14%
-Jest: "global" coverage threshold for lines (80%) not met: 57.23%
-Jest: "global" coverage threshold for functions (70%) met
-Test Suites: 15 passed, 15 total
-Tests:       87 passed, 87 total
-Time:        4.189 s
+Jest: "global" coverage threshold for statements (80%) not met: 68.95%
+Jest: "global" coverage threshold for branches (70%) not met: 62.19%
+Jest: "global" coverage threshold for lines (80%) not met: 69.38%
+Jest: "global" coverage threshold for functions (70%) not met: 54.70%
+Test Suites: 21 passed, 21 total
+Tests:       132 passed, 132 total
+Time:        8.688 s
 Ran all test suites.
 ```
 
