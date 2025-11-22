@@ -59,7 +59,7 @@ describe("AgentConfigController", () => {
             const mockAgents = [{ name: "agent1" }];
             agentConfigService.findAll.mockResolvedValue(mockAgents);
 
-            await controller.getAllAgents(mockReq as Request, mockRes as Response);
+            await controller.getAllAgents(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.findAll).toHaveBeenCalled();
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -68,11 +68,11 @@ describe("AgentConfigController", () => {
 
         it("should handle errors", async () => {
             agentConfigService.findAll.mockRejectedValue(new Error("DB Error"));
+            const next = jest.fn();
 
-            await controller.getAllAgents(mockReq as Request, mockRes as Response);
+            await controller.getAllAgents(mockReq as Request, mockRes as Response, next);
 
-            expect(mockRes.status).toHaveBeenCalledWith(500);
-            expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ error: "Errore nel recupero degli agenti" }));
+            expect(next).toHaveBeenCalledWith(expect.any(Error));
         });
     });
 
@@ -82,7 +82,7 @@ describe("AgentConfigController", () => {
             const mockAgents = [{ name: "test-agent" }];
             agentConfigService.findAll.mockResolvedValue(mockAgents);
 
-            await controller.searchAgentsByName(mockReq as Request, mockRes as Response);
+            await controller.searchAgentsByName(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.findAll).toHaveBeenCalledWith({
                 nome: { $regex: "test", $options: 'i' }
@@ -93,8 +93,12 @@ describe("AgentConfigController", () => {
 
         it("should return 400 if name is missing", async () => {
             mockReq.query = {};
-            await controller.searchAgentsByName(mockReq as Request, mockRes as Response);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
+            const next = jest.fn();
+            await controller.searchAgentsByName(mockReq as Request, mockRes as Response, next);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                statusCode: 400,
+                message: expect.stringContaining("Parametro 'nome' richiesto")
+            }));
         });
     });
 
@@ -104,7 +108,7 @@ describe("AgentConfigController", () => {
             const mockAgent = { id: "123", name: "agent1" };
             agentConfigService.findById.mockResolvedValue(mockAgent);
 
-            await controller.getAgentById(mockReq as Request, mockRes as Response);
+            await controller.getAgentById(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.findById).toHaveBeenCalledWith("123");
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -114,10 +118,14 @@ describe("AgentConfigController", () => {
         it("should return 404 if not found", async () => {
             mockReq.params = { id: "123" };
             agentConfigService.findById.mockResolvedValue(null);
+            const next = jest.fn();
 
-            await controller.getAgentById(mockReq as Request, mockRes as Response);
+            await controller.getAgentById(mockReq as Request, mockRes as Response, next);
 
-            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                statusCode: 404,
+                message: expect.stringContaining("Agente")
+            }));
         });
     });
 
@@ -131,7 +139,7 @@ describe("AgentConfigController", () => {
             const mockCreatedAgent = { _id: "123", ...mockReq.body };
             agentConfigService.create.mockResolvedValue(mockCreatedAgent);
 
-            await controller.createAgent(mockReq as Request, mockRes as Response);
+            await controller.createAgent(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.create).toHaveBeenCalledWith(expect.objectContaining({
                 contesto: "ctx",
@@ -145,8 +153,12 @@ describe("AgentConfigController", () => {
 
         it("should return 400 if required fields missing", async () => {
             mockReq.body = { contesto: "ctx" }; // missing profilo AND promptFrameworkRef
-            await controller.createAgent(mockReq as Request, mockRes as Response);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
+            const next = jest.fn();
+            await controller.createAgent(mockReq as Request, mockRes as Response, next);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                statusCode: 400,
+                message: expect.stringContaining("Campi 'contesto', 'profilo' e 'promptFrameworkRef' sono obbligatori")
+            }));
         });
     });
 
@@ -157,7 +169,7 @@ describe("AgentConfigController", () => {
             const mockUpdatedAgent = { id: "123", name: "new-name" };
             agentConfigService.updateById.mockResolvedValue(mockUpdatedAgent);
 
-            await controller.updateAgent(mockReq as Request, mockRes as Response);
+            await controller.updateAgent(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.updateById).toHaveBeenCalledWith("123", expect.objectContaining({
                 name: "new-name"
@@ -171,10 +183,14 @@ describe("AgentConfigController", () => {
         it("should return 404 if not found", async () => {
             mockReq.params = { id: "123" };
             agentConfigService.updateById.mockResolvedValue(null);
+            const next = jest.fn();
 
-            await controller.updateAgent(mockReq as Request, mockRes as Response);
+            await controller.updateAgent(mockReq as Request, mockRes as Response, next);
 
-            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                statusCode: 404,
+                message: expect.stringContaining("Agente")
+            }));
         });
     });
 
@@ -183,7 +199,7 @@ describe("AgentConfigController", () => {
             mockReq.params = { id: "123" };
             agentConfigService.deleteById.mockResolvedValue(true);
 
-            await controller.deleteAgent(mockReq as Request, mockRes as Response);
+            await controller.deleteAgent(mockReq as Request, mockRes as Response, jest.fn());
 
             expect(agentConfigService.deleteById).toHaveBeenCalledWith("123");
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -192,10 +208,14 @@ describe("AgentConfigController", () => {
         it("should return 404 if not found", async () => {
             mockReq.params = { id: "123" };
             agentConfigService.deleteById.mockResolvedValue(false);
+            const next = jest.fn();
 
-            await controller.deleteAgent(mockReq as Request, mockRes as Response);
+            await controller.deleteAgent(mockReq as Request, mockRes as Response, next);
 
-            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                statusCode: 404,
+                message: expect.stringContaining("Agente")
+            }));
         });
     });
 });

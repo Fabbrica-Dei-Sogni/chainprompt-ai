@@ -10,7 +10,8 @@ import cors from 'cors';
 import { setGlobalDispatcher, Agent } from 'undici';
 import dotenv from "dotenv";
 import api from './endpoint.js';
-import './logger.backend.js';
+import { logger } from './logger.backend.js';
+import { errorHandler, notFoundHandler } from './middleware/error-handler.middleware.js';
 
 
 dotenv.config();
@@ -37,6 +38,12 @@ app.use(bodyParser.urlencoded({ limit: '900mb', extended: false }));
 const apiversion = "/api/v1";
 console.log(`Versione api rest : ${apiversion}`);
 app.use(apiversion, api);
+
+// 404 Handler - Deve essere dopo le route API
+app.use(notFoundHandler);
+
+// Global Error Handler - Deve essere l'ultimo middleware
+app.use(errorHandler(logger));
 
 const server: http.Server = http.createServer(app);
 
