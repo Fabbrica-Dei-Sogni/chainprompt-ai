@@ -29,7 +29,7 @@ module.exports = {
   ],
 
   // Global setup
-  // setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
+  setupFiles: ['<rootDir>/src/tests/jest.setup.ts'],
 
   // Test patterns
   testMatch: [

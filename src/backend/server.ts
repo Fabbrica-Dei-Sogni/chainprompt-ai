@@ -32,8 +32,9 @@ const nameAssistant: string = process.env.NAME_ASSISTANT || "Chainprompt AI";
 app.use(cors());
 
 // Parsers for POST data
-app.use(bodyParser.json({ limit: '900mb' }));
-app.use(bodyParser.urlencoded({ limit: '900mb', extended: false }));
+const bodyLimit = process.env.BODY_LIMIT || '10mb';
+app.use(bodyParser.json({ limit: bodyLimit }));
+app.use(bodyParser.urlencoded({ limit: bodyLimit, extended: false }));
 
 const apiversion = "/api/v1";
 console.log(`Versione api rest : ${apiversion}`);
