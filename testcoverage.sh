@@ -10,6 +10,8 @@ run_coverage_single() {
     --collectCoverageFrom="!src/${MOD}/**/__tests__/**" \
     --collectCoverageFrom="!**/dist/**" \
     --collectCoverageFrom="!**/*.d.ts" \
+    --collectCoverageFrom="!src/backend/tools/**" \
+    --collectCoverageFrom="!src/backend/utils/**" \
     --coverageReporters=text-summary
 }
 
@@ -23,6 +25,8 @@ run_coverage_full() {
     --collectCoverageFrom='!src/backend/**/__tests__/**' \
     --collectCoverageFrom='!**/dist/**' \
     --collectCoverageFrom='!**/*.d.ts' \
+    --collectCoverageFrom='!src/backend/tools/**' \
+    --collectCoverageFrom='!src/backend/utils/**' \
     --coverageReporters=text-summary
 }
 
