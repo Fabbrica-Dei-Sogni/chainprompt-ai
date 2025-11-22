@@ -15,6 +15,9 @@
     "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
     "start-dev": "nodemon --exec node --inspect=0.0.0.0:9229 --no-warnings=ExperimentalWarning --loader ts-node/esm  src/backend/server.ts ./tsconfig.json",
     "test": "jest",
+    "testcoverage:backend": "./testcoverage.sh",
+    "testcoverage:core": "./testcoverage.sh core",
+    "testcoverage:full": "./testcoverage.sh full",
     "release": "npm version $npm_config_versione -m 'Rilasciata una nuova release backend' && git push",
     "patch": "npm version patch -m 'Rilasciata una nuova patch backend' && git push"
   },
