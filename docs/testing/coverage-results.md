@@ -20,20 +20,23 @@ PASS  src/backend/services/databases/mongodb/services/__tests__/schema.service.t
 PASS  src/backend/services/databases/postgresql/__tests__/postgresq.client.test.ts
 PASS  src/backend/services/databases/postgresql/__tests__/postgresql.service.test.ts
 PASS  src/backend/services/databases/postgresql/__tests__/safepostgres.saver.test.ts
+PASS  src/backend/services/databases/mongodb/__tests__/mongodb.client.test.ts
+PASS  src/backend/services/databases/redis/__tests__/redis.client.test.ts
+PASS  src/backend/middleware/__tests__/error-handler.middleware.test.ts
 ...
 ------------------------------- Coverage summary -------------------------------
-Statements   : 72.19% ( 914/1266 )
-Branches     : 64.94% ( 189/291 )
-Functions    : 58.97% ( 138/234 )
-Lines        : 72.54% ( 872/1202 )
+Statements   : 75.11% ( 951/1266 )
+Branches     : 66.66% ( 194/291 )
+Functions    : 64.10% ( 150/234 )
+Lines        : 75.54% ( 908/1202 )
 --------------------------------------------------------------------------
-Jest: "global" coverage threshold for statements (80%) not met: 72.19%
-Jest: "global" coverage threshold for branches (70%) not met: 64.94%
-Jest: "global" coverage threshold for lines (80%) not met: 72.54%
-Jest: "global" coverage threshold for functions (70%) not met: 58.97%
-Test Suites: 24 passed, 24 total
-Tests:       156 passed, 156 total
-Time:        7.069 s
+Jest: "global" coverage threshold for statements (80%) not met: 75.11%
+Jest: "global" coverage threshold for branches (70%) not met: 66.66%
+Jest: "global" coverage threshold for lines (80%) not met: 75.54%
+Jest: "global" coverage threshold for functions (70%) not met: 64.10%
+Test Suites: 27 passed, 27 total
+Tests:       172 passed, 172 total
+Time:        9.042 s
 Ran all test suites.
 ```
 
