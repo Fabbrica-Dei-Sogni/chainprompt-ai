@@ -14,7 +14,7 @@ const router = express.Router();
  * @desc    Lista tutti gli agenti configurati
  * @access  Public
  */
-router.get("/backoffice/agentconfig", agentConfigController.getAllAgents);
+router.get("/backoffice/agentconfig", (req, res, next) => agentConfigController.getAllAgents(req, res, next));
 
 /**
  * @route   GET /config/agentconfig/search
@@ -22,35 +22,35 @@ router.get("/backoffice/agentconfig", agentConfigController.getAllAgents);
  * @query   nome - Nome da cercare (case-insensitive)
  * @access  Public
  */
-router.get("/backoffice/agentconfig/search", agentConfigController.searchAgentsByName);
+router.get("/backoffice/agentconfig/search", (req, res, next) => agentConfigController.searchAgentsByName(req, res, next));
 
 /**
  * @route   GET /config/agentconfig/:id
  * @desc    Recupera dettaglio agente per ID
  * @access  Public
  */
-router.get("/backoffice/agentconfig/:id", agentConfigController.getAgentById);
+router.get("/backoffice/agentconfig/:id", (req, res, next) => agentConfigController.getAgentById(req, res, next));
 
 /**
  * @route   POST /config/agentconfig
  * @desc    Crea nuovo agente
  * @access  Public
  */
-router.post("/backoffice/agentconfig", agentConfigController.createAgent);
+router.post("/backoffice/agentconfig", (req, res, next) => agentConfigController.createAgent(req, res, next));
 
 /**
  * @route   PUT /config/agentconfig/:id
  * @desc    Aggiorna agente esistente
  * @access  Public
  */
-router.put("/backoffice/agentconfig/:id", agentConfigController.updateAgent);
+router.put("/backoffice/agentconfig/:id", (req, res, next) => agentConfigController.updateAgent(req, res, next));
 
 /**
  * @route   DELETE /config/agentconfig/:id
  * @desc    Elimina agente
  * @access  Public
  */
-router.delete("/backoffice/agentconfig/:id", agentConfigController.deleteAgent);
+router.delete("/backoffice/agentconfig/:id", (req, res, next) => agentConfigController.deleteAgent(req, res, next));
 
 console.log("✓ AgentConfig API routes loaded successfully");
 

@@ -57,7 +57,23 @@ Assicurarsi che le rotte passino direttamente il metodo del controller (che ora 
     router.get('/path', controller.myMethod);
     ```
 
-### 3. Aggiornare i Test
+## 3. Aggiornare le Routes
+
+**IMPORTANTE**: Usare sempre wrapper espliciti per evitare race conditions con arrow functions.
+
+```typescript
+// ❌ EVITARE - Riferimento diretto (fragile)
+router.get("/agents", agentController.getAllAgents);
+
+// ✅ RACCOMANDATO - Wrapper esplicito (robusto)
+router.get("/agents", (req, res, next) => 
+    agentController.getAllAgents(req, res, next)
+);
+```
+
+**Perché?** Arrow functions definite come proprietà di classe potrebbero non essere inizializzate quando il modulo routes viene caricato, causando `undefined` reference errors.
+
+### 4. Aggiornare i Test
 
 Poiché `asyncHandler` modifica la firma della funzione (aspettandosi `next`), i test devono passare un mock per `next`.
 

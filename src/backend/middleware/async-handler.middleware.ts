@@ -12,8 +12,8 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
  * Se userService.findAll() throws, l'errore viene automaticamente
  * passato al error handler middleware
  */
-export const asyncHandler = (fn: RequestHandler): RequestHandler => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        return Promise.resolve(fn(req, res, next)).catch(next);
+export const asyncHandler = (fn: Function) => {
+    return (req: Request, res: Response, next: NextFunction, ...args: any[]) => {
+        return Promise.resolve(fn(req, res, next, ...args)).catch(next);
     };
 };

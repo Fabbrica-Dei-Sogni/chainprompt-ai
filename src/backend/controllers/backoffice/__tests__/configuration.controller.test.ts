@@ -2,7 +2,8 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 import { ConfigurationController } from "../configuration.controller.js";
 import { LOGGER_TOKEN } from "../../../../core/di/tokens.js";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import { NotFoundError, ValidationError } from "../../../errors/custom-errors.js";
 
 // Mock dependencies
 jest.mock("../../../services/databases/mongodb/services/config.service.js", () => ({
@@ -20,6 +21,7 @@ describe("ConfigurationController", () => {
     let mockLogger: any;
     let mockReq: Partial<Request>;
     let mockRes: Partial<Response>;
+    let mockNext: NextFunction;
 
     // External mocks
     const { configService } = require("../../../services/databases/mongodb/services/config.service.js");
@@ -48,6 +50,7 @@ describe("ConfigurationController", () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
+        mockNext = jest.fn();
     });
 
     afterEach(() => {
@@ -59,7 +62,7 @@ describe("ConfigurationController", () => {
             const mockConfigs = [{ key: "k1", value: "v1" }];
             configService.getAllConfigs.mockResolvedValue(mockConfigs);
 
-            await controller.getAllConfigurations(mockReq as Request, mockRes as Response);
+            await controller.getAllConfigurations(mockReq as Request, mockRes as Response, mockNext);
 
             expect(configService.getAllConfigs).toHaveBeenCalled();
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -71,7 +74,7 @@ describe("ConfigurationController", () => {
             const mockConfigs = [{ key: "test-key", value: "v1" }];
             configService.findAll.mockResolvedValue(mockConfigs);
 
-            await controller.getAllConfigurations(mockReq as Request, mockRes as Response);
+            await controller.getAllConfigurations(mockReq as Request, mockRes as Response, mockNext);
 
             expect(configService.findAll).toHaveBeenCalledWith({
                 key: { $regex: "test", $options: 'i' }
@@ -80,12 +83,12 @@ describe("ConfigurationController", () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockConfigs);
         });
 
-        it("should handle errors", async () => {
+        it("should pass errors to next", async () => {
             configService.getAllConfigs.mockRejectedValue(new Error("DB Error"));
 
-            await controller.getAllConfigurations(mockReq as Request, mockRes as Response);
+            await controller.getAllConfigurations(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockRes.status).toHaveBeenCalledWith(500);
+            expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
         });
     });
 
@@ -94,20 +97,25 @@ describe("ConfigurationController", () => {
             mockReq.params = { key: "k1" };
             configService.getConfigValue.mockResolvedValue("v1");
 
-            await controller.getConfigByKey(mockReq as Request, mockRes as Response);
+            await controller.getConfigByKey(mockReq as Request, mockRes as Response, mockNext);
 
             expect(configService.getConfigValue).toHaveBeenCalledWith("k1");
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith({ key: "k1", value: "v1" });
         });
 
-        it("should return 404 if not found", async () => {
+        it("should throw NotFoundError if not found", async () => {
             mockReq.params = { key: "k1" };
             configService.getConfigValue.mockResolvedValue(null);
 
-            await controller.getConfigByKey(mockReq as Request, mockRes as Response);
+            await controller.getConfigByKey(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 404,
+                    message: expect.stringContaining("k1")
+                })
+            );
         });
     });
 
@@ -117,23 +125,35 @@ describe("ConfigurationController", () => {
             const mockSavedConfig = { key: "k1", value: "v1" };
             configService.saveConfig.mockResolvedValue(mockSavedConfig);
 
-            await controller.saveConfiguration(mockReq as Request, mockRes as Response);
+            await controller.saveConfiguration(mockReq as Request, mockRes as Response, mockNext);
 
             expect(configService.saveConfig).toHaveBeenCalledWith("k1", "v1");
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockSavedConfig);
         });
 
-        it("should return 400 if key missing", async () => {
+        it("should throw ValidationError if key missing", async () => {
             mockReq.body = { value: "v1" };
-            await controller.saveConfiguration(mockReq as Request, mockRes as Response);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
+            await controller.saveConfiguration(mockReq as Request, mockRes as Response, mockNext);
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("'key'"),
+                    fields: expect.any(Object)
+                })
+            );
         });
 
-        it("should return 400 if value missing", async () => {
+        it("should throw ValidationError if value missing", async () => {
             mockReq.body = { key: "k1" };
-            await controller.saveConfiguration(mockReq as Request, mockRes as Response);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
+            await controller.saveConfiguration(mockReq as Request, mockRes as Response, mockNext);
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("'value'"),
+                    fields: expect.objectContaining({ value: "Required" })
+                })
+            );
         });
     });
 
@@ -142,19 +162,24 @@ describe("ConfigurationController", () => {
             mockReq.params = { key: "k1" };
             configService.deleteByKey.mockResolvedValue(true);
 
-            await controller.deleteConfiguration(mockReq as Request, mockRes as Response);
+            await controller.deleteConfiguration(mockReq as Request, mockRes as Response, mockNext);
 
             expect(configService.deleteByKey).toHaveBeenCalledWith("k1");
             expect(mockRes.status).toHaveBeenCalledWith(200);
         });
 
-        it("should return 404 if not found", async () => {
+        it("should throw NotFoundError if not found", async () => {
             mockReq.params = { key: "k1" };
             configService.deleteByKey.mockResolvedValue(false);
 
-            await controller.deleteConfiguration(mockReq as Request, mockRes as Response);
+            await controller.deleteConfiguration(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockRes.status).toHaveBeenCalledWith(404);
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 404,
+                    message: expect.stringContaining("k1")
+                })
+            );
         });
     });
 });

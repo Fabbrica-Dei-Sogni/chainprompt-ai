@@ -4,6 +4,7 @@ import { AgentController } from "../handler.agent.controller.js";
 import { LOGGER_TOKEN } from "../../../../core/di/tokens.js";
 import { LLMProvider } from "../../../../core/enums/llmprovider.enum.js";
 import { Request, Response, NextFunction } from "express";
+import { ValidationError } from "../../../errors/custom-errors.js";
 
 // Mock dependencies
 jest.mock("request-ip", () => ({
@@ -172,6 +173,29 @@ describe("AgentController", () => {
             expect(mockReq.body.question).toBe("decoded-url");
             expect(mockReq.body.noappendchat).toBe(true);
             expect(mockRes.json).toHaveBeenCalledWith("agent-answer");
+        });
+
+        it("should handle missing url error", async () => {
+            mockReq.body = {}; // Missing url
+            mockHandlerService.getDataByResponseHttp.mockImplementation(async (req: any, ctx: any, ip: any, preprocessor: any) => {
+                await preprocessor(req); // This will throw ValidationError
+                return { systemPrompt: "sys", resultData: { config: { modelname: "model" } } };
+            });
+
+            await controller.handleClickbaitAgent(
+                mockReq as Request,
+                mockRes as Response,
+                mockNext,
+                LLMProvider.OpenAICloud
+            );
+
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("URL mancante"),
+                    fields: expect.objectContaining({ url: "Required" })
+                })
+            );
         });
     });
 

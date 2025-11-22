@@ -587,4 +587,5 @@ Implementazione del sistema centralizzato di gestione errori con `AgentConfigCon
 - ⏳ **Pending**: Altri controller (`LLMController`, etc.) da migrare seguendo la guida
 
 ### Guida Migrazione
-Disponibile in: `docs/error-handling-migration-guide.md`
+Disponibile- Guida: `docs/error-handling/error-handling-migration-guide.md`
+- Summary completo: `docs/error-handling/error-handling-rollout-summary.md`

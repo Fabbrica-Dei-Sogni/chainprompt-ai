@@ -15,6 +15,8 @@ import { ConverterModels } from '../../../core/converter.models.js';
 import { inject, injectable } from "tsyringe";
 import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
+import { asyncHandler } from "../../middleware/async-handler.middleware.js";
+import { ValidationError } from "../../errors/custom-errors.js";
 
 @injectable()
 export class AgentController {
@@ -37,69 +39,62 @@ export class AgentController {
    * @param provider 
    * @param tools 
    */
-  public async agentManagerHandler(
+  public agentManagerHandler = asyncHandler(async (
     req: Request,
     res: Response,
     next: NextFunction,
     provider: LLMProvider,
     tools: any[] = [],
     subContexts: any[]
-  ) {
-    try {
+  ) => {
+    let context = CONTEXT_MANAGER;
+    //step 1. recupero dati da una richiesta http
+    //valorizzato il provider sul body request dall'handler
+    req.body = {
+      ...req.body,
+      provider
+    };
 
-      let context = CONTEXT_MANAGER;
-      //step 1. recupero dati da una richiesta http
-      //valorizzato il provider sul body request dall'handler
-      req.body = {
-        ...req.body,
-        provider
-      };
+    this.logger.info(`AgentController - agentManagerHandler - Contesto: ${context} - Provider: ${provider}`);
 
-      this.logger.info(`AgentController - agentManagerHandler - Contesto: ${context} - Provider: ${provider}`);
+    const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, this.handlerService.defaultPreprocessor, true);
 
-      const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, this.handlerService.defaultPreprocessor, true);
+    //middleware istanziato dall'handler.
+    //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
+    //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
+    const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
-      //middleware istanziato dall'handler.
-      //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
-      //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
-
-      const { keyconversation, config }: DataRequest = resultData;
-      //step 2. istanza e invocazione dell'agente
+    const { keyconversation, config }: DataRequest = resultData;
+    //step 2. istanza e invocazione dell'agente
 
 
-      //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
+    //aggiorna i prompt sul database vettoriale ad ogni chiamata (valutare strategie piu efficienti)
 
-      //XXX: inserimento di tutti gli agenti tematici idonei
-      //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
-      //    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
-      //    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
-      for (const context of subContexts) {
-        const subNameAgent = "Mr. " + context;
-        const subContext = context;
+    //XXX: inserimento di tutti gli agenti tematici idonei
+    //recupero dell'istanza vectorstore per fornire al tool l'accesso ai dati memorizzati
+    //    let vectorStore = await getVectorStoreSingleton(providerEmbeddings, getConfigEmbeddingsDFL());
+    //    tools.push(new RelevantTool(provider, keyconversation, config, vectorStore));
+    for (const context of subContexts) {
+      const subNameAgent = "Mr. " + context;
+      const subContext = context;
 
-        //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
-        let prRuolo = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
-        let prAzione = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
-        const descriptionSubAgent = prRuolo + "\n" + prAzione;
+      //XXX: composizione custom di una descrizione di un tool agent estrapolando ruolo e azione dal systemprompt.
+      let prRuolo = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.ruolo");
+      let prAzione = await this.readerPromptService.getSectionsPrompts(subContext, "prompt.azione");
+      const descriptionSubAgent = prRuolo + "\n" + prAzione;
 
-        const agent = await this.agentService.buildAgent(subContext, config);
+      const agent = await this.agentService.buildAgent(subContext, config);
 
-        let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
-        tools.push(subagenttool);
-      }
-
-      const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = this.converterModels.getAgentContent(result);
-
-      //step 3. ritorno la response http
-      res.json(answer);
-
-    } catch (err) {
-      console.error('Errore di esecuzione di un agente manager:', JSON.stringify(err));
-      res.status(500).json({ error: "Errore interno ", err });
+      let subagenttool: SubAgentTool = new SubAgentTool(agent, subNameAgent, subContext, descriptionSubAgent, keyconversation);
+      tools.push(subagenttool);
     }
-  };
+
+    const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
+    let answer = this.converterModels.getAgentContent(result);
+
+    //step 3. ritorno la response http
+    res.json(answer);
+  });
 
   /**
    * Gestione degli handler http rest per invocare un agente associato a un contesto
@@ -113,7 +108,7 @@ export class AgentController {
     * @param tools 
     * @param context 
     */
-  private async agentHandler(
+  private agentHandler = asyncHandler(async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -121,35 +116,28 @@ export class AgentController {
     preprocessor: Preprocessor,
     tools: any[],
     context: string
-  ) {
-    try {
+  ) => {
+    this.logger.info(`AgentController - agentHandler - Contesto: ${context} - Provider: ${provider}`);
 
-      this.logger.info(`AgentController - agentHandler - Contesto: ${context} - Provider: ${provider}`);
+    //step 1. recupero dati da una richiesta http
+    //valorizzato il provider sul body request dall'handler
+    req.body = {
+      ...req.body,
+      provider
+    };
+    const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
 
-      //step 1. recupero dati da una richiesta http
-      //valorizzato il provider sul body request dall'handler
-      req.body = {
-        ...req.body,
-        provider
-      };
-      const { systemPrompt, resultData, } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, true);
+    //middleware istanziato dall'handler.
+    //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
+    //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
+    const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
 
-      //middleware istanziato dall'handler.
-      //significa che ci saranno handler eterogenei nel protocollo di comunicazione che afferiranno middleware e tools all'agente creato
-      //per ora l'handler è studiato per essere chiamato da un endpoint rest, in futuro ci saranno handler per altri protocolli (websocket, socket.io, la qualunque socket, ecc...)
-      const middleware = [this.middlewareService.handleToolErrors, this.middlewareService.createSummaryMemoryMiddleware(resultData.config.modelname!) /*, dynamicSystemPrompt*/];
-
-      //step 2. istanza e invocazione dell'agente
-      const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
-      let answer = this.converterModels.getAgentContent(result);
-      //step 3. ritorno la response http
-      res.json(answer);
-
-    } catch (err) {
-      console.error('Errore durante la esecuzione di un agente:', err);
-      res.status(500).json({ error: "Errore interno", err });
-    }
-  };
+    //step 2. istanza e invocazione dell'agente
+    const result = await this.handlerService.handleAgent(systemPrompt, resultData, tools, middleware, context);
+    let answer = this.converterModels.getAgentContent(result);
+    //step 3. ritorno la response http
+    res.json(answer);
+  });
 
   //handle http per invocare un agente esperto in cybersecurity (vedi system prompt nel datasets/fileset)
   //i contesti sono estrapolati dalle sotto folder create nella directory datasets/fileset
@@ -216,20 +204,15 @@ export class AgentController {
   };
 
   private clickbaitAgentPreprocessor: Preprocessor = async (req) => {
-    try {
-      const { url } = req.body;
-      if (!url) {
-        throw new Error("URL mancante nel payload per clickbaitscore");
-      }
-      const decodedUri = decodeBase64(url);
-      req.body.question = decodedUri;
-      req.body.numCtx = req.body.numCtx ?? 2040;
-      req.body.maxToken = req.body.maxToken ?? 8032;
-      req.body.noappendchat = true;
-    } catch (error) {
-      console.error("Errore nel preprocessore agente clickbaitscore:", error);
-      throw error;  // rilancia per essere gestito centralmente
+    const { url } = req.body;
+    if (!url) {
+      throw new ValidationError("URL mancante nel payload per clickbaitscore", { url: "Required" });
     }
+    const decodedUri = decodeBase64(url);
+    req.body.question = decodedUri;
+    req.body.numCtx = req.body.numCtx ?? 2040;
+    req.body.maxToken = req.body.maxToken ?? 8032;
+    req.body.noappendchat = true;
   };
 }
 

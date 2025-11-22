@@ -8,6 +8,8 @@ import { decodeBase64, scrapeArticle } from "../../utils/clickbaitscore.util.js"
 import { inject, injectable } from "tsyringe";
 import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
+import { asyncHandler } from "../../middleware/async-handler.middleware.js";
+import { ValidationError } from "../../errors/custom-errors.js";
 
 //
 // Esportazione degli handler specifici usando la funzione generica
@@ -22,37 +24,30 @@ export class LLMController {
   ) { }
 
 
-  private async llmHandler(
+  private llmHandler = asyncHandler(async (
     req: Request,
     res: Response,
     next: NextFunction,
     provider: LLMProvider,
     preprocessor: Preprocessor,
     context: string
-  ) {
-    try {
+  ) => {
+    this.logger.info(`LLMController - llmHandler - Contesto: ${context} - Provider: ${provider}`);
 
-      this.logger.info(`LLMController - llmHandler - Contesto: ${context} - Provider: ${provider}`);
+    //step 1. recupero dati da una richiesta http
+    //valorizzato il provider sul body request dall'handler
+    req.body = {
+      ...req.body,
+      provider
+    };
+    const { systemPrompt, resultData } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
 
-      //step 1. recupero dati da una richiesta http
-      //valorizzato il provider sul body request dall'handler
-      req.body = {
-        ...req.body,
-        provider
-      };
-      const { systemPrompt, resultData } = await this.handlerService.getDataByResponseHttp(req, context, requestIp.getClientIp(req)!, preprocessor, false);
+    //step 2. istanza e invocazione dell'agente
+    const answer = await this.handlerService.handleLLM(systemPrompt, resultData);
 
-      //step 2. istanza e invocazione dell'agente
-      const answer = await this.handlerService.handleLLM(systemPrompt, resultData);
-
-      //step 3. ritorno la response http
-      res.json(answer);
-
-    } catch (err) {
-      console.error('Errore durante la esecuzione di una conversazione llm:', JSON.stringify(err));
-      res.status(500).json({ error: "Errore interno" });
-    }
-  };
+    //step 3. ritorno la response http
+    res.json(answer);
+  });
 
   public handleClickbaitRequest = (
     req: Request,
@@ -120,23 +115,17 @@ export class LLMController {
    * @param req 
    */
   private clickbaitPreprocessor: Preprocessor = async (req) => {
-    try {
-      const { url } = req.body;
+    const { url } = req.body;
 
-      if (!url) {
-        throw new Error("URL mancante nel payload per clickbaitscore");
-      }
-      const decodedUri = decodeBase64(url);
-      const { title, content } = await scrapeArticle(decodedUri);
-      req.body.question = `<TITOLO>${title}</TITOLO>\n<ARTICOLO>${content}</ARTICOLO>\n`;
-      req.body.numCtx = req.body.numCtx ?? 2040;
-      req.body.maxToken = req.body.maxToken ?? 8032;
-      req.body.noappendchat = true;
-
-    } catch (error) {
-      console.error("Errore nel preprocessore clickbaitscore:", error);
-      throw error;  // rilancia per essere gestito centralmente
+    if (!url) {
+      throw new ValidationError("URL mancante nel payload per clickbaitscore", { url: "Required" });
     }
+    const decodedUri = decodeBase64(url);
+    const { title, content } = await scrapeArticle(decodedUri);
+    req.body.question = `<TITOLO>${title}</TITOLO>\n<ARTICOLO>${content}</ARTICOLO>\n`;
+    req.body.numCtx = req.body.numCtx ?? 2040;
+    req.body.maxToken = req.body.maxToken ?? 8032;
+    req.body.noappendchat = true;
   };
 
   /**
@@ -145,16 +134,11 @@ export class LLMController {
    * @param req 
    */
   private cheshirePreprocessor: Preprocessor = async (req) => {
-    try {
-      req.body.noappendchat = true;
-      if (!req.body.text) {
-        throw new Error("Campo 'text' mancante per preprocessore Cheshire");
-      }
-      req.body.text = removeCheshireCatText(req.body.text);
-    } catch (error) {
-      console.error("Errore nel preprocessore cheshirecat:", error);
-      throw error;
+    req.body.noappendchat = true;
+    if (!req.body.text) {
+      throw new ValidationError("Campo 'text' mancante per preprocessore Cheshire", { text: "Required" });
     }
+    req.body.text = removeCheshireCatText(req.body.text);
   };
 
   /**
@@ -163,21 +147,16 @@ export class LLMController {
    * @param req 
    */
   private analisiCommentiPreprocessor: Preprocessor = async (req) => {
-    try {
-      const { payload } = req.body;
-      if (!payload) {
-        throw new Error("Payload commenti mancante per analisi commenti");
-      }
-      const comments: YouTubeComment[] = payload;
-      const prompt = formatCommentsForPrompt(comments);
-      req.body.question = prompt;
-
-      req.body.numCtx = req.body.numCtx ?? 2040;
-      req.body.maxToken = req.body.maxToken ?? null;
-      req.body.noappendchat = true;
-    } catch (error) {
-      console.error("Errore nel preprocessore analisi commenti:", error);
-      throw error;
+    const { payload } = req.body;
+    if (!payload) {
+      throw new ValidationError("Payload commenti mancante per analisi commenti", { payload: "Required" });
     }
+    const comments: YouTubeComment[] = payload;
+    const prompt = formatCommentsForPrompt(comments);
+    req.body.question = prompt;
+
+    req.body.numCtx = req.body.numCtx ?? 2040;
+    req.body.maxToken = req.body.maxToken ?? null;
+    req.body.noappendchat = true;
   };
 }

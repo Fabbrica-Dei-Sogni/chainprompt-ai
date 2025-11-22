@@ -5,6 +5,7 @@ import { LOGGER_TOKEN } from "../../../../core/di/tokens.js";
 import { HandlerService } from "../../../services/business/handler.service.js";
 import { LLMProvider } from "../../../../core/enums/llmprovider.enum.js";
 import { Request, Response, NextFunction } from "express";
+import { ValidationError } from "../../../errors/custom-errors.js";
 
 // Mock dependencies
 jest.mock("request-ip", () => ({
@@ -122,6 +123,27 @@ describe("LLMController", () => {
             expect(mockReq.body.question).toContain("<TITOLO>Title</TITOLO>");
             expect(mockReq.body.noappendchat).toBe(true);
         });
+
+        it("should handle missing url error", async () => {
+            mockReq.body = {}; // Missing url
+            mockHandlerService.getDataByResponseHttp.mockImplementation(async (req: any, ctx: any, ip: any, preprocessor: any) => {
+                await preprocessor(req); // This will throw ValidationError
+                return { systemPrompt: "sys", resultData: {} };
+            });
+            await controller.handleClickbaitRequest(
+                mockReq as Request,
+                mockRes as Response,
+                mockNext,
+                LLMProvider.OpenAICloud
+            );
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("URL mancante"),
+                    fields: expect.objectContaining({ url: "Required" })
+                })
+            );
+        });
     });
 
     describe("handleCheshireRequest", () => {
@@ -143,6 +165,27 @@ describe("LLMController", () => {
             expect(mockReq.body.text).toBe("clean-text");
             expect(mockReq.body.noappendchat).toBe(true);
         });
+
+        it("should handle missing text error", async () => {
+            mockReq.body = {}; // Missing text
+            mockHandlerService.getDataByResponseHttp.mockImplementation(async (req: any, ctx: any, ip: any, preprocessor: any) => {
+                await preprocessor(req); // This will throw ValidationError
+                return { systemPrompt: "sys", resultData: {} };
+            });
+            await controller.handleCheshireRequest(
+                mockReq as Request,
+                mockRes as Response,
+                mockNext,
+                LLMProvider.OpenAICloud
+            );
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("'text' mancante"),
+                    fields: expect.objectContaining({ text: "Required" })
+                })
+            );
+        });
     });
 
     describe("handleAnalisiCommentiRequest", () => {
@@ -163,6 +206,27 @@ describe("LLMController", () => {
 
             expect(mockReq.body.question).toBe("formatted-comments");
             expect(mockReq.body.noappendchat).toBe(true);
+        });
+
+        it("should handle missing payload error", async () => {
+            mockReq.body = {}; // Missing payload
+            mockHandlerService.getDataByResponseHttp.mockImplementation(async (req: any, ctx: any, ip: any, preprocessor: any) => {
+                await preprocessor(req); // This will throw ValidationError
+                return { systemPrompt: "sys", resultData: {} };
+            });
+            await controller.handleAnalisiCommentiRequest(
+                mockReq as Request,
+                mockRes as Response,
+                mockNext,
+                LLMProvider.OpenAICloud
+            );
+            expect(mockNext).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 400,
+                    message: expect.stringContaining("Payload commenti mancante"),
+                    fields: expect.objectContaining({ payload: "Required" })
+                })
+            );
         });
     });
 });
