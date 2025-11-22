@@ -38,6 +38,7 @@ L'implementazione server e API.
 *   **Tools**: Moduli funzionali (es. `scraping.tool.ts`) che gli agenti possono invocare.
 *   **Databases**: Connettori e repository pattern per MongoDB, Redis e Postgres.
 
+
 ---
 
 ## 🚀 Getting Started
@@ -139,5 +140,6 @@ Questo progetto è distribuito sotto licenza **[Apache 2.0](./LICENSE-2.0.txt)**
 ---
 ## 📚 Documentazione del Progetto
 - [Vision & Objectives](./docs/objectives.md) - Vision strategica, architettura e obiettivi del progetto.
+- [Roadmap](./docs/ROADMAP.md) - Roadmap del progetto.
 - [README Alternativo](./docs/README.v2.md) - README alternativo.
 - [README Legacy](./docs/README.legacy.md) - Documentazione storica precedente.
