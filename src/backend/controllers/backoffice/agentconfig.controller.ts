@@ -14,7 +14,7 @@ import { Logger } from "winston";
 export class AgentConfigController {
     constructor(
         @inject(LOGGER_TOKEN) private readonly logger: Logger
-    ) {}
+    ) { }
     /**
      * Lista tutti gli agenti configurati
      */
@@ -93,7 +93,7 @@ export class AgentConfigController {
     }
 
     /**
-     * Crea nuovo agente (ignora promptFrameworks per ora)
+     * Crea nuovo agente
      */
     async createAgent(req: Request, res: Response): Promise<void> {
         try {
@@ -102,18 +102,14 @@ export class AgentConfigController {
             const data: CreateAgentConfigDTO = req.body;
 
             // Validazione campi required
-            if (!data.contesto || !data.profilo) {
+            if (!data.contesto || !data.profilo || !data.promptFrameworkRef) {
                 res.status(400).json({
-                    error: "Campi 'contesto' e 'profilo' sono obbligatori"
+                    error: "Campi 'contesto', 'profilo' e 'promptFrameworkRef' sono obbligatori"
                 });
                 return;
             }
 
-            // Rimuovi promptFrameworks se presente (come richiesto)
-            const cleanData = { ...data };
-            delete cleanData.promptFrameworks;
-
-            const newAgent = await agentConfigService.create(cleanData);
+            const newAgent = await agentConfigService.create(data);
 
             this.logger.info(`[AgentConfigController] createAgent - Agente creato con ID: ${newAgent._id}`);
             res.status(201).json(newAgent);
@@ -127,7 +123,7 @@ export class AgentConfigController {
     }
 
     /**
-     * Aggiorna agente esistente (ignora promptFrameworks per ora)
+     * Aggiorna agente esistente
      */
     async updateAgent(req: Request, res: Response): Promise<void> {
         try {
@@ -135,9 +131,6 @@ export class AgentConfigController {
             this.logger.info(`[AgentConfigController] updateAgent - ID: ${id}`);
 
             const updateData = { ...req.body };
-
-            // Rimuovi promptFrameworks se presente (come richiesto)
-            delete updateData.promptFrameworks;
 
             // Rimuovi campi che non dovrebbero essere aggiornati direttamente
             delete updateData._id;

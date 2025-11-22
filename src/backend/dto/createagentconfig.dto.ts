@@ -14,21 +14,14 @@ export interface PromptFrameworkDTO {
   isDefault?: boolean;             // flag per framework di default
 }
 
-// payload: dati minimi e sezioni canoniche
+// payload: dati minimi per creare AgentConfig
 export interface CreateAgentConfigDTO {
   nome?: string;
   descrizione?: string;
   contesto: string;
 
-  // LEGACY: Backward compatibility
-  systemprompt?: string;
-
-  // HYBRID ARCHITECTURE:
-  // 1) Riferimento a template condiviso (ObjectId come string)
-  promptFrameworkRef?: string;
-
-  // 2) Custom framework embedded
-  promptFramework?: PromptFrameworkDTO;
+  // Riferimento OBBLIGATORIO a template nella collection PromptFramework
+  promptFrameworkRef: string;  // ObjectId come string
 
   profilo: string;
   tools?: string[];

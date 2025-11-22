@@ -22,9 +22,7 @@ export class AgentConfigService extends SchemaService<IAgentConfig> {
             nome: data.nome,
             descrizione: data.descrizione,
             contesto: data.contesto,
-            systemprompt: data.systemprompt,
-            promptFrameworkRef: data.promptFrameworkRef,
-            promptFramework: data.promptFramework,
+            promptFrameworkRef: data.promptFrameworkRef,  // ← Riferimento obbligatorio
             profilo: data.profilo,
             tools: data.tools ?? []
         });
@@ -32,59 +30,50 @@ export class AgentConfigService extends SchemaService<IAgentConfig> {
     }
 
     // ============================================
-    // HYBRID RESOLUTION LOGIC
+    // PROMPT RESOLUTION
     // ============================================
 
     /**
-     * Recupera il systemprompt finale con logica hybrid:
-     * PRIORITÀ 1: agent.promptFramework (embedded custom)
-     * PRIORITÀ 2: agent.promptFrameworkRef (template condiviso)
-     * PRIORITÀ 3: agent.systemprompt (legacy fallback)
+     * Recupera il prompt finale caricando template da promptFrameworkRef
+     * @param agent - AgentConfig con riferimento a PromptFramework
+     * @returns Prompt generato dalle sezioni del template, o fallback se non trovato
      */
     public async getFinalPrompt(agent: IAgentConfig): Promise<string> {
-        // PRIORITÀ 1: Custom embedded framework
-        if (agent.promptFramework?.sections?.length) {
-            return this.generatePromptFromFramework(agent.promptFramework);
-        }
-
-        // PRIORITÀ 2: Template condiviso via riferimento
+        let result = null;
         if (agent.promptFrameworkRef) {
             const template = await promptFrameworkService.findById(
                 agent.promptFrameworkRef.toString()
             );
             if (template?.sections?.length) {
-                return this.generatePromptFromFramework(template);
+                result = this.generatePromptFromFramework(template);
             }
         }
 
-        // PRIORITÀ 3: Fallback legacy systemprompt
-        return agent.systemprompt ?? '';
+        return result ?? 'nessun prompt trovato';
     }
 
     /**
-     * Recupera prompt parziale da sezioni specifiche con logica hybrid
+     * Recupera prompt parziale contenente solo le sezioni specificate
+     * @param agent - AgentConfig con riferimento a PromptFramework
+     * @param sectionKeys - Chiavi delle sezioni da includere
+     * @returns Prompt parziale generato dalle sezioni filtrate
      */
     public async getPromptBySections(
         agent: IAgentConfig,
         sectionKeys: string[]
     ): Promise<string> {
-        // PRIORITÀ 1: Custom embedded
-        if (agent.promptFramework?.sections?.length) {
-            return this.generatePromptFromSections(agent.promptFramework, sectionKeys);
-        }
 
-        // PRIORITÀ 2: Template
+        let result = null;
         if (agent.promptFrameworkRef) {
             const template = await promptFrameworkService.findById(
                 agent.promptFrameworkRef.toString()
             );
             if (template?.sections?.length) {
-                return this.generatePromptFromSections(template, sectionKeys);
+                result = this.generatePromptFromSections(template, sectionKeys);
             }
         }
 
-        // PRIORITÀ 3: Fallback
-        return agent.systemprompt ?? '';
+        return result ?? 'nessun prompt trovato';
     }
 
     /**

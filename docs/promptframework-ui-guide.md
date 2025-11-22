@@ -1,16 +1,18 @@
-# PromptFramework Hybrid Architecture - Guida UI/UX
+# PromptFramework - Guida UI/UX
 
-Documentazione per implementare l'interfaccia utente che sfrutta l'architettura hybrid di gestione prompt.
+Documentazione per implementare l'interfaccia utente per la gestione centralizzata dei prompt tramite templates.
 
 ---
 
 ## 🎯 Panoramica
 
-L'architettura hybrid permette di configurare i prompt degli agenti in **3 modalità diverse**, offrendo flessibilità massima per diversi casi d'uso:
+L'architettura PromptFramework permette di gestire i prompt degli agenti tramite **templates condivisi**:
 
-1. **📚 Galleria Templates** - Riuso di prompt condivisi
-2. **✏️ Prompt Custom Dedicato** - Creazione strutturata personalizzata
-3. **📝 System Prompt Classico** - Modalità legacy testuale
+✅ **Galleria Templates** - Repository centralizzato di prompt riusabili  
+✅ **Reference-Only** - Ogni agent usa un template dalla galleria  
+✅ **Modifiche centralizzate** - Aggiorna template → tutti gli agenti aggiornati
+
+**Principio:** "Un template, molti agenti"
 
 ---
 
@@ -18,46 +20,33 @@ L'architettura hybrid permette di configurare i prompt degli agenti in **3 modal
 
 ### Schema Database
 
-Ogni `AgentConfig` ha 3 campi per configurare il prompt:
+Ogni `AgentConfig` ha un riferimento **obbligatorio** a un `PromptFramework`:
 
 ```typescript
 interface IAgentConfig {
-  // LEGACY: Fallback compatibilità
-  systemprompt?: string;
+  nome?: string;
+  descrizione?: string;
+  contesto: string;
   
-  // HYBRID: Riferimento a template condiviso
-  promptFrameworkRef?: ObjectId;
+  // Riferimento OBBLIGATORIO a template
+  promptFrameworkRef: ObjectId;  // ← Points to PromptFramework collection
   
-  // HYBRID: Framework custom embedded
-  promptFramework?: {
-    name: string;
-    description?: string;
-    sections: Array<{
-      key: string;
-      description?: string;
-      content: string;
-      order?: number;
-    }>;
-  };
+  profilo: string;
+  tools?: string[];
 }
 ```
 
-### Logica di Risoluzione (3-Tier Priority)
-
-Il sistema sceglie automaticamente quale prompt usare con questa priorità:
+### Logica di Risoluzione
 
 ```
-PRIORITÀ 1: promptFramework (embedded custom)     ← se presente
+getFinalPrompt(agent):
     ↓
-PRIORITÀ 2: promptFrameworkRef (template gallery)  ← altrimenti
-    ↓
-PRIORITÀ 3: systemprompt (legacy fallback)        ← ultimo resort
+1. Carica template da agent.promptFrameworkRef
+2. Genera prompt dalle sections del template
+3. Return prompt completo
 ```
 
-**Esempio:**
-- Agent con `promptFramework` → usa quello (anche se ha `promptFrameworkRef`)
-- Agent con solo `promptFrameworkRef` → carica template dalla galleria
-- Agent con solo `systemprompt` → usa stringa classica
+**Nessun fallback** - Ogni agent DEVE avere un template valido.
 
 ---
 
