@@ -6,7 +6,9 @@
 
 **ChainPrompt AI** è progettato per democratizzare l'orchestrazione di agenti AI, rendendo possibile a qualsiasi azienda o sviluppatore creare, deployare e integrare sistemi multi-agente complessi senza vendor lock-in, con pieno controllo dei dati e della privacy.
 
-[Piano di test del core](./testing/core_services_test_report.md)
+- [Roadmap](./docs/ROADMAP.md) - Roadmap del progetto.
+- [Test e coverage](./testing/coverage-results.md)
+- [Walkthrough](./testing/walkthrough.md)
 
 ---
 
