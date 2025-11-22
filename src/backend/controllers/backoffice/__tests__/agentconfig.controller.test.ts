@@ -123,7 +123,11 @@ describe("AgentConfigController", () => {
 
     describe("createAgent", () => {
         it("should create agent with valid data", async () => {
-            mockReq.body = { contesto: "ctx", profilo: "prof", promptFrameworks: "ignored" };
+            mockReq.body = {
+                contesto: "ctx",
+                profilo: "prof",
+                promptFrameworkRef: "template-id-123"
+            };
             const mockCreatedAgent = { _id: "123", ...mockReq.body };
             agentConfigService.create.mockResolvedValue(mockCreatedAgent);
 
@@ -131,18 +135,16 @@ describe("AgentConfigController", () => {
 
             expect(agentConfigService.create).toHaveBeenCalledWith(expect.objectContaining({
                 contesto: "ctx",
-                profilo: "prof"
+                profilo: "prof",
+                promptFrameworkRef: "template-id-123"
             }));
-            // Should verify promptFrameworks is removed
-            const createCallArg = agentConfigService.create.mock.calls[0][0];
-            expect(createCallArg.promptFrameworks).toBeUndefined();
 
             expect(mockRes.status).toHaveBeenCalledWith(201);
             expect(mockRes.json).toHaveBeenCalledWith(mockCreatedAgent);
         });
 
         it("should return 400 if required fields missing", async () => {
-            mockReq.body = { contesto: "ctx" }; // missing profilo
+            mockReq.body = { contesto: "ctx" }; // missing profilo AND promptFrameworkRef
             await controller.createAgent(mockReq as Request, mockRes as Response);
             expect(mockRes.status).toHaveBeenCalledWith(400);
         });
