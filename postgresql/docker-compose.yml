@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}   # Password amministrativa principale
       POSTGRES_DB: ${POSTGRES_DB:-chainprompt_db}  # Database principale
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       #Volume dedicato a postgresql
       - postgres_data:/var/lib/postgresql/data 
