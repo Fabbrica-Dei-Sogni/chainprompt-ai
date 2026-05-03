@@ -19,7 +19,7 @@ describe('Error Handler Middleware', () => {
             originalUrl: '/test/path',
             method: 'GET',
             ip: '127.0.0.1',
-            get: jest.fn((header: string) => header === 'user-agent' ? 'test-agent' : undefined)
+            get: jest.fn((header: string) => header === 'user-agent' ? 'test-agent' : undefined) as any
         };
 
         mockRes = {
