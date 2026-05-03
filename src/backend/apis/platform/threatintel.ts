@@ -23,6 +23,10 @@ router.post('/features/' + LLMProvider.ChatOllama + '/threatintel', (req, res, n
   agentController.handleCyberSecurityAgent(req, res, next, LLMProvider.ChatOllama)
 );
 
+router.post('/features/' + LLMProvider.Ollama + '/threatintel', (req, res, next) =>
+  agentController.handleCyberSecurityAgent(req, res, next, LLMProvider.Ollama)
+);
+
 console.log(`Api del threatintel caricati con successo!`);
 
 export default router;
