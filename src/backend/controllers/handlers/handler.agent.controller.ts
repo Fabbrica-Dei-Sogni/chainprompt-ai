@@ -166,7 +166,22 @@ export class AgentController {
       }
     });
 
-    const mcpTools = await mcpClient.getTools();
+    const rawMcpTools = await mcpClient.getTools();
+    
+    // Sanitizzazione dei tool: molti LLM inviano "null" per campi opzionali, 
+    // rompendo la validazione Zod interna di LangChain.
+    const mcpTools = rawMcpTools.map(tool => {
+      const originalCall = tool.call.bind(tool);
+      tool.call = (arg: any, config: any) => {
+        if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
+          Object.keys(arg).forEach(key => {
+            if (arg[key] === null) delete arg[key];
+          });
+        }
+        return originalCall(arg, config);
+      };
+      return tool;
+    });
 
     return this.agentHandler(req, res, next, provider,
       this.cyberSecurityPreprocessor, mcpTools, 'threatintel');
