@@ -1,2 +1,1 @@
-AZIONE:
-Usa il tool "cybersecurity_api_tool" per interrogare dati API quando necessario.
+Usa 'threatintel_semantic_search' per trovare informazioni e 'threatintel_resolve_source' per i dettagli tecnici.

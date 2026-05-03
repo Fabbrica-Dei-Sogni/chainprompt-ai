@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { CybersecurityAPITool } from "../../tools/cybersecurityapi.tool.js";
+import { RemoteToolFactory } from "../../services/business/remote-tool.factory.js";
 import { MiddlewareService } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
@@ -151,12 +151,22 @@ export class AgentController {
    * @param provider 
    * @returns 
    */
-  public handleCyberSecurityAgent = (
+  public handleCyberSecurityAgent = asyncHandler(async (
     req: Request,
     res: Response,
     next: NextFunction,
     provider: LLMProvider
-  ) => this.agentHandler(req, res, next, provider, this.cyberSecurityPreprocessor, [new CybersecurityAPITool()], 'threatintel');
+  ) => {
+    // Lista di URI completi per la discovery dei server MCP (separati da virgola)
+    const discoveryUrls = (process.env.MCP_SERVERS || "http://localhost:3999/api/assistant/tools").split(',');
+
+    const authToken = req.headers['authorization'];
+
+    // Scoperta dinamica parallela usando gli URL esatti configurati
+    const remoteTools = await RemoteToolFactory.discoverMany(discoveryUrls.map(url => url.trim()), authToken as string);
+
+    return this.agentHandler(req, res, next, provider, this.cyberSecurityPreprocessor, remoteTools, 'threatintel');
+  });
 
   /**
    * Handler per invocare un agente incaricato a fare valutazioni di clickbait di un url 
