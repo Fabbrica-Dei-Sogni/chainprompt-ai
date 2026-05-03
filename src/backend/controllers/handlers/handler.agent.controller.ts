@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { LLMProvider } from "../../../core/enums/llmprovider.enum.js";
-import { RemoteToolFactory } from "../../services/business/remote-tool.factory.js";
 import { MiddlewareService } from '../../services/business/agents/middleware.service.js';
 import * as requestIp from 'request-ip';
 import { SubAgentTool } from '../../tools/subagent.tool.js';
@@ -17,6 +16,7 @@ import { LOGGER_TOKEN } from "../../../core/di/tokens.js";
 import { Logger } from "winston";
 import { asyncHandler } from "../../middleware/async-handler.middleware.js";
 import { ValidationError } from "../../errors/custom-errors.js";
+import { MultiServerMCPClient } from "@langchain/mcp-adapters";
 
 @injectable()
 export class AgentController {
@@ -151,21 +151,25 @@ export class AgentController {
    * @param provider 
    * @returns 
    */
-  public handleCyberSecurityAgent = asyncHandler(async (
-    req: Request,
+  public handleCyberSecurityAgent = asyncHandler(async (req: Request,
     res: Response,
     next: NextFunction,
-    provider: LLMProvider
-  ) => {
-    // Lista di URI completi per la discovery dei server MCP (separati da virgola)
-    const discoveryUrls = (process.env.MCP_SERVERS || "http://localhost:3999/api/assistant/tools").split(',');
+    provider: LLMProvider) => {
+    const mcpServerUrl = process.env.MCP_THREATINTEL_URL || "http://localhost:3999/mcp";
+    const authToken = req.headers['authorization'] as string;
 
-    const authToken = req.headers['authorization'];
+    const mcpClient = new MultiServerMCPClient({
+      threatintel: {
+        transport: "http",
+        url: mcpServerUrl,
+        headers: authToken ? { Authorization: authToken } : {}
+      }
+    });
 
-    // Scoperta dinamica parallela usando gli URL esatti configurati
-    const remoteTools = await RemoteToolFactory.discoverMany(discoveryUrls.map(url => url.trim()), authToken as string);
+    const mcpTools = await mcpClient.getTools();
 
-    return this.agentHandler(req, res, next, provider, this.cyberSecurityPreprocessor, remoteTools, 'threatintel');
+    return this.agentHandler(req, res, next, provider,
+      this.cyberSecurityPreprocessor, mcpTools, 'threatintel');
   });
 
   /**
