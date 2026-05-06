@@ -13,7 +13,11 @@ con l'ausilio della classe RedisChatMessageHistory
 
  */
 
-
+/**
+ * TODO: necessario un refactor del servizio inject oriented
+ * @param sessionId
+ * @returns 
+ */
 // Funzione helper per Redis history (riusa da prima)
 export async function getMessageHistory(sessionId: string): Promise<RedisChatMessageHistory> {
   return new RedisChatMessageHistory({

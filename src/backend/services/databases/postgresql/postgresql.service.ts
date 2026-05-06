@@ -11,6 +11,11 @@ import { getComponent } from "../../../../core/di/container.js";
 import { LLMEmbeddingsService } from "../../../../core/services/llm-embeddings.service.js";
 import { ConverterModels } from "../../../../core/converter.models.js";
 
+/**
+ * Il postgresql service è una demo per mostrare l'interfacciamento di un orm di alto livello comekysely con pgvector
+ * 
+ * @deprecated Per gli scopi del progetto non verrà utilizzato ma è mantenuto a scopo esplicativo del buon funzionamento del core library kernel del chainprompt
+ */
 //recupero dell'istanza del servizio LLM Embeddings tramite DI sul container del core
 const llmEmbeddingsService = getComponent(LLMEmbeddingsService);
 const converterModels = getComponent(ConverterModels);

@@ -12,6 +12,17 @@ import { ReaderPromptService } from "./reader-prompt.service.js";
 
 const converterModels = getComponent(ConverterModels);
 
+/**
+ * 
+ * Questo servizio è una demo per mostrare la memorizzazione in un database vettoriale come postgresql un embedding generato secondo criteri applicativi.
+ * Il testo narrativo generato viene vettorializzato per essere poi ricercato arbitrariamente (vedi progetto threatintel)
+ * Questo tipo di processo è per sua natura intrinseca necessaria per definire un flusso rag altamente custom sul dominio applicativo bersaglio, anche legacy.
+ * Il posto dove avviene l'embedding deve essere il piu comodo possibile al dominio applicativo piuttosto che ad un orchestratore di agenti che si appoggiano oppure no a tali dati tramite tools.
+ * 
+ * Per questo motivo questo servizio rimane un esempio che non rientrerà nei piani del backend di questo progetto come reference implementation del kernel core agentico vero obiettivo del chainprompt
+ * 
+ * @deprecated Per gli scopi del progetto non verrà utilizzato ma è mantenuto a scopo esplicativo del buon funzionamento del core library kernel del chainprompt
+ */
 @injectable()
 export class EmbeddingsService {
 
